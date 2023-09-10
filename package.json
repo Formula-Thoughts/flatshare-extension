@@ -18,9 +18,11 @@
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "watch": "webpack -w --config webpack.config.js"
+    "watch": "webpack -w --config webpack.config.js",
+    "dev": "webpack -w --config webpack.config.js"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.245",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "html-webpack-plugin": "^5.5.3",
