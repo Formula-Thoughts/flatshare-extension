@@ -20,6 +20,8 @@ This project uses <a href="https://www.flaticon.com/free-icons/partnership" titl
   ![developer mode switch](./.readme_files/developer-mode-on.png)
 
 - Load unpacked extension into Chrome or Brave
+
   - Click Load unpacked button
   - Select the dist directory
+
     ![dist directory selected](./.readme_files/load-dist-dir.png)
