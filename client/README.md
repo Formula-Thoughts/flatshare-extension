@@ -12,16 +12,16 @@ This project uses <a href="https://www.flaticon.com/free-icons/partnership" titl
 - Build extension
   - `npm run build`
 - Open extension in browser
-  ![nativate to browsers extension page](./.readme_files/extensions-location.png)
+  ![nativate to browsers extension page](.readme_files/extensions-location.png)
 
 - Switch into developer mode
-  ![developer mode switch](./.readme_files/developer-mode.png)
+  ![developer mode switch](.readme_files/developer-mode.png)
 
-  ![developer mode switch](./.readme_files/developer-mode-on.png)
+  ![developer mode switch](.readme_files/developer-mode-on.png)
 
 - Load unpacked extension into Chrome or Brave
 
   - Click Load unpacked button
   - Select the dist directory
 
-    ![dist directory selected](./.readme_files/load-dist-dir.png)
+    ![dist directory selected](.readme_files/load-dist-dir.png)

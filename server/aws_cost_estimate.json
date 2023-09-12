@@ -1,0 +1,99 @@
+{
+	"Name": "My Estimate",
+	"Total Cost": {
+		"monthly": "0.02",
+		"upfront": "0.00",
+		"12 months": "0.24"
+	},
+	"Metadata": {
+		"Currency": "USD",
+		"Locale": "en_US",
+		"Created On": "12/09/2023",
+		"Legal Disclaimer": "AWS Pricing Calculator provides only an estimate of your AWS fees and doesn't include any taxes that might apply. Your actual fees depend on a variety of factors, including your actual usage of AWS services.",
+		"Share Url": "https://calculator.aws/#/estimate?id=6cad26289ec5b8b2aee54e0d273d0880319fc39c"
+	},
+	"Groups": {
+		"Services": [
+			{
+				"Service Name": "Amazon API Gateway",
+				"Region": "Europe (London)",
+				"Status": "",
+				"Service Cost": {
+					"monthly": "0.01",
+					"upfront": "0.00",
+					"12 months": "0.14"
+				},
+				"Properties": {
+					"REST API request units": "millions",
+					"Cache memory size (GB)": "None",
+					"WebSocket message units": "thousands",
+					"HTTP API requests units": "thousands",
+					"Average size of each request": "100 KB",
+					"Average message size": "32 KB",
+					"Requests": "10 per month"
+				}
+			},
+			{
+				"Service Name": "AWS Lambda",
+				"Region": "Europe (London)",
+				"Status": "",
+				"Service Cost": {
+					"monthly": "0.00",
+					"upfront": "0.00",
+					"12 months": "0.00"
+				},
+				"Properties": {
+					"Architecture": "x86",
+					"Invoke Mode": "Buffered",
+					"Amount of ephemeral storage allocated": "1024 MB",
+					"Number of requests": "10000 per month"
+				}
+			},
+			{
+				"Service Name": "Amazon Cognito",
+				"Region": "Europe (London)",
+				"Status": "",
+				"Service Cost": {
+					"monthly": "0.00",
+					"upfront": "0.00",
+					"12 months": "0.00"
+				},
+				"Properties": {
+					"Advanced security features": "Disabled",
+					"Number of monthly active users (MAU)": "3"
+				}
+			},
+			{
+				"Service Name": "S3 Standard",
+				"Region": "Europe (London)",
+				"Status": "",
+				"Service Cost": {
+					"monthly": "0.01",
+					"upfront": "0.00",
+					"12 months": "0.12"
+				},
+				"Properties": {
+					"S3 Standard storage": "0.1 GB per month",
+					"PUT, COPY, POST, LIST requests to S3 Standard": "100",
+					"GET, SELECT, and all other requests from S3 Standard": "100",
+					"Data returned by S3 Select": "1 GB per month",
+					"Data scanned by S3 Select": "1 GB per month"
+				}
+			},
+			{
+				"Service Name": "Data Transfer",
+				"Region": "Europe (London)",
+				"Status": "",
+				"Service Cost": {
+					"monthly": "0.00",
+					"upfront": "0.00",
+					"12 months": "0.00"
+				},
+				"Properties": {
+					"DT Inbound: All other regions": "0 TB per month",
+					"DT Outbound: Not selected": "0 TB per month"
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Flatini backend stack
+
+Parameters:
+  LambdaRole:
+    Type: String
+    Description: The role which the lambda executes
+
+Globals:
+  Function:
+    Timeout: 50
+    Environment:
+      Variables:
+        ENVIRONMENT: PROD
+
+Resources:
+  FlatiniHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "https://localhost:3000"
+          - "http://localhost:3000"
+        AllowHeaders:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+          - PATCH
+
+  FlatiniFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      MemorySize: 1024
+      Role: !Ref LambdaRole
+      CodeUri: ./
+      Handler: src/app.lambda_handler
+      Runtime: python3.9
+      Events:
+        Test:
+          Type: HttpApi
+          Properties:
+            Path: /test
+            Method: get
+            ApiId: !Ref FlatiniHttpApi
+
+Outputs:
+  FlatiniBaseUrl:
+    Description: "Base URL for Flatini API"
+    Value: !Sub "https://${FlatiniHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"

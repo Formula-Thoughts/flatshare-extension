@@ -1,0 +1,1 @@
+sam build && cd .aws-sam/build/FlatiniFunction && rm -fr clean-build.sh samconfig.toml template.yaml
