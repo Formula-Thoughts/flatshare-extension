@@ -4,9 +4,18 @@ A browser extension that helps organise your flatshare search
 
 This project uses <a href="https://www.flaticon.com/free-icons/partnership" title="partnership icons">Partnership icons created by Flat Icons - Flaticon</a>
 
-# First time
+# Back End
+- Install packages
+  - `pip install -r requirements.txt && pip install -r requirements-test.txt`
+- Deploy
+  - must have a local samconfig.toml file which contains nessecary secrets, optionally when doing a sam deploy, add the -g flag https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html
+  - `clean_build_winblows.cmd`
+  - `cd ..\..\`
+  - `sam deploy`
+- Run tests
+  - `python -m unittest`
 
-- Clone repo to your development environment
+# Front End
 - Install packages
   - `npm install`
 - Build extension
