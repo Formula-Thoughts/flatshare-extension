@@ -40,7 +40,7 @@ def lambda_handler(event, context):
 
 
 def create_group(data_client, event) -> (dict, int):
-    id = uuid.uuid4()
+    id = str(uuid.uuid4())
     body = json.loads(event['body'])
     group = {
         'id': id,
@@ -58,12 +58,12 @@ def create_group(data_client, event) -> (dict, int):
 def get_all_groups(data_client, event) -> (dict, int):
     return [
         {
-            'id': uuid.uuid4(),
+            'id': str(uuid.uuid4()),
             'name': 'test1',
             'code': 12345
         },
         {
-            'id': uuid.uuid4(),
+            'id': str(uuid.uuid4()),
             'name': 'test2',
             'code': 12346
         }
