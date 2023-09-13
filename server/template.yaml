@@ -16,6 +16,12 @@ Globals:
         ENVIRONMENT: PROD
 
 Resources:
+
+  Database:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "flatini-blob-db"
+
   FlatiniHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
@@ -42,11 +48,17 @@ Resources:
       Handler: src/app.lambda_handler
       Runtime: python3.9
       Events:
-        Test:
+        GetAllGroups:
           Type: HttpApi
           Properties:
-            Path: /test
+            Path: /groups
             Method: get
+            ApiId: !Ref FlatiniHttpApi
+        CreeateGroup:
+          Type: HttpApi
+          Properties:
+            Path: /groups
+            Method: post
             ApiId: !Ref FlatiniHttpApi
 
 Outputs:
