@@ -8,7 +8,7 @@ This project uses <a href="https://www.flaticon.com/free-icons/partnership" titl
 - Install packages
   - `pip install -r requirements.txt && pip install -r requirements-test.txt`
 - Deploy
-  - must have a local samconfig.toml file which contains nessecary secrets, optionally when doing a sam deploy, add the -g flag https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html
+  - must have a local samconfig.toml file which contains nessecary secrets, optionally when doing a sam deploy, add the -g flag to do a guided deployment https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html
   - `clean_build_winblows.cmd`
   - `cd ..\..\`
   - `sam deploy`
