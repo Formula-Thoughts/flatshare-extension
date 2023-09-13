@@ -259,4 +259,5 @@ server/awssecrets.secrets
 /server/tests/template.yaml
 
 # client stuff
-*node_modules
+**/node_modules/
+**/dist/
