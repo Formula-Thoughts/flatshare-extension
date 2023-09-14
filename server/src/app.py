@@ -54,17 +54,14 @@ def create_group(data_client, event) -> (dict, int):
 
 
 def get_all_groups(data_client, event) -> (dict, int):
-    id1 = uuid.uuid4()
-    id2 = uuid.uuid4()
-    return ([
-        {
-            'id': str(id1),
-            'name': 'test1',
-            'code': 12345
-        },
-        {
-            'id': str(id2),
-            'name': 'test2',
-            'code': 12346
-        }
-    ], 200)
+    response = data_client.list_objects_v2(Bucket='flatini-blob-db',
+                                           Prefix='groups/')
+
+    groups = []
+    for obj in response['Contents']:
+        groups.append(json.loads(data_client.get_object(Bucket='flatini-blob-db',
+                                             Key=obj['Key'])['Body'].read()))
+
+    print(groups)
+
+    return (groups, 200)
