@@ -41,3 +41,9 @@ class S3ClientWrapper:
                    bucket: str,
                    key: str) -> None:
         ...
+
+    def delete_object(self,
+                      bucket: str,
+                      key: str) -> None:
+        ...
+
