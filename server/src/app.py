@@ -1,8 +1,6 @@
 import json
 import uuid
-
 import boto3
-from botocore.client import BaseClient
 
 
 def lambda_handler(event, context):
@@ -40,31 +38,33 @@ def lambda_handler(event, context):
 
 
 def create_group(data_client, event) -> (dict, int):
-    id = str(uuid.uuid4())
+    id = uuid.uuid4()
     body = json.loads(event['body'])
     group = {
-        'id': id,
+        'id': str(id),
         'name': body['name'],
         'code': body['code']
     }
     data_client.put_object(Bucket='flatini-blob-db',
-                           Key=f'groups/{id}',
+                           Key=f'groups/{str(id)}',
                            Body=json.dumps(group),
                            ContentType='application/json',)
 
-    return group
+    return (group, 200)
 
 
 def get_all_groups(data_client, event) -> (dict, int):
-    return [
+    id1 = uuid.uuid4()
+    id2 = uuid.uuid4()
+    return ([
         {
-            'id': str(uuid.uuid4()),
+            'id': str(id1),
             'name': 'test1',
             'code': 12345
         },
         {
-            'id': str(uuid.uuid4()),
+            'id': str(id2),
             'name': 'test2',
             'code': 12346
         }
-    ]
+    ], 200)
