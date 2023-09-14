@@ -5,6 +5,7 @@ A browser extension that helps organise your flatshare search
 This project uses <a href="https://www.flaticon.com/free-icons/partnership" title="partnership icons">Partnership icons created by Flat Icons - Flaticon</a>
 
 # Back End
+- live at https://edy3ufmz2j.execute-api.eu-west-2.amazonaws.com/groups
 - Install packages
   - `pip install -r requirements.txt && pip install -r requirements-test.txt`
 - Deploy
