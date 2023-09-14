@@ -1,14 +1,14 @@
 import typing
 from typing import Protocol
 
-from server.src.domain.models import Group
+from server.src.domain.models import Group, Resource
 
 T = typing.TypeVar("T")
 
 
 class RepoBase(Protocol[T]):
 
-    def create(self, data: T) -> None:
+    def create(self, data: Resource) -> None:
         ...
 
     def get_all(self) -> list[T]:
