@@ -1,10 +1,12 @@
 import typing
 from typing import Protocol
 
+from server.src.domain.models import Group
+
 T = typing.TypeVar("T")
 
 
-class BlobDataRepo(Protocol[T]):
+class RepoBase(Protocol[T]):
 
     def create(self, data: T) -> None:
         ...
@@ -14,3 +16,10 @@ class BlobDataRepo(Protocol[T]):
 
     def get_by_id(self, _id: str) -> T:
         ...
+
+    def delete_by_id(self, _id: str) -> None:
+        ...
+
+
+class GroupRepo(RepoBase[Group]):
+    ...
