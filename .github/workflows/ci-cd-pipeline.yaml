@@ -21,6 +21,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-test.txt
+          cd ..
           python -m unittest
       - name: AWS build and deploy
         uses: aws-actions/configure-aws-credentials@v1
@@ -28,5 +29,5 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
-      - run: cd server && sam build && cd .aws-sam/build/FlatiniFunction && rm -fr clean-build.sh samconfig.toml template.yaml requirements.txt requirements-test.txt
+      - run: cd server && sam build && cd .aws-sam/build/FlatiniFunction && rm -fr clean-build.sh samconfig.toml template.yaml requirements.txt requirements-test.txt tests
       - run: cd server && sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-prod --s3-bucket flatini-api-prod-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ${{ secrets.SAM_PARAMETER_OVERRIDES }}
