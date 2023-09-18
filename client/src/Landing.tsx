@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Button from "./Button";
+import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -43,7 +44,9 @@ export const Landing = () => {
           Create a group with your flatmates and start sharing links to find
           your next flat.
         </p>
-        <Button style={{ marginTop: 30 }}>Create a new group</Button>
+        <Link to="CreateGroup">
+          <Button style={{ marginTop: 30 }}>Create a new group</Button>
+        </Link>
       </Block>
       <Block style={{ backgroundColor: "#322848" }}>
         <p>Join an existing group one of your flatmates has already created</p>

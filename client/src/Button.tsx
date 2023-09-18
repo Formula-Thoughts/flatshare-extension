@@ -1,7 +1,7 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import styled from "styled-components";
 
-const Wrapper = styled.button`
+const Wrapper = styled.a`
   background-color: white;
   color: #322848;
   padding: 20px;
@@ -18,13 +18,14 @@ const Wrapper = styled.button`
 `;
 
 type Props = {
+  onClick?: MouseEventHandler<HTMLAnchorElement> | undefined;
   children?: React.ReactNode;
   style?: React.CSSProperties | undefined;
 };
 
 const Button = (props: Props) => {
   return (
-    <Wrapper style={props.style} className="secondary">
+    <Wrapper onClick={props.onClick} style={props.style} className="secondary">
       {props.children}
     </Wrapper>
   );

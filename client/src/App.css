@@ -6,7 +6,7 @@
 }
 
 * {
-  box-sizing: content-box;
+  box-sizing: border-box;
 }
 
 html,
@@ -160,6 +160,7 @@ p {
   font-family: "Roboto", sans-serif;
   letter-spacing: 0.2px;
   line-height: 25px;
+  color: white;
 }
 
 .secondary {

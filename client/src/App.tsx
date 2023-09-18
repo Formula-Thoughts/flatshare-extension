@@ -4,6 +4,7 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import { Landing } from "./Landing";
 import styled from "styled-components";
+import CreateGroup from "./CreateGroup";
 
 const Header = styled.div``;
 
@@ -15,6 +16,7 @@ function App() {
       </Header>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/CreateGroup" element={<CreateGroup />} />
       </Routes>
     </>
   );
