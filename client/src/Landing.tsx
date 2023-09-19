@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import Button from "./Button";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -37,6 +37,9 @@ export const Landing = () => {
   const [state, setState] = useState({
     activeView: ScreenTypes.landing,
   });
+  const navigate = useNavigate();
+  const handleOnClick = () => navigate("/CreateGroup");
+
   return (
     <Wrapper>
       <Block style={{ marginBottom: -100 }}>
@@ -46,9 +49,9 @@ export const Landing = () => {
         </p>
       </Block>
       <Block>
-        <Link to="CreateGroup">
-          <Button style={{ marginTop: 30 }}>Create a new group</Button>
-        </Link>
+        <Button onClick={handleOnClick} style={{ marginTop: 30 }}>
+          Create a new group
+        </Button>
       </Block>
       <Block style={{ backgroundColor: "#322848" }}>
         <p>Join an existing group one of your flatmates has already created</p>
