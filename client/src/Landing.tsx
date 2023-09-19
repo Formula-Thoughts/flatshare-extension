@@ -39,11 +39,13 @@ export const Landing = () => {
   });
   return (
     <Wrapper>
-      <Block>
+      <Block style={{ marginBottom: -100 }}>
         <p>
           Create a group with your flatmates and start sharing links to find
           your next flat.
         </p>
+      </Block>
+      <Block>
         <Link to="CreateGroup">
           <Button style={{ marginTop: 30 }}>Create a new group</Button>
         </Link>
