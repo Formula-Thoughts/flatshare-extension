@@ -8,7 +8,7 @@ function App() {
   return (
     <>
       <header>
-        <img style={{ width: 110 }} src={Logo} alt="DOM WAS HERE" />
+        <img style={{ width: 110 }} src={Logo} alt="flatini app" />
       </header>
       <main>
         <Routes>
