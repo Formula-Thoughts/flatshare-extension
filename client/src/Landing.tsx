@@ -51,15 +51,31 @@ export const Landing = () => {
   const [state, setState] = useState({
     activeView: ScreenTypes.landing,
   });
-  const navigate = useNavigate();
-  const handleOnClick = () => navigate("/CreateGroup");
 
+  // Handle programmatic navigation when user clicks
+  // Create a new group button
+  const navigate = useNavigate();
+  const createNewGroup = () => navigate("/CreateGroup");
+
+  // Handle exiting group id input field state
   const [inputValue, setInputValue] = useState("");
 
-  const handleInputChange = (e: {
-    target: { value: SetStateAction<string> };
-  }) => {
-    setInputValue(e.target.value);
+  // Handle enter key press in exiting group id input. If enter
+  // key is pressed, call the function passed as second argument
+  const handleEnterKeyPress = (e: { key: string }, f: () => void) => {
+    if (e.key === "Enter") {
+      f();
+    }
+  };
+
+  // Only allow digits in the exiting group id input
+  const allowDigitsOnly = (e: { target: { value: string } }) => {
+    const numericValue = e.target.value.replace(/[^0-9]/g, "");
+    setInputValue(numericValue);
+  };
+
+  const joinExistingGroup = () => {
+    console.log("joinExistingGroup");
   };
 
   return (
@@ -69,18 +85,21 @@ export const Landing = () => {
           Create a group with your flatmates and start sharing links to find
           your next flat.
         </p>
-        <Button onClick={handleOnClick}>Create a new group</Button>
+        <Button onClick={createNewGroup}>Create a new group</Button>
       </Block>
       <Block $bgColor="#322848">
         <p>Join an existing group one of your flatmates has already created</p>
         <Input
-          $topMargin="10px"
           type="text"
+          $topMargin="10px"
           placeholder="Enter the group ID"
           value={inputValue}
-          onChange={handleInputChange}
+          onChange={allowDigitsOnly}
+          onKeyDown={(event) => handleEnterKeyPress(event, joinExistingGroup)}
         />
-        <Button $disabled={inputValue === ""}>Join existing group</Button>
+        <Button $disabled={inputValue === ""} onClick={joinExistingGroup}>
+          Join existing group
+        </Button>
       </Block>
     </Wrapper>
   );

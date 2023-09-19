@@ -28,7 +28,7 @@ const Button = (props: Props) => {
   return (
     <Wrapper
       $disabled={props.$disabled}
-      onClick={props.onClick}
+      onClick={props.$disabled ? undefined : props.onClick}
       style={props.style}
       className="secondary"
     >
