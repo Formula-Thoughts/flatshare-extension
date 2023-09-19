@@ -38,7 +38,23 @@ export const Landing = () => {
     activeView: ScreenTypes.landing,
   });
   return (
-    <Wrapper>
+    <Wrapper style={{ top: 30 }}>
+      <Block
+        style={{
+          maxHeight: 30,
+          backgroundColor: "#322848",
+          display: "flex",
+          justifyContent: "flex-start",
+          flexDirection: "row",
+        }}
+      >
+        <Link
+          style={{ marginLeft: 10, color: "#ccc", textDecoration: "none" }}
+          to="Flats"
+        >
+          My flat links
+        </Link>
+      </Block>
       <Block>
         <p>
           Create a group with your flatmates and start sharing links to find
