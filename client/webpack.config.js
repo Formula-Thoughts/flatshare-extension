@@ -6,9 +6,18 @@ module.exports = {
   entry: {
     index: "./src/index.tsx",
   },
-  mode: "production",
   module: {
     rules: [
+      {
+        test: /\.svg$/i,
+        issuer: /\.[jt]sx?$/,
+        use: ["@svgr/webpack"],
+      },
+      {
+        test: /\.(png|jpg)$/,
+        type: "asset",
+        parser: { dataUrlCondition: { maxSize: 1000 } },
+      },
       {
         test: /\.tsx?$/,
         use: [
@@ -30,10 +39,7 @@ module.exports = {
   },
   plugins: [
     new CopyPlugin({
-      patterns: [
-        { from: "manifest.json", to: "../manifest.json" },
-        { from: "icons/*", to: "../" },
-      ],
+      patterns: [{ from: "manifest.json", to: "../manifest.json" }],
     }),
     ...getHtmlPlugins(["index"]),
   ],
