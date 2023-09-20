@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
-import FlatImage, { FlatImageProps } from "./FlatImage";
 
 const FlatCard = styled.div`
   display: flex;
@@ -75,7 +74,7 @@ export const Flats = () => {
               </FlatCardHeader>
               <FlatCardBody>
                 <FlatName>{stripIdFromUrl(item.name)}</FlatName>
-                <FlatImage item={item as FlatImageProps} />
+                <img width={30} height={30} src={item.image} alt="Flat image" />
               </FlatCardBody>
             </FlatCard>
           );
