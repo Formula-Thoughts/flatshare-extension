@@ -1,11 +1,14 @@
 import base64
 import datetime
 import os
+import urllib
 import uuid
 
 import formula_thoughts_web.crosscutting
+import urllib3
 from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper, base64decode, base64encode
+from urllib3.util import parse_url
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
     Property, GroupProperties, IPropertyRepo, IRedFlagRepo, RedFlag, CreateRedFlagRequest
@@ -344,6 +347,10 @@ class ValidateRedFlagRequestCommand:
 
         if red_flag_request.property_url is None:
             context.error_capsules.append(red_flag_property_url_required_error)
+
+        url = parse_url(red_flag_request.property_url)
+        string_url = f"{'' if url.scheme is None else url.scheme}://{'' if url.host is None else url.host}{'' if url.path is None else url.path}"
+        red_flag_request.property_url = string_url
 
 
 class SetCreatedAnonymousRedFlagCommand:

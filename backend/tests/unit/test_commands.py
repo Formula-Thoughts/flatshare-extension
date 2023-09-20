@@ -896,6 +896,7 @@ class TestValidateRedFlagRequestCommand(TestCase):
     @data(
         ["https://www.website.com", "https://www.website.com"],
         ["https://www.website.com?param=value", "https://www.website.com"],
+        ["https://www.website.com/flat/1408?param=value", "https://www.website.com/flat/1408"],
         ["https://www.website.com#param=value", "https://www.website.com"])
     def test_run_when_valid(self, data):
         # arrange
@@ -906,8 +907,6 @@ class TestValidateRedFlagRequestCommand(TestCase):
             CREATE_RED_FLAG_REQUEST: create_red_flag_request
         })
 
-        old_property_url = create_red_flag_request.property_url
-
         # act
         self.__sut.run(context=context)
 
@@ -916,8 +915,7 @@ class TestValidateRedFlagRequestCommand(TestCase):
             self.assertEqual(len(context.error_capsules), 0)
 
         # assert
-        with self.subTest(msg="no errors are set"):
-            self.assertNotEqual(context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest).property_url, old_property_url)
+        with self.subTest(msg="correct url is set"):
             self.assertEqual(context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest).property_url, expected_parsed_property_url)
 
     def test_run_when_url_is_missing(self):
