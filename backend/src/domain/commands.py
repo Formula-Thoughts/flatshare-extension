@@ -348,6 +348,10 @@ class ValidateRedFlagRequestCommand:
         if red_flag_request.property_url is None:
             context.error_capsules.append(red_flag_property_url_required_error)
 
+        self.__get_absolute_url(red_flag_request)
+
+    @staticmethod
+    def __get_absolute_url(red_flag_request):
         url = parse_url(red_flag_request.property_url)
         string_url = f"{'' if url.scheme is None else url.scheme}://{'' if url.host is None else url.host}{'' if url.path is None else url.path}"
         red_flag_request.property_url = string_url
