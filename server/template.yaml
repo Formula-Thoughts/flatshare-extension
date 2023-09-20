@@ -39,13 +39,13 @@ Resources:
           - OPTIONS
           - PATCH
 
-  FlatiniFunction:
+  FlatiniApiFunction:
     Type: AWS::Serverless::Function
     Properties:
       MemorySize: 1024
       Role: !Ref LambdaRole
       CodeUri: ./
-      Handler: src/app.lambda_handler
+      Handler: src/api.lambda_handler
       Runtime: python3.9
       Events:
         GetAllGroups:
@@ -60,6 +60,25 @@ Resources:
             Path: /groups
             Method: post
             ApiId: !Ref FlatiniHttpApi
+
+  FlatiniBackgroundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      MemorySize: 1024
+      Role: !Ref LambdaRole
+      CodeUri: ./
+      Handler: src/background_service.lambda_handler
+      Runtime: python3.9
+
+  FlatiniBackgroundCron:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Description: "Data updater"
+      ScheduleExpression: "cron(*/2 * * * *)"
+      State: "ENABLED"
+      Targets:
+        - Arn: !GetAtt FlatiniBackgroundFunction.Arn
+          Id: "TargetFunctionV1"
 
 Outputs:
   FlatiniBaseUrl:

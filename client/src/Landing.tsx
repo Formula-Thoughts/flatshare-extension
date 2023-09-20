@@ -1,4 +1,5 @@
 import { SetStateAction, useState } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
@@ -79,8 +80,24 @@ export const Landing = () => {
   };
 
   return (
-    <Wrapper>
-      <Block $gap="20px">
+    <Wrapper style={{ top: 30 }}>
+      <Block
+        style={{
+          maxHeight: 30,
+          backgroundColor: "#322848",
+          display: "flex",
+          justifyContent: "flex-start",
+          flexDirection: "row",
+        }}
+      >
+        <Link
+          style={{ marginLeft: 10, color: "#ccc", textDecoration: "none" }}
+          to="Flats"
+        >
+          My flat links
+        </Link>
+      </Block>
+      <Block>
         <p>
           Create a group with your flatmates and start sharing links to find
           your next flat.
