@@ -42,15 +42,34 @@ def lambda_handler(event, context):
         }
 
 
+def does_group_code_exist(data_client, group_id: str) -> bool:
+
+    object_list_response = data_client.list_objects_v2(Bucket=BUCKET,
+                                                       Prefix=f'groups/{group_id}')
+    return len(object_list_response['Contents']) != 0
+
+
+def generate_group_id_and_code(data_client) -> (uuid, str):
+    id_has_been_generated = False
+    (id, code) = (None, None)
+    while not id_has_been_generated:
+        group_id = uuid.uuid4()
+        id_substring = str(group_id)[0:8]
+        if not does_group_code_exist(data_client, id_substring):
+            (id, code) = (group_id, id_substring.upper())
+            id_has_been_generated = True
+    return id, code
+
+
 def create_group(data_client, event) -> (dict, int):
     body = json.loads(event['body'])
     if not validate_group_body(body):
         return {'message': 'required fields missing from body'}, 400
-    id = uuid.uuid4()
+    id, code = generate_group_id_and_code(data_client)
     group = {
         'id': str(id),
         'name': body['name'],
-        'code': 12345,
+        'code': code,
         'flats': []
     }
     data_client.put_object(Bucket=BUCKET,
