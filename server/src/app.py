@@ -22,7 +22,7 @@ def lambda_handler(event, context):
         'POST /groups': lambda data_client, x: create_group(data_client, x),
         'GET /groups/{group_id}': lambda data_client, x: get_group(data_client, x),
         'POST /groups/{group_id}/flats': lambda data_client, x: create_flat(data_client, x),
-        'DELETE /groups/{group_id}/flats': lambda data_client, x: create_flat(data_client, x)
+        'DELETE /groups/{group_id}/flats': lambda data_client, x: delete_flat(data_client, x)
     }
 
     try:
@@ -58,7 +58,7 @@ def create_group(data_client, event) -> (dict, int):
                            Body=json.dumps(group),
                            ContentType='application/json', )
 
-    return group, 200
+    return None, 201
 
 
 def create_flat(data_client, event) -> (dict, int):
