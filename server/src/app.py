@@ -113,6 +113,8 @@ def get_flat(data_client, event) -> (dict, int):
     results = list(filter(lambda x: x == body['flatUrl'], group['flats']))
     if len(results) == 0:
         return {'message': f'flat with url {body["flatUrl"]} does not exist'}, 404
+    else:
+        return ({}, 200)
 
 
 def validate_group_body(body) -> bool:
