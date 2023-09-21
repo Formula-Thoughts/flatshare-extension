@@ -50,7 +50,7 @@ def create_group(data_client, event) -> (dict, int):
     group = {
         'id': str(id),
         'name': body['name'],
-        'code': body['code'],
+        'code': 12345,
         'flats': []
     }
     data_client.put_object(Bucket=BUCKET,
@@ -68,27 +68,31 @@ def create_flat(data_client, event) -> (dict, int):
     (get_group_response, status) = get_group(data_client, event)
     if status == 404:
         return get_group_response, status
-    get_group_response['flats'].append(body['flatUrl'])
+    id = uuid.uuid4()
+    get_group_response['flats'].append({
+        'id': str(id),
+        'url': body['url'],
+        'title': body['title'],
+        'price': body['price']
+    })
     data_client.put_object(Bucket=BUCKET,
                            Key=f'groups/{get_group_response["id"]}',
                            Body=json.dumps(get_group_response),
                            ContentType='application/json', )
 
-    return {'groupId': get_group_response['id']}, 201
+    return {'id': str(id)}, 201
 
 
 def delete_flat(data_client, event) -> (dict, int):
-    body = json.loads(event['body'])
-    if not validate_flat_body(body):
-        return {'message': 'required fields missing from body'}, 400
     (get_group_response, get_group_status) = get_group(data_client, event)
     if get_group_status == 404:
         return get_group_response, get_group_status
+
     (get_flat_response, get_flat_status) = get_flat(data_client, event)
     if get_flat_status == 404:
         return get_flat_response, get_flat_status
 
-    get_group_response['flats'].remove(body['flatUrl'])
+    get_group_response['flats'].remove(lambda x: x['id'] == event['pathParameters']['flat_id'])
     data_client.put_object(Bucket=BUCKET,
                            Key=f'groups/{get_group_response["id"]}',
                            Body=json.dumps(get_group_response),
@@ -109,23 +113,22 @@ def get_group(data_client, event) -> (dict, int):
 
 def get_flat(data_client, event) -> (dict, int):
     (group, status) = get_group(data_client, event)
-    body = json.loads(event['body'])
-    results = list(filter(lambda x: x == body['flatUrl'], group['flats']))
+    results = list(filter(lambda x: x['id'] == event['pathParameters']['flat_id'], group['flats']))
     if len(results) == 0:
-        return {'message': f'flat with url {body["flatUrl"]} does not exist'}, 404
+        return {'message': f'flat with id {event["pathParameters"]["flat_id"]} does not exist'}, 404
     else:
         return ({}, 200)
 
 
 def validate_group_body(body) -> bool:
-    if 'code' in body and 'name' in body:
+    if 'name' in body:
         return True
     else:
         return False
 
 
 def validate_flat_body(body) -> bool:
-    if 'flatUrl' in body:
+    if 'url' in body and 'price' in body and 'title' in body:
         return True
     else:
         return False
