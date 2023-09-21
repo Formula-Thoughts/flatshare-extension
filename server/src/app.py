@@ -102,7 +102,7 @@ def get_group(data_client, event) -> (dict, int):
     try:
         group = data_client.get_object(Bucket=BUCKET,
                                        Key=f'groups/{str(group_id)}')['Body'].read()
-        return group, 200
+        return json.loads(group), 200
     except ClientError:
         return {'message': f'group {group_id} not found'}, 404
 
