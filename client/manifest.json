@@ -22,7 +22,6 @@
     "256": "icons/256.png",
     "512": "icons/512.png"
   },
-  "permissions": ["sidePanel", "tabs", "storage", "activeTab"],
   "side_panel": {
     "default_path": "js/index.html"
   },
@@ -31,5 +30,10 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": ["sidePanel", "tabs", "storage", "activeTab"]
 }
