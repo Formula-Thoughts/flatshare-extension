@@ -56,16 +56,25 @@ export const Flats = () => {
     };
     setItems([...items, newFlat]);
   };
+  // useEffect(() => {
+  //   // Fetch data from the API
+  //   fetch(apiUrl)
+  //     .then((response) => response.json())
+  //     .then((data) => setItems(data))
+  //     .catch((error) => {
+  //       // console.log("Error fetching data:", error);
+  //       // setItems(stockData); // TODO: remove this line when API Completed
+  //     });
+  // }, []);
+
   useEffect(() => {
-    // Fetch data from the API
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((data) => setItems(data))
-      .catch((error) => {
-        // console.log("Error fetching data:", error);
-        // setItems(stockData); // TODO: remove this line when API Completed
-      });
+    // Retrieve the data from storage when the popup opens
+    chrome.storage.local.get({ items: [] }, (result) => {
+      const { items } = result;
+      setItems(items);
+    });
   }, []);
+
   return (
     <div>
       <div style={{ padding: 10 }}>List of flats</div>

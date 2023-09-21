@@ -1,4 +1,6 @@
 // content.js
+console.log("DOMContentLoaded - content.js");
+createFlatiniButton();
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.command === "SCRAPE") {
     try {
@@ -9,33 +11,54 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   }
 });
-const element = document.querySelector('[data-test="seeMapScroll"]');
-if (element) {
-  const newButton = document.createElement("button");
-  const iconElement = document.createElement("i");
-  iconElement.classList.add("fas", "fa-plus");
-  newButton.appendChild(iconElement);
 
-  newButton.textContent = "Add to Flatini";
-  newButton.style.borderRadius = "10px"; // Round border
-  newButton.style.border = "2px solid green"; // 1px solid green border
-  newButton.style.marginLeft = "10px"; // Margin-left of 10px
-  newButton.style.fontWeight = "bold";
-  newButton.style.padding = "5px";
-  newButton.style.marginTop = "-5px";
-  newButton.style.cursor = "pointer";
-  newButton.style.backgroundColor = "#2a4d1a";
-  newButton.style.color = "white";
-  element.parentNode.insertBefore(newButton, element.nextSibling);
+// Inject Flatini button into page
+function createFlatiniButton() {
+  const element = document.querySelector('[data-test="seeMapScroll"]');
+  if (element) {
+    const newButton = document.createElement("button");
+    newButton.textContent = "Add to Flatini";
+    newButton.style.borderRadius = "10px"; // Round border
+    newButton.style.border = "2px solid green"; // 1px solid green border
+    newButton.style.marginLeft = "10px"; // Margin-left of 10px
+    newButton.style.fontWeight = "bold";
+    newButton.style.padding = "5px";
+    newButton.style.marginTop = "-5px";
+    newButton.style.cursor = "pointer";
+    newButton.style.backgroundColor = "#2a4d1a";
+    newButton.style.color = "white";
+    element.parentNode.insertBefore(newButton, element.nextSibling);
 
-  // Add a click event listener to the new button (optional)
-  newButton.addEventListener("click", function () {
-    console.log("Button clicked!");
-  });
+    // Add a click event listener to the new button (optional)
+    newButton.addEventListener("click", function () {
+      console.log("Button clicked!");
+      const pageTitle = document.title;
+      const pageURL = window.location.href;
+      const price = getAllTextEndingWithPCM(document.body);
+      console.log("data", { pageTitle, pageURL, price });
+      // Send the data to the background script
+      chrome.runtime
+        .sendMessage({
+          title: pageTitle,
+          url: pageURL,
+          price,
+        })
+        .then(() => {
+          console.log("Message sent!", {
+            title: pageTitle,
+            url: pageURL,
+            price,
+          });
+        })
+        .catch((error) => {
+          console.log("!!!error: ", error);
+        });
+    });
+  }
 }
 
+// Find the element with price and returns it
 function getAllTextEndingWithPCM(element) {
-  console.log("getAllTextEndingWithPCM!");
   let textContent = "";
 
   // Helper function to recursively traverse and collect text
