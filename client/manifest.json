@@ -22,8 +22,14 @@
     "256": "icons/256.png",
     "512": "icons/512.png"
   },
-  "permissions": ["sidePanel", "tabs"],
+  "permissions": ["sidePanel", "tabs", "storage", "activeTab"],
   "side_panel": {
     "default_path": "js/index.html"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
 }
