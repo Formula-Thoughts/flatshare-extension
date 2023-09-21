@@ -1,1 +1,1 @@
-sam build && cd .aws-sam/build/FlatiniApiFunction && rm -fr clean-build.sh samconfig.toml template.yaml requirements.txt requirements-test.txt tests && cd ../FlatiniBackgroundFunction && rm -fr clean-build.sh samconfig.toml template.yaml requirements.txt requirements-test.txt tests
+sam build && cd .aws-sam/build/FlatiniApiFunction && rm -fr clean-build.sh samconfig.toml template.yaml requirements.txt requirements-test.txt tests && cd ../FlatiniBackgroundFunction && rm -fr clean-build.sh samconfig.toml template.yaml requirements.txt requirements-test.txt tests && cd ../../..
