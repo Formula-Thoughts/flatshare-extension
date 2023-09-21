@@ -47,11 +47,7 @@ const CreateGroup = () => {
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
 
   function generateRandomId(): string {
-    let randomId = "";
-    for (let i = 0; i < 12; i++) {
-      randomId += Math.floor(Math.random() * 10).toString();
-    }
-    return randomId;
+    return Math.random().toString().substring(7); // still high collision chance, but good enough for now
   }
 
   return (

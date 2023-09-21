@@ -1,13 +1,10 @@
-import React from "react";
 import Logo from "./assets/flatini-logo.png";
 import "./App.css";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Landing } from "./Landing";
-import styled from "styled-components";
 import CreateGroup from "./CreateGroup";
 import { Flats } from "./Flats";
-
-const Header = styled.div``;
+import FlatView from "./FlatView";
 
 function App() {
   const navigate = useNavigate();
@@ -15,15 +12,38 @@ function App() {
     navigate("/");
   }
 
+  const defaultNavigation = (url: string | undefined) => {
+    if (url?.includes("https://www.rightmove.co.uk/properties/")) {
+      navigate("/FlatView");
+    } else {
+      navigate("/");
+    }
+  };
+
+  chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+    console.log("updating tab2", tab);
+    defaultNavigation(tab.url);
+  });
+
+  // Reads changes when active tab changes
+  chrome.tabs.onActivated.addListener(function (activeInfo) {
+    // Gets the URL of the active tab
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+      let url = tabs[0].url;
+      defaultNavigation(url);
+    });
+  });
+
   return (
     <>
-      <Header style={{ cursor: "pointer" }} onClick={gotoLanding}>
+      <header style={{ cursor: "pointer" }} onClick={gotoLanding}>
         <img style={{ width: 110 }} src={Logo} />
-      </Header>
+      </header>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/Flats" element={<Flats />} />
         <Route path="/CreateGroup" element={<CreateGroup />} />
+        <Route path="/FlatView" element={<FlatView />} />
       </Routes>
     </>
   );
