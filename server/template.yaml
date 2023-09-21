@@ -48,17 +48,29 @@ Resources:
       Handler: src/app.lambda_handler
       Runtime: python3.9
       Events:
-        GetAllGroups:
+        GetGroupsById:
           Type: HttpApi
           Properties:
-            Path: /groups
+            Path: /groups/{group_id}
             Method: get
             ApiId: !Ref FlatiniHttpApi
-        CreeateGroup:
+        CreateGroup:
           Type: HttpApi
           Properties:
             Path: /groups
             Method: post
+            ApiId: !Ref FlatiniHttpApi
+        CreateFlat:
+          Type: HttpApi
+          Properties:
+            Path: /groups/{group_id}/flats
+            Method: post
+            ApiId: !Ref FlatiniHttpApi
+        DeleteFlat:
+          Type: HttpApi
+          Properties:
+            Path: /groups/{group_id}/flats
+            Method: delete
             ApiId: !Ref FlatiniHttpApi
 
 Outputs:
