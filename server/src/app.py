@@ -46,7 +46,7 @@ def does_group_code_exist(data_client, group_id: str) -> bool:
 
     object_list_response = data_client.list_objects_v2(Bucket=BUCKET,
                                                        Prefix=f'groups/{group_id}')
-    return len(object_list_response['Contents']) != 0
+    return len(object_list_response['KeyCount']) != 0
 
 
 def generate_group_id_and_code(data_client) -> (uuid, str):
