@@ -58,7 +58,7 @@ def create_group(data_client, event) -> (dict, int):
                            Body=json.dumps(group),
                            ContentType='application/json', )
 
-    return {'id': id}, 201
+    return {'id': str(id)}, 201
 
 
 def create_flat(data_client, event) -> (dict, int):
