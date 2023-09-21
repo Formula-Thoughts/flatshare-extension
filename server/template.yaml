@@ -48,7 +48,7 @@ Resources:
       Handler: src/app.lambda_handler
       Runtime: python3.9
       Events:
-        GetGroupsById:
+        GetGroupById:
           Type: HttpApi
           Properties:
             Path: /groups/{group_id}
