@@ -69,7 +69,7 @@ Resources:
         DeleteFlat:
           Type: HttpApi
           Properties:
-            Path: /groups/{group_id}/flats
+            Path: /groups/{group_id}/flats/{flat_id}
             Method: delete
             ApiId: !Ref FlatiniHttpApi
 
