@@ -117,7 +117,7 @@ def delete_flat(data_client, event) -> (dict, int):
     if get_flat_status == 404:
         return get_flat_response, get_flat_status
 
-    get_group_response['flats'].remove(lambda x: x['id'] == event['pathParameters']['flat_id'])
+    get_group_response['flats'] = list(filter(lambda x: x['id'] != event['pathParameters']['flat_id'], get_group_response['flats']))
     data_client.put_object(Bucket=BUCKET,
                            Key=f'groups/{get_group_response["id"]}',
                            Body=json.dumps(get_group_response),
@@ -137,7 +137,7 @@ def get_group(data_client, event) -> (dict, int):
 
 
 def get_flat(data_client, event) -> (dict, int):
-    (group, status) = get_group(data_client, event)
+    (group, _) = get_group(data_client, event)
     results = list(filter(lambda x: x['id'] == event['pathParameters']['flat_id'], group['flats']))
     if len(results) == 0:
         return {'message': f'flat with id {event["pathParameters"]["flat_id"]} does not exist'}, 404
