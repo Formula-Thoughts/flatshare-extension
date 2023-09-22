@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import SaveDataButton from "./SaveDataButton";
+import { Flat, useFlats } from "./context/FlatsContext";
 
 const FlatCard = styled.div`
   display: flex;
@@ -37,14 +38,8 @@ const FlatName = styled.div`
   background-color: #2a4d1a;
 `;
 
-type Flat = {
-  id: string;
-  title: string;
-  url: string;
-  price: string;
-};
-
 export const Flats = () => {
+  const { flats, setFlats } = useFlats();
   const [items, setItems] = useState<Flat[]>([]);
   const apiUrl = "Some aws endpoint"; // Replace with your API endpoint
   const addFlat = (title: string, url: string, price: string) => {
@@ -54,7 +49,7 @@ export const Flats = () => {
       url: url,
       price: price,
     };
-    setItems([...items, newFlat]);
+    setFlats([...items, newFlat]);
   };
   useEffect(() => {
     // Fetch data from the API

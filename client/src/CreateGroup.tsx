@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import Button from "./Button";
+import { v4 as uuidv4 } from "uuid";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -47,7 +48,7 @@ const CreateGroup = () => {
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
 
   function generateRandomId(): string {
-    return Math.random().toString().substring(7); // still high collision chance, but good enough for now
+    return uuidv4().toUpperCase().substring(0, 8);
   }
 
   return (
