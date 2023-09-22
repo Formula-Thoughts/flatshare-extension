@@ -62,6 +62,9 @@ def generate_group_id_and_code(data_client) -> (uuid, str):
 
 
 def create_group(data_client, event) -> (dict, int):
+    if not is_body_valid_json(event['body']):
+        return ({'message': 'body is invalid json'}, 400)
+
     body = json.loads(event['body'])
     if not validate_group_body(body):
         return {'message': 'required fields missing from body'}, 400
@@ -81,6 +84,9 @@ def create_group(data_client, event) -> (dict, int):
 
 
 def create_flat(data_client, event) -> (dict, int):
+    if not is_body_valid_json(event['body']):
+        return ({'message': 'body is invalid json'}, 400)
+
     body = json.loads(event['body'])
     if not validate_flat_body(body):
         return {'message': 'required fields missing from body'}, 400
@@ -137,6 +143,14 @@ def get_flat(data_client, event) -> (dict, int):
         return {'message': f'flat with id {event["pathParameters"]["flat_id"]} does not exist'}, 404
     else:
         return ({}, 200)
+
+
+def is_body_valid_json(body) -> bool:
+    try:
+        json.loads(body)
+        return True
+    except:
+        return False
 
 
 def validate_group_body(body) -> bool:
