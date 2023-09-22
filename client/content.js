@@ -1,5 +1,4 @@
 // content.js
-console.log("DOMContentLoaded - content.js");
 createFlatiniButton();
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.command === "SCRAPE") {
@@ -43,15 +42,11 @@ function createFlatiniButton() {
           url: pageURL,
           price,
         })
-        .then(() => {
-          console.log("Message sent!", {
-            title: pageTitle,
-            url: pageURL,
-            price,
-          });
-        })
         .catch((error) => {
-          console.log("!!!error: ", error);
+          console.error(
+            "c.r.sendMessage(pageDetails) in injected btn onClick",
+            error
+          );
         });
     });
   }

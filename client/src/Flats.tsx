@@ -75,6 +75,16 @@ export const Flats = () => {
     });
   }, []);
 
+  useEffect(() => {
+    // Listen for messages from the background script
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.action === "updatePopup") {
+        // Trigger a re-render by updating the state
+        setItems((items) => [...items, message.message]);
+      }
+    });
+  }, []);
+
   return (
     <div>
       <div style={{ padding: 10 }}>List of flats</div>
