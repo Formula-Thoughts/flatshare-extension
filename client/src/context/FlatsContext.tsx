@@ -36,12 +36,4 @@ export const useFlats = () => {
   return context;
 };
 
-export const checkForDuplication = (url: string) => {
-  const context = useContext(FlatContext);
-  if (context?.flats.find((flat: Flat) => flat.url === url)) {
-    return true;
-  }
-  return false;
-};
-
 export default FlatProvider;
