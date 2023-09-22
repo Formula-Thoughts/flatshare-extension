@@ -39,56 +39,25 @@ const FlatName = styled.div`
 `;
 
 export const Flats = () => {
-  const { flats, setFlats } = useFlats();
-  const [items, setItems] = useState<Flat[]>([]);
+  const { flats } = useFlats();
   const apiUrl = "Some aws endpoint"; // Replace with your API endpoint
-  const addFlat = (title: string, url: string, price: string) => {
-    const newFlat: Flat = {
-      id: (items.length + 1).toString(),
-      title: title,
-      url: url,
-      price: price,
-    };
-    setFlats([...items, newFlat]);
-  };
+
   // useEffect(() => {
-  //   // Fetch data from the API
-  //   fetch(apiUrl)
-  //     .then((response) => response.json())
-  //     .then((data) => setItems(data))
-  //     .catch((error) => {
-  //       // console.log("Error fetching data:", error);
-  //       // setItems(stockData); // TODO: remove this line when API Completed
-  //     });
+  //   // Listen for messages from the background script
+  //   chrome.runtime.onMessage.addListener((message) => {
+  //     if (message.action === "updatePopup") {
+  //       // Trigger a re-render by updating the state
+  //       setItems((items) => [...items, message.message]);
+  //     }
+  //   });
   // }, []);
-
-  useEffect(() => {
-    // Retrieve the data from storage when the popup opens
-    chrome.storage.local.get({ items: [] }, (result) => {
-      const { items } = result;
-      setItems(items);
-    });
-  }, []);
-
-  useEffect(() => {
-    // Listen for messages from the background script
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.action === "updatePopup") {
-        // Trigger a re-render by updating the state
-        setItems((items) => [...items, message.message]);
-      }
-    });
-  }, []);
 
   return (
     <div>
       <div style={{ padding: 10 }}>List of flats</div>
-      <div style={{ padding: 10 }}>
-        <SaveDataButton onClickAction={addFlat} />
-      </div>
       <div className="App">
-        {items.length === 0 && <div>No flats found</div>}
-        {items.map((item) => {
+        {flats.length === 0 && <div>No flats found</div>}
+        {flats.map((item) => {
           return (
             <FlatCard
               key={item.id}

@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import Button from "./Button";
-import { useFlats } from "./context/FlatsContext";
+import { Flat, checkForDuplication, useFlats } from "./context/FlatsContext";
+import SaveDataButton from "./SaveDataButton";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -18,15 +19,26 @@ const Wrapper = styled.div`
 `;
 
 const FlatView = () => {
-  const { flats } = useFlats();
+  const { flats, setFlats } = useFlats();
+
+  const addFlat = (title: string, url: string, price: string) => {
+    const newFlat: Flat = {
+      id: (flats.length + 1).toString(),
+      title: title,
+      url: url,
+      price: price,
+    };
+    setFlats([...flats, newFlat]);
+  };
 
   return (
     <Wrapper>
       <p>flats {JSON.stringify(flats)}</p>
       <p>The flat you are viewing has not been added to the list yet.</p>
-      <Button onClick={() => {}} style={{ padding: 15, marginTop: 20 }}>
+      {/* <Button onClick={() => {}} style={{ padding: 15, marginTop: 20 }}>
         Add to the list
-      </Button>
+      </Button> */}
+      <SaveDataButton onClickAction={addFlat} />
     </Wrapper>
   );
 };
