@@ -42,7 +42,7 @@ def delete_flat_event_handler(msg, data_client):
 
 
 def lambda_event_handler(event, context):
-    handler_id = uuid.uuid4()
+    handler_id = str(uuid.uuid4())
     # aws spins up multiple lambdas with batches of events
     for record in event['Records']:
         print(f"logging from handler {handler_id}")
