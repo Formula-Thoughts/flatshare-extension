@@ -73,6 +73,20 @@ Resources:
             Method: delete
             ApiId: !Ref FlatiniHttpApi
 
+  LambdaFunctionEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt MyQueue.Arn
+      FunctionName: !GetAtt FlatiniFunction.Arn
+
+  MyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: "flatini-queue.fifo"
+      VisibilityTimeout: 50
+      FifoQueue: true
+      ContentBasedDeduplication: true
+
 Outputs:
   FlatiniBaseUrl:
     Description: "Base URL for Flatini API"

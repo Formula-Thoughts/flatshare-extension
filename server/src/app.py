@@ -6,10 +6,19 @@ from botocore.exceptions import ClientError
 BUCKET = 'flatini-blob-db'
 
 
-def lambda_handler(event, context):
+def lambda_event_handler(event, context):
+    for record in event['Records']:
+        print("logging from handler")
+        payload = record["body"]
+        print(str(payload))
+
+
+def lambda_api_handler(event, context):
     route = event['routeKey']
 
     s3_client = boto3.client('s3')
+    sqs_client = boto3.client('sqs')
+    flatini_queue = sqs_client.get_queue_url(QueueName='flatini-queue.fifo')
 
     default_headers = {
         'Content-Type': 'application/json',
@@ -19,14 +28,14 @@ def lambda_handler(event, context):
     }
 
     routes = {
-        'POST /groups': lambda data_client, x: create_group(data_client, x),
-        'GET /groups/{group_id}': lambda data_client, x: get_group(data_client, x),
-        'POST /groups/{group_id}/flats': lambda data_client, x: create_flat(data_client, x),
-        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, x: delete_flat(data_client, x)
+        'POST /groups': lambda data_client, queue_client, queue, x: create_group(data_client, queue_client, queue, x),
+        'GET /groups/{group_id}': lambda data_client, queue_client, queue, x: get_group(data_client, queue_client, queue, x),
+        'POST /groups/{group_id}/flats': lambda data_client, queue_client, queue, x: create_flat(data_client, queue_client, queue, x),
+        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, queue_client, queue, x: delete_flat(data_client, queue_client, queue, x)
     }
 
     try:
-        (response, status) = routes[route](s3_client, event)
+        (response, status) = routes[route](s3_client, sqs_client, flatini_queue, event)
         return {
             'statusCode': status,
             'body': json.dumps(response) if response is not None else "",
@@ -41,6 +50,13 @@ def lambda_handler(event, context):
             'headers': default_headers
         }
 
+
+def lambda_handler(event, context):
+    if 'routeKey' in event:
+        return lambda_api_handler(event, context)
+
+    if 'Records' in event:
+        return lambda_event_handler(event, context)
 
 def does_group_code_exist(data_client, group_id: str) -> bool:
 
@@ -61,7 +77,7 @@ def generate_group_id_and_code(data_client) -> (uuid, str):
     return id, code
 
 
-def create_group(data_client, event) -> (dict, int):
+def create_group(data_client, queue_client, queue, event) -> (dict, int):
     if not is_body_valid_json(event['body']):
         return ({'message': 'body is invalid json'}, 400)
 
@@ -78,12 +94,18 @@ def create_group(data_client, event) -> (dict, int):
     data_client.put_object(Bucket=BUCKET,
                            Key=f'groups/{str(id)}',
                            Body=json.dumps(group),
-                           ContentType='application/json', )
+                           ContentType='application/json')
+
+    queue_client.send_message(
+        QueueUrl=queue['QueueUrl'],
+        MessageBody=json.dumps(group),
+        MessageGroupId=group['id']
+    )
 
     return {'id': str(id)}, 201
 
 
-def create_flat(data_client, event) -> (dict, int):
+def create_flat(data_client, queue_client, queue, event) -> (dict, int):
     if not is_body_valid_json(event['body']):
         return ({'message': 'body is invalid json'}, 400)
 
@@ -108,7 +130,7 @@ def create_flat(data_client, event) -> (dict, int):
     return {'id': str(id)}, 201
 
 
-def delete_flat(data_client, event) -> (dict, int):
+def delete_flat(data_client, queue_client, queue, event) -> (dict, int):
     (get_group_response, get_group_status) = get_group(data_client, event)
     if get_group_status == 404:
         return get_group_response, get_group_status
@@ -126,7 +148,7 @@ def delete_flat(data_client, event) -> (dict, int):
     return None, 204
 
 
-def get_group(data_client, event) -> (dict, int):
+def get_group(data_client, queue_client, queue, event) -> (dict, int):
     group_id = event['pathParameters']['group_id']
     try:
         group = data_client.get_object(Bucket=BUCKET,
