@@ -84,6 +84,7 @@ Resources:
     Properties:
       QueueName: "flatini-queue"
       VisibilityTimeout: 50
+      FifoQueue: true
 
 Outputs:
   FlatiniBaseUrl:
