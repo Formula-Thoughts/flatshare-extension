@@ -83,13 +83,9 @@ def lambda_api_handler(event, context):
 
     routes = {
         'POST /groups': lambda data_client, queue_client, queue, x: api_create_group(data_client, queue_client, queue, x),
-        'GET /groups/{group_id}': lambda data_client, queue_client, queue, x: api_get_group(data_client, queue_client,
-                                                                                            queue, x),
-        'POST /groups/{group_id}/flats': lambda data_client, queue_client, queue, x: api_create_flat(data_client,
-                                                                                                     queue_client, queue,
-                                                                                                     x),
-        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, queue_client, queue, x: api_delete_flat(
-            data_client, queue_client, queue, x)
+        'GET /groups/{group_id}': lambda data_client, queue_client, queue, x: api_get_group(data_client, queue_client,queue, x),
+        'POST /groups/{group_id}/flats': lambda data_client, queue_client, queue, x: api_create_flat(data_client, queue_client, queue, x),
+        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, queue_client, queue, x: api_delete_flat(data_client, queue_client, queue, x)
     }
 
     try:
@@ -160,17 +156,14 @@ def api_create_flat(data_client, queue_client, queue, event) -> (dict, int):
     (get_group_response, status) = api_get_group(data_client, queue_client, queue, event)
     if status == 404:
         return get_group_response, status
+
     id = uuid.uuid4()
-    get_group_response['flats'].append({
+    send_create_flat_message({
         'id': str(id),
         'url': body['url'],
         'title': body['title'],
         'price': body['price']
-    })
-    data_client.put_object(Bucket=BUCKET,
-                           Key=f'groups/{get_group_response["id"]}',
-                           Body=json.dumps(get_group_response),
-                           ContentType='application/json', )
+    }, get_group_response['id'], queue_client, queue)
 
     return {'id': str(id)}, 201
 
@@ -184,12 +177,7 @@ def api_delete_flat(data_client, queue_client, queue, event) -> (dict, int):
     if get_flat_status == 404:
         return get_flat_response, get_flat_status
 
-    get_group_response['flats'] = list(
-        filter(lambda x: x['id'] != event['pathParameters']['flat_id'], get_group_response['flats']))
-    data_client.put_object(Bucket=BUCKET,
-                           Key=f'groups/{get_group_response["id"]}',
-                           Body=json.dumps(get_group_response),
-                           ContentType='application/json', )
+    send_delete_flat_message(event['pathParameters']['flat_id'], get_group_response['id'], queue_client, queue)
 
     return None, 204
 
