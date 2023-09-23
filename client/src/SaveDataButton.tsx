@@ -1,6 +1,7 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
+import Button from "./Button";
 
 // Declare a type for the tab object
 type TabInfo = {
@@ -39,11 +40,11 @@ function SaveDataButton({ onClickAction }: SaveDataButtonProps) {
     });
   };
   return (
-    <React.Fragment>
-      <button onClick={saveData}>
-        <FontAwesomeIcon icon={faPlus} />
-      </button>
-    </React.Fragment>
+    <div>
+      <Button onClick={saveData} style={{ padding: 15, marginTop: 20 }}>
+        Add to the list
+      </Button>
+    </div>
   );
 }
 
