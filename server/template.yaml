@@ -85,6 +85,7 @@ Resources:
       QueueName: "flatini-queue.fifo"
       VisibilityTimeout: 50
       FifoQueue: true
+      ContentBasedDeduplication: true
 
 Outputs:
   FlatiniBaseUrl:
