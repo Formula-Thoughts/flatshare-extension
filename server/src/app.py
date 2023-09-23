@@ -60,7 +60,7 @@ def lambda_event_handler(event, context):
                 DELETE_FLAT_MESSAGE_TYPE: lambda msg, data_client: delete_flat_event_handler(msg, data_client)
             }
 
-            handlers[message_type](message_body, s3_client)
+            handlers[message_type](payload, s3_client)
 
             print(str(payload))
         except Exception as e:
