@@ -1,10 +1,8 @@
-import { useEffect, useState, useContext } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
-import SaveDataButton from "./SaveDataButton";
-import { Flat, useFlats } from "./context/FlatsContext";
+import { useFlats } from "./context/FlatsContext";
 
 const FlatCard = styled.div`
   display: flex;
@@ -40,7 +38,6 @@ const FlatName = styled.div`
 
 export const Flats = () => {
   const { flats } = useFlats();
-  const apiUrl = "Some aws endpoint"; // Replace with your API endpoint
 
   // useEffect(() => {
   //   // Listen for messages from the background script
@@ -84,11 +81,4 @@ export const Flats = () => {
       </div>
     </div>
   );
-};
-
-// this only works for the rightmove urls
-// eg. https://www.rightmove.co.uk/properties/140079353#/?channel=RES_LET
-const stripIdFromUrl = (url: string) => {
-  const urlParts = url.split("/");
-  return urlParts[urlParts.length - 2];
 };
