@@ -82,7 +82,7 @@ Resources:
   MyQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: "flatini-queue"
+      QueueName: "flatini-queue.fifo"
       VisibilityTimeout: 50
       FifoQueue: true
 

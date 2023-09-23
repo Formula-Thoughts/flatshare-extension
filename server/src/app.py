@@ -18,7 +18,7 @@ def lambda_api_handler(event, context):
 
     s3_client = boto3.client('s3')
     sqs_client = boto3.client('sqs')
-    flatini_queue = sqs_client.get_queue_url(QueueName='flatini-queue')
+    flatini_queue = sqs_client.get_queue_url(QueueName='flatini-queue.fifo')
 
     default_headers = {
         'Content-Type': 'application/json',
