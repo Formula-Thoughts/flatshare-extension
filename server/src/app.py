@@ -97,7 +97,7 @@ def create_group(data_client, queue_client, queue, event) -> (dict, int):
                            ContentType='application/json')
 
     queue_client.send_message(
-        QueueUrl=queue_client['QueueUrl'],
+        QueueUrl=queue['QueueUrl'],
         MessageBody=json.dumps(group),
         MessageGroupId=group['id']
     )
