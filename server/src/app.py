@@ -99,7 +99,8 @@ def create_group(data_client, queue_client, queue, event) -> (dict, int):
     queue_client.send_message(
         QueueUrl=queue['QueueUrl'],
         MessageBody=json.dumps(group),
-        MessageGroupId=group['id']
+        MessageGroupId=group['id'],
+        MessageDeduplicationId=str(uuid.uuid4())
     )
 
     return {'id': str(id)}, 201
