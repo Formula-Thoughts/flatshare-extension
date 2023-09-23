@@ -162,7 +162,8 @@ def api_create_flat(data_client, queue_client, queue, event) -> (dict, int):
         'id': str(id),
         'url': body['url'],
         'title': body['title'],
-        'price': body['price']
+        'price': body['price'],
+        'group_id': get_group_response['id']
     }, get_group_response['id'], queue_client, queue)
 
     return {'id': str(id)}, 201
@@ -213,7 +214,8 @@ def send_delete_flat_message(id, group_id, queue_client, queue):
     send_sqs_message(group_id, {
         'message_type': DELETE_FLAT_MESSAGE_TYPE,
         'payload': {
-            'id': id
+            'id': id,
+            'group_id': group_id
         }
     }, queue_client, queue)
 
