@@ -55,6 +55,7 @@ export const Flats = () => {
   return (
     <div>
       <div style={{ padding: 10 }}>List of flats</div>
+      <p>{JSON.stringify(flats)}</p>
       <div className="App">
         {flats.length === 0 && <div>No flats found</div>}
         {flats.map((item) => {

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import Button from "./Button";
 import { Flat, useFlats } from "./context/FlatsContext";
 import SaveDataButton from "./SaveDataButton";
+import Button from "./Button";
+import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -19,19 +20,20 @@ const Wrapper = styled.div`
 `;
 
 const FlatView = () => {
-  const { flats, setFlats } = useFlats();
-  // TODO - this isn't working yet as window.location.href gets the extension's url, not browser.
-  const checkForDuplication = () => {
-    if (flats.find((flat: Flat) => flat.url === window.location.href)) {
-      return true;
-    }
-    console.log(false);
-    return false;
-  };
+  const { flats, setFlats, removeFlat } = useFlats();
+  const [isFlatDuplicated, setIsFlatDuplicated] = useState(false);
 
-  const [mode, setMode] = useState(
-    checkForDuplication() ? "DuplicatedFlat" : "AvailableFlat"
-  );
+  const checkFlatIsDuplicated = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        const activeTab = tabs[0];
+        if (flats.find((flat: Flat) => flat.url === activeTab.url)) {
+          return setIsFlatDuplicated(true);
+        }
+        return setIsFlatDuplicated(false);
+      }
+    });
+  };
 
   const addFlat = (title: string, url: string, price: string) => {
     const newFlat: Flat = {
@@ -41,26 +43,43 @@ const FlatView = () => {
       price: price,
     };
     setFlats([...flats, newFlat]);
-    setMode("DuplicatedFlat");
+    setIsFlatDuplicated(true);
   };
 
-  if (mode === "DuplicatedFlat") {
+  const removeFlatFromList = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        const activeTab = tabs[0];
+        removeFlat(activeTab.url as string);
+        setIsFlatDuplicated(false);
+      }
+    });
+  };
+
+  useEffect(() => {
+    checkFlatIsDuplicated();
+  }, []);
+
+  if (isFlatDuplicated) {
     return (
-      <Wrapper>
-        <p>this flat is duplicated</p>
+      <Wrapper style={{ backgroundColor: "#322848" }}>
+        <p>The flat you’re viewing has already been added to the list</p>
+        <div
+          style={{ marginTop: 30, display: "flex", flexDirection: "column" }}
+        >
+          <Button onClick={removeFlatFromList} style={{ padding: 15 }}>
+            Remove
+          </Button>
+        </div>
       </Wrapper>
     );
   } else {
     return (
       <Wrapper>
-        <p>mode {mode}</p>
-        <p>checkForDuplication {JSON.stringify(checkForDuplication())}</p>
-        <p>flats {JSON.stringify(flats)}</p>
         <p>The flat you are viewing has not been added to the list yet.</p>
-        {/* <Button onClick={() => {}} style={{ padding: 15, marginTop: 20 }}>
-        Add to the list
-      </Button> */}
-        <SaveDataButton onClickAction={addFlat} />
+        <div style={{ marginTop: 30 }}>
+          <SaveDataButton onClickAction={addFlat} />
+        </div>
       </Wrapper>
     );
   }
