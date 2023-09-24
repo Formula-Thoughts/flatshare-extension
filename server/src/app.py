@@ -10,8 +10,7 @@ CREATE_GROUP_MESSAGE_TYPE = 'DELETE_GROUP'
 
 
 def create_flat_event_handler(msg, data_client):
-    group = data_client.get_object(Bucket=BUCKET,
-                                   Key=f'groups/{str(msg["group_id"])}')['Body'].read()
+    group = json.loads(data_client.get_object(Bucket=BUCKET, Key=f'groups/{str(msg["group_id"])}')['Body'].read())
     group['flats'].append({
         'id': msg['id'],
         'url': msg['url'],
@@ -32,8 +31,7 @@ def create_group_event_handler(msg, data_client):
 
 
 def delete_flat_event_handler(msg, data_client):
-    group = data_client.get_object(Bucket=BUCKET,
-                                   Key=f'groups/{str(msg["group_id"])}')['Body'].read()
+    group = json.loads(data_client.get_object(Bucket=BUCKET, Key=f'groups/{str(msg["group_id"])}')['Body'].read())
     group['flats'] = list(filter(lambda x: x['id'] != msg['id'], group['flats']))
     data_client.put_object(Bucket=BUCKET,
                            Key=f'groups/{msg["group_id"]}',
