@@ -1,7 +1,7 @@
 import os
 import typing
 
-from server.src.core import BlobRepo, Deserializer, Serializer
+from server.src.domain.abstractions import BlobRepo, Deserializer, Serializer
 from server.src.data import S3ClientWrapper
 from server.src.domain.models import Group
 

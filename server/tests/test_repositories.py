@@ -5,7 +5,7 @@ from unittest.mock import Mock, MagicMock
 
 from callee import Captor
 
-from server.src.core import BlobRepo
+from server.src.domain.abstractions import BlobRepo
 from server.src.crosscutting import AutoFixture, JsonSnakeToCamelSerializer, JsonCamelToSnakeCaseDeserializer
 from server.src.data import S3ClientWrapper
 from server.src.data.repositories import S3BlobRepo, S3GroupRepo
