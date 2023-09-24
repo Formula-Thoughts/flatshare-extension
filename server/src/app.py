@@ -143,11 +143,12 @@ def api_create_group(data_client, queue_client, queue, event) -> (dict, int):
 
 def api_create_flat(data_client, queue_client, queue, event) -> (dict, int):
     if not is_body_valid_json(event['body']):
-        return ({'message': 'body is invalid json'}, 400)
+        return {'message': 'body is invalid json'}, 400
 
     body = json.loads(event['body'])
-    if not validate_flat_body(body):
-        return {'message': 'required fields missing from body'}, 400
+    (is_body_valid, invalid_field) = validate_flat_body(body)
+    if not is_body_valid:
+        return {'message': f'required field \'{invalid_field}\' missing from body'}, 400
     (get_group_response, status) = api_get_group(data_client, queue_client, queue, event)
     if status == 404:
         return get_group_response, status
@@ -193,7 +194,7 @@ def get_flat(group, data_client, queue_client, queue, event) -> (dict, int):
     if len(results) == 0:
         return {'message': f'flat with id {event["pathParameters"]["flat_id"]} does not exist'}, 404
     else:
-        return ({}, 200)
+        return {}, 200
 
 
 def send_sqs_message(message_group_id, payload: dict, queue_client, queue):
@@ -237,8 +238,12 @@ def is_body_valid_json(body) -> bool:
         return False
 
 
-def validate_flat_body(body) -> bool:
-    if 'url' in body and 'price' in body and 'title' in body:
-        return True
+def validate_flat_body(body) -> (bool, str):
+    if 'url' not in body:
+        return False, 'url'
+    elif 'price' not in body:
+        return False, 'price'
+    elif 'title' not in body:
+        return False, 'title'
     else:
-        return False
+        return True, None
