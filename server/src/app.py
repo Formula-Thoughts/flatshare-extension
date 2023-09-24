@@ -10,8 +10,7 @@ CREATE_GROUP_MESSAGE_TYPE = 'DELETE_GROUP'
 
 
 def create_flat_event_handler(msg, data_client):
-    group = data_client.get_object(Bucket=BUCKET,
-                                   Key=f'groups/{str(msg["group_id"])}')['Body'].read()
+    group = json.loads(data_client.get_object(Bucket=BUCKET, Key=f'groups/{str(msg["group_id"])}')['Body'].read())
     group['flats'].append({
         'id': msg['id'],
         'url': msg['url'],
@@ -32,8 +31,7 @@ def create_group_event_handler(msg, data_client):
 
 
 def delete_flat_event_handler(msg, data_client):
-    group = data_client.get_object(Bucket=BUCKET,
-                                   Key=f'groups/{str(msg["group_id"])}')['Body'].read()
+    group = json.loads(data_client.get_object(Bucket=BUCKET, Key=f'groups/{str(msg["group_id"])}')['Body'].read())
     group['flats'] = list(filter(lambda x: x['id'] != msg['id'], group['flats']))
     data_client.put_object(Bucket=BUCKET,
                            Key=f'groups/{msg["group_id"]}',
@@ -42,7 +40,7 @@ def delete_flat_event_handler(msg, data_client):
 
 
 def lambda_event_handler(event, context):
-    handler_id = uuid.uuid4()
+    handler_id = str(uuid.uuid4())
     # aws spins up multiple lambdas with batches of events
     for record in event['Records']:
         print(f"logging from handler {handler_id}")
@@ -83,13 +81,9 @@ def lambda_api_handler(event, context):
 
     routes = {
         'POST /groups': lambda data_client, queue_client, queue, x: api_create_group(data_client, queue_client, queue, x),
-        'GET /groups/{group_id}': lambda data_client, queue_client, queue, x: api_get_group(data_client, queue_client,
-                                                                                            queue, x),
-        'POST /groups/{group_id}/flats': lambda data_client, queue_client, queue, x: api_create_flat(data_client,
-                                                                                                     queue_client, queue,
-                                                                                                     x),
-        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, queue_client, queue, x: api_delete_flat(
-            data_client, queue_client, queue, x)
+        'GET /groups/{group_id}': lambda data_client, queue_client, queue, x: api_get_group(data_client, queue_client,queue, x),
+        'POST /groups/{group_id}/flats': lambda data_client, queue_client, queue, x: api_create_flat(data_client, queue_client, queue, x),
+        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, queue_client, queue, x: api_delete_flat(data_client, queue_client, queue, x)
     }
 
     try:
@@ -136,9 +130,6 @@ def generate_group_id_and_code(data_client) -> (uuid, str):
 
 
 def api_create_group(data_client, queue_client, queue, event) -> (dict, int):
-    if not is_body_valid_json(event['body']):
-        return {'message': 'body is invalid json'}, 400
-
     id, code = generate_group_id_and_code(data_client)
     group = {
         'id': str(id),
@@ -152,25 +143,24 @@ def api_create_group(data_client, queue_client, queue, event) -> (dict, int):
 
 def api_create_flat(data_client, queue_client, queue, event) -> (dict, int):
     if not is_body_valid_json(event['body']):
-        return ({'message': 'body is invalid json'}, 400)
+        return {'message': 'body is invalid json'}, 400
 
     body = json.loads(event['body'])
-    if not validate_flat_body(body):
-        return {'message': 'required fields missing from body'}, 400
+    (is_body_valid, invalid_field) = validate_flat_body(body)
+    if not is_body_valid:
+        return {'message': f'required field \'{invalid_field}\' missing from body'}, 400
     (get_group_response, status) = api_get_group(data_client, queue_client, queue, event)
     if status == 404:
         return get_group_response, status
+
     id = uuid.uuid4()
-    get_group_response['flats'].append({
+    send_create_flat_message({
         'id': str(id),
         'url': body['url'],
         'title': body['title'],
-        'price': body['price']
-    })
-    data_client.put_object(Bucket=BUCKET,
-                           Key=f'groups/{get_group_response["id"]}',
-                           Body=json.dumps(get_group_response),
-                           ContentType='application/json', )
+        'price': body['price'],
+        'group_id': get_group_response['id']
+    }, get_group_response['id'], queue_client, queue)
 
     return {'id': str(id)}, 201
 
@@ -184,12 +174,7 @@ def api_delete_flat(data_client, queue_client, queue, event) -> (dict, int):
     if get_flat_status == 404:
         return get_flat_response, get_flat_status
 
-    get_group_response['flats'] = list(
-        filter(lambda x: x['id'] != event['pathParameters']['flat_id'], get_group_response['flats']))
-    data_client.put_object(Bucket=BUCKET,
-                           Key=f'groups/{get_group_response["id"]}',
-                           Body=json.dumps(get_group_response),
-                           ContentType='application/json', )
+    send_delete_flat_message(event['pathParameters']['flat_id'], get_group_response['id'], queue_client, queue)
 
     return None, 204
 
@@ -209,7 +194,7 @@ def get_flat(group, data_client, queue_client, queue, event) -> (dict, int):
     if len(results) == 0:
         return {'message': f'flat with id {event["pathParameters"]["flat_id"]} does not exist'}, 404
     else:
-        return ({}, 200)
+        return {}, 200
 
 
 def send_sqs_message(message_group_id, payload: dict, queue_client, queue):
@@ -225,7 +210,8 @@ def send_delete_flat_message(id, group_id, queue_client, queue):
     send_sqs_message(group_id, {
         'message_type': DELETE_FLAT_MESSAGE_TYPE,
         'payload': {
-            'id': id
+            'id': id,
+            'group_id': group_id
         }
     }, queue_client, queue)
 
@@ -252,8 +238,12 @@ def is_body_valid_json(body) -> bool:
         return False
 
 
-def validate_flat_body(body) -> bool:
-    if 'url' in body and 'price' in body and 'title' in body:
-        return True
+def validate_flat_body(body) -> (bool, str):
+    if 'url' not in body:
+        return False, 'url'
+    elif 'price' not in body:
+        return False, 'price'
+    elif 'title' not in body:
+        return False, 'title'
     else:
-        return False
+        return True, None
