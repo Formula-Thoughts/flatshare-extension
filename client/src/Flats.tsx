@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import { useFlats } from "./context/FlatsContext";
+import GroupCodeShare from "./GroupCodeShare";
 
 const FlatCard = styled.div`
   display: flex;
@@ -36,25 +37,32 @@ const FlatName = styled.div`
   background-color: #2a4d1a;
 `;
 
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Text = styled.p`
+  font-size: 14px;
+`;
+
+const TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+`;
+
 export const Flats = () => {
   const { flats } = useFlats();
 
-  // useEffect(() => {
-  //   // Listen for messages from the background script
-  //   chrome.runtime.onMessage.addListener((message) => {
-  //     if (message.action === "updatePopup") {
-  //       // Trigger a re-render by updating the state
-  //       setItems((items) => [...items, message.message]);
-  //     }
-  //   });
-  // }, []);
-
   return (
     <div>
-      <div style={{ padding: 10 }}>List of flats</div>
       <p>{JSON.stringify(flats)}</p>
       <div className="App">
-        {flats.length === 0 && <div>No flats found</div>}
+        <GroupCodeShare />
+        <div style={{ height: 10, margin: 20 }}>
+          {flats.length === 0 && <div>No flats found</div>}
+        </div>
         {flats.map((item) => {
           return (
             <FlatCard
