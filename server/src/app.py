@@ -130,9 +130,6 @@ def generate_group_id_and_code(data_client) -> (uuid, str):
 
 
 def api_create_group(data_client, queue_client, queue, event) -> (dict, int):
-    if not is_body_valid_json(event['body']):
-        return {'message': 'body is invalid json'}, 400
-
     id, code = generate_group_id_and_code(data_client)
     group = {
         'id': str(id),
