@@ -1,25 +1,30 @@
 import typing
 from typing import Protocol
 
-from server.src.domain.models import Group, Resource
+from server.src.domain.models import Group
 
 T = typing.TypeVar("T")
 
 
-class RepoBase(Protocol[T]):
+class BlobRepo(Protocol[T]):
 
-    def create(self, data: Resource) -> None:
-        ...
-
-    def get_all(self) -> list[T]:
-        ...
-
-    def get_by_id(self, _id: str) -> T:
-        ...
-
-    def delete_by_id(self, _id: str) -> None:
+    def create(self, data: T, key_gen: typing.Callable[[T], str]) -> None:
         ...
 
 
-class GroupRepo(RepoBase[Group]):
-    ...
+class GroupRepo(Protocol[T]):
+
+    def create(self, data: Group) -> None:
+        ...
+
+
+class Serializer(Protocol):
+
+    def serialize(self, data: typing.Union[dict, list]) -> str:
+        ...
+
+
+class Deserializer(Protocol):
+
+    def deserialize(self, data: str) -> typing.Union[dict, list]:
+        ...

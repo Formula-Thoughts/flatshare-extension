@@ -1,8 +1,10 @@
 import datetime
+import json
 import random
 import typing
 import uuid
 from enum import Enum
+import re
 
 from server.src.exceptions import AutoFixtureException
 
@@ -357,3 +359,45 @@ def all_annotations(cls):
             # object, at least, has no __annotations__ attribute.
             pass
     return d
+
+
+class JsonSnakeToCamelSerializer:
+
+    def serialize(self, data: typing.Union[dict, list]) -> str:
+        return json.dumps(self.__snake_case_to_camel_case_dict(d=data), default=str)
+
+    def __snake_case_to_camel_case_dict(self, d):
+        if isinstance(d, list):
+            return [self.__snake_case_to_camel_case_dict(i) if isinstance(i, (dict, list)) else self.__format_value(i) for i in d]
+        return {self.__snake_case_key_to_camel_case(a): self.__snake_case_to_camel_case_dict(b) if isinstance(b, (
+            dict, list)) else self.__format_value(b) for a, b in d.items()}
+
+    @staticmethod
+    def __format_value(value) -> typing.Any:
+        if(isinstance(value, Enum)):
+            return value.value
+        return value
+
+
+    @staticmethod
+    def __snake_case_key_to_camel_case(key: str) -> str:
+        components = key.split('_')
+        return components[0] + ''.join(x.title() for x in components[1:])
+
+
+class JsonCamelToSnakeCaseDeserializer:
+
+    def deserialize(self, data: str) -> typing.Union[dict, list]:
+        data_dict = json.loads(data)
+        return self.__camel_case_to_snake_case_dict(d=data_dict)
+
+    def __camel_case_to_snake_case_dict(self, d):
+        if isinstance(d, list):
+            return [self.__camel_case_to_snake_case_dict(i) if isinstance(i, (dict, list)) else i for i in d]
+        return {self.__camel_case_key_to_snake_case(a): self.__camel_case_to_snake_case_dict(b) if isinstance(b, (
+            dict, list)) else b for a, b in d.items()}
+
+    @staticmethod
+    def __camel_case_key_to_snake_case(key: str) -> str:
+        words = re.findall(r'[A-Z]?[a-z]+|[A-Z]{2,}(?=[A-Z][a-z]|\d|\W|$)|\d+', key)
+        return '_'.join(map(str.lower, words))
