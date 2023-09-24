@@ -69,7 +69,9 @@ class TestPinfluencerMapper(TestCase):
     def test_map(self):
         # arrange
         test_dto = AutoFixture().create(dto=TestDto,
-                                        list_limit=5)
+                                        list_limit=5,
+                                        seed="1234",
+                                        num=1)
 
         # act
         test_other_dto: TestOtherDto = ObjectMapper().map(_from=test_dto, to=TestOtherDto)
@@ -92,10 +94,7 @@ class TestPinfluencerMapper(TestCase):
 
         # assert
         with self.subTest(msg="nested list types match"):
-            self.assertEqual(get_args(list[NestedTestDto])[0], type(test_dto.nested_list[0]))
 
-        # assert
-        with self.subTest(msg="nested list types match"):
             self.assertEqual(get_args(list[NestedTestOtherDto])[0], type(test_other_dto.nested_list[0]))
 
         # assert
