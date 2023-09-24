@@ -1,32 +1,30 @@
 import { useNavigate } from "react-router-dom";
 import { SelectGroup } from "./SelectGroup";
 import { useEffect, useState } from "react";
+import { useFlats } from "./context/FlatsContext";
 
 export const Landing = () => {
+  const { getGroupCode } = useFlats();
   const navigate = useNavigate();
-  const [whichGroup, setWhichGroup] = useState(undefined);
+  const [groupCode, setGroupCode] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    chrome.storage.local.get("groupSelected", function (result) {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      } else {
-        if (result?.groupSelected) {
-          setWhichGroup(result.groupSelected);
-        }
-        setIsLoading(false);
-      }
-    });
-  }, []);
+    const fetchGroupCode = async () => {
+      const code = await getGroupCode();
+      setGroupCode(code || "");
+    };
+    fetchGroupCode();
+    setIsLoading(false);
+  }, [getGroupCode]);
 
   if (isLoading) {
     return <div>...</div>;
   }
 
-  if (whichGroup) {
+  if (groupCode) {
     navigate("/Flats");
-    return <div>Redirecting to {whichGroup} !</div>;
+    return <div>Redirecting to {groupCode} !</div>;
   }
 
   return <SelectGroup />;
