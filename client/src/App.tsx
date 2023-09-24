@@ -5,7 +5,7 @@ import { Landing } from "./Landing";
 import CreateGroup from "./CreateGroup";
 import { Flats } from "./Flats";
 import FlatView from "./FlatView";
-import FlatsContext, { useFlats } from "./context/FlatsContext";
+import FlatsContext from "./context/FlatsContext";
 
 function App() {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ function App() {
 
   return (
     <FlatsContext>
-      <header style={{ cursor: "pointer" }} onClick={gotoLanding}>
+      <header style={{ cursor: "pointer", padding: 10 }} onClick={gotoLanding}>
         <img style={{ width: 110 }} src={Logo} />
       </header>
       <Routes>
