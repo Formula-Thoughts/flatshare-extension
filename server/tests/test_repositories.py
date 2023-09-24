@@ -3,9 +3,13 @@ from dataclasses import dataclass
 from unittest import TestCase, mock
 from unittest.mock import Mock, MagicMock
 
+from callee import Captor
+
+from server.src.core import BlobRepo
 from server.src.crosscutting import AutoFixture, JsonSnakeToCamelSerializer, JsonCamelToSnakeCaseDeserializer
 from server.src.data import S3ClientWrapper
-from server.src.data.repositories import S3BlobRepo
+from server.src.data.repositories import S3BlobRepo, S3GroupRepo
+from server.src.domain.models import Group
 
 
 @dataclass(unsafe_hash=True)
@@ -43,3 +47,32 @@ class BlobRepoTestCase(TestCase):
                                                             key=f"testmodel/{data.prop_1}/{data.prop_2}",
                                                             body=self.__serializer.serialize(data=data.__dict__),
                                                             content_type="application/json")
+
+
+class TestGroupRepo(TestCase):
+
+    def setUp(self) -> None:
+        self.__blob_repo: BlobRepo = Mock()
+        self.__sut = S3GroupRepo(blob_repo=self.__blob_repo)
+
+    def test_create(self):
+
+        # arrange
+        self.__blob_repo.create = MagicMock()
+        group = AutoFixture().create(dto=Group)
+
+        # act
+        self.__sut.create(group=group)
+
+        # assert
+        with self.subTest(msg="assert blob repo is called once"):
+            self.__blob_repo.create.assert_called_once()
+
+        # assert
+        key_gen_captor = Captor()
+        with self.subTest(msg="assert blob repo is called with correct args"):
+            self.__blob_repo.create.assert_called_with(data=group,
+                                                       key_gen=key_gen_captor)
+
+        with self.subTest(msg="assert key gen generates correct key"):
+            self.assertEqual(f'groups/{group.code}', key_gen_captor.arg(group))

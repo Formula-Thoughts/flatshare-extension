@@ -1,6 +1,5 @@
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
 
 
 def uuid4_str():
@@ -8,16 +7,16 @@ def uuid4_str():
 
 
 @dataclass(unsafe_hash=True)
-class Resource:
+class Flat:
     id: str = field(default_factory=uuid4_str)
+    url: str = None
+    price: float = None
 
 
 @dataclass(unsafe_hash=True)
-class DataModel(Resource):
-    created: datetime = field(default_factory=datetime.utcnow)
-
-
-@dataclass(unsafe_hash=True)
-class Group(DataModel):
-    name: str = None
+class Group:
     code: int = None
+    flats: list[Flat] = field(default_factory=lambda: [])
+
+    def can_add_flat(self, flat: Flat) -> bool:
+        ...
