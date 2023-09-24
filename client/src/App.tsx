@@ -10,15 +10,7 @@ import FlatsContext from "./context/FlatsContext";
 function App() {
   const navigate = useNavigate();
   function gotoLanding(): void {
-    // clear groupSelected from storage
-    chrome.storage.local.remove("groupSelected", function () {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      } else {
-        console.log("groupSelected removed");
-        navigate("/");
-      }
-    });
+    navigate("/");
   }
 
   const defaultNavigation = (url: string | undefined) => {

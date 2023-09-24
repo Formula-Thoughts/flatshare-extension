@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { SelectGroupProps } from "./SelectGroup";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useFlats } from "./context/FlatsContext";
 
 const Input = styled.input<{ $topMargin?: string }>`
   background-color: transparent;
@@ -17,6 +18,7 @@ const Input = styled.input<{ $topMargin?: string }>`
 `;
 
 export const JoinGroup = (props: SelectGroupProps) => {
+  const { setGroupCode } = useFlats();
   const navigate = useNavigate();
 
   const { Block, Button } = props;
@@ -24,28 +26,14 @@ export const JoinGroup = (props: SelectGroupProps) => {
   const changeValue = (e: { target: { value: string } }) => {
     setInputValue(e.target.value.toUpperCase());
   };
-  const handleEnterKeyPress = (
-    e: React.KeyboardEvent,
-    f: (e: React.KeyboardEvent) => void
-  ) => {
+  const handleEnterKeyPress = (e: React.KeyboardEvent, f: () => void) => {
     if (e.key === "Enter") {
-      f(e);
+      f();
     }
   };
-  const joinExistingGroup = (event: any) => {
-    chrome.storage.local.set({ groupSelected: "other" }, function () {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      } else {
-        chrome.storage.local.set({ groupOther: inputValue }, function () {
-          if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError);
-          } else {
-            navigate("/Flats");
-          }
-        });
-      }
-    });
+  const joinExistingGroup = () => {
+    setGroupCode(inputValue);
+    navigate("/Flats");
   };
   return (
     <Block $bgColor="#322848">
@@ -56,15 +44,11 @@ export const JoinGroup = (props: SelectGroupProps) => {
         placeholder="Enter the group code"
         value={inputValue}
         onChange={changeValue}
-        onKeyDown={(event) =>
-          handleEnterKeyPress(event, (event) => joinExistingGroup)
-        }
+        onKeyDown={(event) => handleEnterKeyPress(event, joinExistingGroup)}
         maxLength={8}
       />
 
-      <Button onClick={(event: any) => joinExistingGroup(event)}>
-        Join existing group
-      </Button>
+      <Button onClick={() => joinExistingGroup()}>Join existing group</Button>
     </Block>
   );
 };

@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import ColorfulString from "./ColorfulString"; // Import your ColorfulString component
+import { useFlats } from "./context/FlatsContext";
 
 // Styled-components for the components
 const Container = styled.div`
@@ -25,37 +26,27 @@ const Text = styled.p`
 interface MyComponentProps {}
 
 const GroupCodeShare: React.FC<MyComponentProps> = () => {
-  const [group, setGroup] = useState(undefined);
-
+  const { getGroupCode } = useFlats();
+  const [groupCode, setGroupCode] = useState<string>("");
   const handleCopy = (flat: string) => {
     navigator.clipboard.writeText(flat);
   };
 
   useEffect(() => {
-    chrome.storage.local.get("groupSelected", function (result) {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      } else {
-        let key = result.groupSelected === "own" ? "group" : "groupOther";
-        chrome.storage.local.get(key, function (result) {
-          if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError);
-          } else {
-            console.log(`${key}`, result);
-            setGroup(result[key]);
-          }
-        });
-      }
-    });
-  }, []);
+    const fetchGroupCode = async () => {
+      const code = await getGroupCode();
+      setGroupCode(code || "");
+    };
+    fetchGroupCode();
+  }, [getGroupCode]);
 
   return (
     <Container>
       <Row>
-        <ColorfulString text={group} />
+        <ColorfulString text={groupCode} />
         <FontAwesomeIcon
           icon={faCopy}
-          onClick={() => group && handleCopy(group)}
+          onClick={() => handleCopy(groupCode)}
           style={{ cursor: "pointer", marginLeft: "10px", fontSize: "24px" }}
         />
       </Row>

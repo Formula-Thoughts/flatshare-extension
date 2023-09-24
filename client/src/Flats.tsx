@@ -37,21 +37,6 @@ const FlatName = styled.div`
   background-color: #2a4d1a;
 `;
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Text = styled.p`
-  font-size: 14px;
-`;
-
-const TextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 10px;
-`;
-
 export const Flats = () => {
   const { flats } = useFlats();
 
