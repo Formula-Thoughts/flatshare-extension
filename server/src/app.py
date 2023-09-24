@@ -138,7 +138,7 @@ def generate_code(data_client) -> str:
 
 
 def api_create_group(data_client, queue_client, queue, event) -> (dict, int):
-    id, code = generate_code(data_client)
+    code = generate_code(data_client)
     group = {
         'code': code,
         'flats': []
