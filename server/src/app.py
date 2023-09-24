@@ -25,7 +25,7 @@ def create_flat_event_handler(msg, data_client):
 
 def create_group_event_handler(msg, data_client):
     data_client.put_object(Bucket=BUCKET,
-                           Key=f'groups/{msg["id"]}',
+                           Key=f'groups/{msg["code"]}',
                            Body=json.dumps(msg),
                            ContentType='application/json')
 
@@ -80,10 +80,15 @@ def lambda_api_handler(event, context):
     }
 
     routes = {
-        'POST /groups': lambda data_client, queue_client, queue, x: api_create_group(data_client, queue_client, queue, x),
-        'GET /groups/{group_id}': lambda data_client, queue_client, queue, x: api_get_group(data_client, queue_client,queue, x),
-        'POST /groups/{group_id}/flats': lambda data_client, queue_client, queue, x: api_create_flat(data_client, queue_client, queue, x),
-        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, queue_client, queue, x: api_delete_flat(data_client, queue_client, queue, x)
+        'POST /groups': lambda data_client, queue_client, queue, x: api_create_group(data_client, queue_client, queue,
+                                                                                     x),
+        'GET /groups/{group_id}': lambda data_client, queue_client, queue, x: api_get_group(data_client, queue_client,
+                                                                                            queue, x),
+        'POST /groups/{group_id}/flats': lambda data_client, queue_client, queue, x: api_create_flat(data_client,
+                                                                                                     queue_client,
+                                                                                                     queue, x),
+        'DELETE /groups/{group_id}/flats/{flat_id}': lambda data_client, queue_client, queue, x: api_delete_flat(
+            data_client, queue_client, queue, x)
     }
 
     try:
@@ -112,33 +117,35 @@ def lambda_handler(event, context):
 
 
 def does_group_code_exist(data_client, group_id: str) -> bool:
-    object_list_response = data_client.list_objects_v2(Bucket=BUCKET,
-                                                       Prefix=f'groups/{group_id}')
-    return object_list_response['KeyCount'] != 0
+    try:
+        data_client.head_object(Bucket=BUCKET,
+                                Key=f'groups/{group_id}')
+        return True
+    except ClientError:
+        return False
 
 
-def generate_group_id_and_code(data_client) -> (uuid, str):
+def generate_code(data_client) -> str:
     id_has_been_generated = False
-    (id, code) = (None, None)
+    code = None
     while not id_has_been_generated:
         group_id = uuid.uuid4()
         id_substring = str(group_id)[0:8]
         if not does_group_code_exist(data_client, id_substring):
-            (id, code) = (group_id, id_substring.upper())
+            code = id_substring.upper()
             id_has_been_generated = True
-    return id, code
+    return code
 
 
 def api_create_group(data_client, queue_client, queue, event) -> (dict, int):
-    id, code = generate_group_id_and_code(data_client)
+    id, code = generate_code(data_client)
     group = {
-        'id': str(id),
         'code': code,
         'flats': []
     }
     send_create_group_message(group, queue_client, queue)
 
-    return {'id': str(id)}, 201
+    return {'code': code}, 201
 
 
 def api_create_flat(data_client, queue_client, queue, event) -> (dict, int):
@@ -154,15 +161,21 @@ def api_create_flat(data_client, queue_client, queue, event) -> (dict, int):
         return get_group_response, status
 
     id = uuid.uuid4()
+    flat = {
+        'id': str(id),
+        'url': body['url'],
+        'title': body['title'],
+        'price': body['price']
+    }
     send_create_flat_message({
         'id': str(id),
         'url': body['url'],
         'title': body['title'],
         'price': body['price'],
-        'group_id': get_group_response['id']
-    }, get_group_response['id'], queue_client, queue)
+        'group_id': get_group_response['code']
+    }, get_group_response['code'], queue_client, queue)
 
-    return {'id': str(id)}, 201
+    return flat, 201
 
 
 def api_delete_flat(data_client, queue_client, queue, event) -> (dict, int):
@@ -174,7 +187,7 @@ def api_delete_flat(data_client, queue_client, queue, event) -> (dict, int):
     if get_flat_status == 404:
         return get_flat_response, get_flat_status
 
-    send_delete_flat_message(event['pathParameters']['flat_id'], get_group_response['id'], queue_client, queue)
+    send_delete_flat_message(event['pathParameters']['flat_id'], get_group_response['code'], queue_client, queue)
 
     return None, 204
 
@@ -224,7 +237,7 @@ def send_create_flat_message(flat_payload, group_id, queue_client, queue):
 
 
 def send_create_group_message(group_payload, queue_client, queue):
-    send_sqs_message(group_payload['id'], {
+    send_sqs_message(group_payload['code'], {
         'message_type': CREATE_GROUP_MESSAGE_TYPE,
         'payload': group_payload
     }, queue_client, queue)
