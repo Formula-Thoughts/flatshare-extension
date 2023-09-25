@@ -1,10 +1,9 @@
-import Logo from "./assets/flatini-logo.png";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { Landing } from "./Landing";
-import CreateGroup from "./CreateGroup";
-import { Flats } from "./Flats";
 import FlatView from "./FlatView";
+import { Flats } from "./Flats";
+import { Landing } from "./Landing";
+import Logo from "./assets/flatini-logo.png";
 import FlatsContext from "./context/FlatsContext";
 
 function App() {
@@ -43,7 +42,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/Flats" element={<Flats />} />
-        <Route path="/CreateGroup" element={<CreateGroup />} />
         <Route path="/FlatView" element={<FlatView />} />
       </Routes>
     </FlatsContext>

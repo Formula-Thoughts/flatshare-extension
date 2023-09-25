@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Flat, useFlats } from "./context/FlatsContext";
-import SaveDataButton from "./SaveDataButton";
 import Button from "./Button";
-import { Link } from "react-router-dom";
+import SaveDataButton from "./SaveDataButton";
+import { Flat, useFlats } from "./context/FlatsContext";
 
 const Wrapper = styled.div`
   position: fixed;
