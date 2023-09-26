@@ -4,6 +4,9 @@ import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import { useFlats } from "./context/FlatsContext";
 import GroupCodeShare from "./GroupCodeShare";
+import { useEffect } from "react";
+import { _getGroupById } from "./utils/resources";
+import { getGroupCode } from "./utils/storage";
 
 const FlatCard = styled.div`
   display: flex;
@@ -38,11 +41,16 @@ const FlatName = styled.div`
 `;
 
 export const Flats = () => {
-  const { flats } = useFlats();
+  const { flats, initFlatsFromApi } = useFlats();
+
+  // useEffect(() => {
+  //   (async () => {
+  //     await initFlatsFromApi();
+  //   })();
+  // }, []);
 
   return (
     <div>
-      <p>{JSON.stringify(flats)}</p>
       <div className="App">
         <GroupCodeShare />
         <div style={{ height: 10, margin: 20 }}>
