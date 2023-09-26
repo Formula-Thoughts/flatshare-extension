@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SelectGroupProps } from "./SelectGroup";
 import { useFlats } from "./context/FlatsContext";
+import { setGroupCode, getGroupCode } from "./utils/storage";
 
 export const NewGroup = (props: SelectGroupProps) => {
-  const { setGroupCode, getGroupCode } = useFlats();
   const [groupCode, setCurrentGroupCode] = useState<string | undefined>(
     undefined
   );

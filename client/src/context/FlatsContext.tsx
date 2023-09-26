@@ -4,8 +4,6 @@ interface FlatContextType {
   flats: Flat[]; // Assuming flats is an array of strings, replace with your actual data type
   setFlats: React.Dispatch<React.SetStateAction<Flat[]>>;
   removeFlat: (id: string) => void; // Define the removeFlat function
-  setGroupCode: (code: string) => void;
-  getGroupCode: () => Promise<string | undefined>;
 }
 
 export type Flat = {
@@ -28,32 +26,8 @@ const FlatProvider = (props: Props) => {
     setFlats((prevFlats) => prevFlats.filter((flat) => flat.url !== url));
   };
 
-  const setGroupCode = (code: string) => {
-    chrome.storage.local.set({ groupCode: code }, function () {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      }
-    });
-  };
-
-  const getGroupCode = async () => {
-    return new Promise<string | undefined>((resolve) => {
-      chrome.storage.local.get("groupCode", function (result) {
-        if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError);
-          resolve(undefined);
-        } else {
-          const groupCode = result.groupCode;
-          resolve(groupCode);
-        }
-      });
-    });
-  };
-
   return (
-    <FlatContext.Provider
-      value={{ flats, setFlats, removeFlat, setGroupCode, getGroupCode }}
-    >
+    <FlatContext.Provider value={{ flats, setFlats, removeFlat }}>
       {props.children}
     </FlatContext.Provider>
   );

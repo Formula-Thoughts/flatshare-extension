@@ -4,6 +4,7 @@ import { faCopy } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import ColorfulString from "./ColorfulString"; // Import your ColorfulString component
 import { useFlats } from "./context/FlatsContext";
+import { getGroupCode } from "./utils/storage";
 
 // Styled-components for the components
 const Container = styled.div`
@@ -26,7 +27,6 @@ const Text = styled.p`
 interface MyComponentProps {}
 
 const GroupCodeShare: React.FC<MyComponentProps> = () => {
-  const { getGroupCode } = useFlats();
   const [groupCode, setGroupCode] = useState<string>("");
   const handleCopy = (flat: string) => {
     navigator.clipboard.writeText(flat);

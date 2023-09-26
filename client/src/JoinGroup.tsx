@@ -3,6 +3,7 @@ import { SelectGroupProps } from "./SelectGroup";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useFlats } from "./context/FlatsContext";
+import { setGroupCode } from "./utils/storage";
 
 const Input = styled.input<{ $topMargin?: string }>`
   background-color: transparent;
@@ -28,7 +29,7 @@ const ErrorContainer = styled.div<{ $show: boolean }>`
 `;
 
 export const JoinGroup = (props: SelectGroupProps) => {
-  const { setGroupCode, setFlats } = useFlats();
+  const { setFlats } = useFlats();
   const navigate = useNavigate();
   const [showError, setShowError] = useState(false);
   const [joinBtnOn, setJoinBtnOn] = useState(false);
@@ -85,7 +86,9 @@ export const JoinGroup = (props: SelectGroupProps) => {
         placeholder="Enter the group code"
         value={inputValue}
         onChange={changeValue}
-        onKeyDown={(event) => handleEnterKeyPress(event, joinExistingGroup)}
+        onKeyDown={(event: any) =>
+          handleEnterKeyPress(event, joinExistingGroup)
+        }
         maxLength={8}
       />
 
