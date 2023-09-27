@@ -7,6 +7,7 @@ import FlatsContext from "./context/FlatsContext";
 import { useEffect, useState } from "react";
 import { SelectGroup } from "./SelectGroup";
 import { getGroupCode } from "./utils/storage";
+import Header from "./Header";
 
 function App() {
   const [groupCode, setGroupCode] = useState<string>("");
@@ -52,9 +53,7 @@ function App() {
   if (groupCode) {
     return (
       <FlatsContext>
-        <header style={{ cursor: "pointer", padding: 10 }}>
-          <img style={{ width: 110 }} src={Logo} />
-        </header>
+        <Header showSignout={true} />
         <Routes>
           <Route path="/" element={<Flats />} />
           <Route path="/FlatView" element={<FlatView />} />

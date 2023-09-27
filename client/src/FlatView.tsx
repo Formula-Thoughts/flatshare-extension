@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Button from "./Button";
 import SaveDataButton from "./SaveDataButton";
 import { Flat, useFlats } from "./context/FlatsContext";
-import { _addFlat } from "./utils/resources";
+import { _addFlat, _deleteFlat } from "./utils/resources";
 import { getGroupCode } from "./utils/storage";
 
 const Wrapper = styled.div`
@@ -49,9 +49,13 @@ const FlatView = () => {
   };
 
   const removeFlatFromList = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (tabs.length > 0) {
         const activeTab = tabs[0];
+        await _deleteFlat(
+          (await getGroupCode()) as string,
+          flats.find((flat: Flat) => flat.url === activeTab.url)?.id as string
+        );
         removeFlat(activeTab.url as string);
         setIsFlatDuplicated(false);
       }
