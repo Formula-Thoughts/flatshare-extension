@@ -26,7 +26,9 @@ const FlatProvider = (props: Props) => {
   const [flats, setFlats] = useState<Flat[]>([]); // Initialize state here
 
   const initFlatsFromApi = async () => {
-    setFlats(await _getGroupById((await getGroupCode()) as string));
+    const data = await _getGroupById((await getGroupCode()) as string);
+    console.log("data", data);
+    setFlats(data?.flats || []);
   };
 
   const removeFlat = (url: string) => {

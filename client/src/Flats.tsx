@@ -43,20 +43,20 @@ const FlatName = styled.div`
 export const Flats = () => {
   const { flats, initFlatsFromApi } = useFlats();
 
-  // useEffect(() => {
-  //   (async () => {
-  //     await initFlatsFromApi();
-  //   })();
-  // }, []);
+  useEffect(() => {
+    (async () => {
+      await initFlatsFromApi();
+    })();
+  }, []);
 
   return (
     <div>
       <div className="App">
         <GroupCodeShare />
         <div style={{ height: 10, margin: 20 }}>
-          {flats.length === 0 && <div>No flats found</div>}
+          {flats?.length === 0 && <div>No flats found</div>}
         </div>
-        {flats.map((item) => {
+        {flats?.map((item) => {
           return (
             <FlatCard
               key={item.id}

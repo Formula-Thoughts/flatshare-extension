@@ -3,6 +3,8 @@ import styled from "styled-components";
 import Button from "./Button";
 import SaveDataButton from "./SaveDataButton";
 import { Flat, useFlats } from "./context/FlatsContext";
+import { _addFlat } from "./utils/resources";
+import { getGroupCode } from "./utils/storage";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -34,13 +36,14 @@ const FlatView = () => {
     });
   };
 
-  const addFlat = (title: string, url: string, price: string) => {
+  const addFlat = async (title: string, url: string, price: string) => {
     const newFlat: Flat = {
       id: (flats.length + 1).toString(),
       title: title,
       url: url,
       price: price,
     };
+    await _addFlat((await getGroupCode()) as string, url, price, title);
     setFlats([...flats, newFlat]);
     setIsFlatDuplicated(true);
   };
