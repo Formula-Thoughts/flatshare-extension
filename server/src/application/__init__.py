@@ -15,7 +15,7 @@ class Error:
 
 
 @dataclass(unsafe_hash=True)
-class ServiceContext:
+class ApplicationContext:
     body: dict = None
     error_capsules: list[Error] = field(default_factory=lambda: [])
     response: Response = None
@@ -23,5 +23,5 @@ class ServiceContext:
 
 class Command(Protocol):
 
-    def run(self, context: ServiceContext) -> None:
+    def run(self, context: ApplicationContext) -> None:
         ...
