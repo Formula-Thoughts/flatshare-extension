@@ -401,3 +401,21 @@ class JsonCamelToSnakeCaseDeserializer:
     def __camel_case_key_to_snake_case(key: str) -> str:
         words = re.findall(r'[A-Z]?[a-z]+|[A-Z]{2,}(?=[A-Z][a-z]|\d|\W|$)|\d+', key)
         return '_'.join(map(str.lower, words))
+
+
+class DummyLogger:
+
+    def log_error(self, message: str):
+        ...
+
+    def log_exception(self, exception: Exception):
+        ...
+
+    def log_info(self, message: str):
+        ...
+
+    def log_debug(self, message: str):
+        ...
+
+    def log_trace(self, message: str):
+        ...
