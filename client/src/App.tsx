@@ -1,25 +1,18 @@
-import Logo from "./assets/flatini-logo.png";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { Landing } from "./Landing";
-import CreateGroup from "./CreateGroup";
-import { Flats } from "./Flats";
 import FlatView from "./FlatView";
+import { Flats } from "./Flats";
+import Logo from "./assets/flatini-logo.png";
 import FlatsContext from "./context/FlatsContext";
+import { useEffect, useState } from "react";
+import { SelectGroup } from "./SelectGroup";
+import { getGroupCode } from "./utils/storage";
+import Header from "./Header";
 
 function App() {
+  const [groupCode, setGroupCode] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  function gotoLanding(): void {
-    // clear groupSelected from storage
-    chrome.storage.local.remove("groupSelected", function () {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      } else {
-        console.log("groupSelected removed");
-        navigate("/");
-      }
-    });
-  }
 
   const defaultNavigation = (url: string | undefined) => {
     if (url?.includes("https://www.rightmove.co.uk/properties/")) {
@@ -29,6 +22,16 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    const fetchGroupCode = async () => {
+      const code = await getGroupCode();
+      setGroupCode(code || "");
+    };
+    fetchGroupCode();
+    setIsLoading(false);
+  }, [getGroupCode]);
+
+  // Listens to changes on tabs
   chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     console.log("updating tab2", tab);
     defaultNavigation(tab.url);
@@ -43,15 +46,30 @@ function App() {
     });
   });
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (groupCode) {
+    return (
+      <FlatsContext>
+        <Header showSignout={true} />
+        <Routes>
+          <Route path="/" element={<Flats />} />
+          <Route path="/FlatView" element={<FlatView />} />
+        </Routes>
+      </FlatsContext>
+    );
+  }
+
   return (
     <FlatsContext>
-      <header style={{ cursor: "pointer", padding: 10 }} onClick={gotoLanding}>
+      <header style={{ cursor: "pointer", padding: 10 }}>
         <img style={{ width: 110 }} src={Logo} />
       </header>
       <Routes>
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={<SelectGroup />} />
         <Route path="/Flats" element={<Flats />} />
-        <Route path="/CreateGroup" element={<CreateGroup />} />
         <Route path="/FlatView" element={<FlatView />} />
       </Routes>
     </FlatsContext>

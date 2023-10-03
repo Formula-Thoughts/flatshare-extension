@@ -4,6 +4,9 @@ import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import { useFlats } from "./context/FlatsContext";
 import GroupCodeShare from "./GroupCodeShare";
+import { useEffect } from "react";
+import { _getGroupById } from "./utils/resources";
+import { getGroupCode } from "./utils/storage";
 
 const FlatCard = styled.div`
   display: flex;
@@ -37,33 +40,23 @@ const FlatName = styled.div`
   background-color: #2a4d1a;
 `;
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Text = styled.p`
-  font-size: 14px;
-`;
-
-const TextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 10px;
-`;
-
 export const Flats = () => {
-  const { flats } = useFlats();
+  const { flats, initFlatsFromApi } = useFlats();
+
+  useEffect(() => {
+    (async () => {
+      await initFlatsFromApi();
+    })();
+  }, []);
 
   return (
     <div>
-      <p>{JSON.stringify(flats)}</p>
       <div className="App">
         <GroupCodeShare />
         <div style={{ height: 10, margin: 20 }}>
-          {flats.length === 0 && <div>No flats found</div>}
+          {flats?.length === 0 && <div>No flats found</div>}
         </div>
-        {flats.map((item) => {
+        {flats?.map((item) => {
           return (
             <FlatCard
               key={item.id}

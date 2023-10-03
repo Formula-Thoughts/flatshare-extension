@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { SelectGroupProps } from "./SelectGroup";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useFlats } from "./context/FlatsContext";
+import { setGroupCode } from "./utils/storage";
 
 const Input = styled.input<{ $topMargin?: string }>`
   background-color: transparent;
@@ -16,36 +18,64 @@ const Input = styled.input<{ $topMargin?: string }>`
   color: #ccc;
 `;
 
-export const JoinGroup = (props: SelectGroupProps) => {
-  const navigate = useNavigate();
+const Text = styled.p`
+  font-size: 14px;
+  text-align: left;
+`;
 
+const ErrorContainer = styled.div<{ $show: boolean }>`
+  height: 20px;
+  background-color: ${(props) => (props.$show ? "#322848" : "transparent")};
+`;
+
+export const JoinGroup = (props: SelectGroupProps) => {
+  const { setFlats } = useFlats();
+  const navigate = useNavigate();
+  const [showError, setShowError] = useState(false);
+  const [joinBtnOn, setJoinBtnOn] = useState(false);
   const { Block, Button } = props;
   const [inputValue, setInputValue] = useState("");
+
   const changeValue = (e: { target: { value: string } }) => {
     setInputValue(e.target.value.toUpperCase());
+    setShowError(false);
+    setJoinBtnOn(e.target.value.length === 8);
   };
-  const handleEnterKeyPress = (
-    e: React.KeyboardEvent,
-    f: (e: React.KeyboardEvent) => void
-  ) => {
-    if (e.key === "Enter") {
-      f(e);
+  const handleEnterKeyPress = (e: React.KeyboardEvent, f: () => void) => {
+    if (e.key === "Enter" && joinBtnOn) {
+      f();
     }
   };
-  const joinExistingGroup = (event: any) => {
-    chrome.storage.local.set({ groupSelected: "other" }, function () {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      } else {
-        chrome.storage.local.set({ groupOther: inputValue }, function () {
-          if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError);
-          } else {
-            navigate("/Flats");
-          }
-        });
-      }
-    });
+  const joinExistingGroup = () => {
+    const url =
+      "https://gbjrcfuc7b.execute-api.eu-west-2.amazonaws.com/groups/" +
+      inputValue;
+
+    fetch(url, {
+      method: "Get",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.log(`Network response was not ok:`, response);
+          setShowError(true);
+          return;
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data) {
+          console.log("Calling GET groups", data);
+          setGroupCode(data.code);
+          setFlats(data.flats);
+          navigate("/Flats");
+        }
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
   };
   return (
     <Block $bgColor="#322848">
@@ -56,15 +86,18 @@ export const JoinGroup = (props: SelectGroupProps) => {
         placeholder="Enter the group code"
         value={inputValue}
         onChange={changeValue}
-        onKeyDown={(event) =>
-          handleEnterKeyPress(event, (event) => joinExistingGroup)
+        onKeyDown={(event: any) =>
+          handleEnterKeyPress(event, joinExistingGroup)
         }
         maxLength={8}
       />
 
-      <Button onClick={(event: any) => joinExistingGroup(event)}>
+      <Button $disabled={!joinBtnOn} onClick={() => joinExistingGroup()}>
         Join existing group
       </Button>
+      <ErrorContainer $show={showError}>
+        {showError && <Text>Error: Group code not found</Text>}
+      </ErrorContainer>
     </Block>
   );
 };

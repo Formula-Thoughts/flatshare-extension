@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Flat, useFlats } from "./context/FlatsContext";
-import SaveDataButton from "./SaveDataButton";
 import Button from "./Button";
-import { Link } from "react-router-dom";
+import SaveDataButton from "./SaveDataButton";
+import { Flat, useFlats } from "./context/FlatsContext";
+import { _addFlat, _deleteFlat } from "./utils/resources";
+import { getGroupCode } from "./utils/storage";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -35,21 +36,26 @@ const FlatView = () => {
     });
   };
 
-  const addFlat = (title: string, url: string, price: string) => {
+  const addFlat = async (title: string, url: string, price: string) => {
     const newFlat: Flat = {
       id: (flats.length + 1).toString(),
       title: title,
       url: url,
       price: price,
     };
+    await _addFlat((await getGroupCode()) as string, url, price, title);
     setFlats([...flats, newFlat]);
     setIsFlatDuplicated(true);
   };
 
   const removeFlatFromList = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (tabs.length > 0) {
         const activeTab = tabs[0];
+        await _deleteFlat(
+          (await getGroupCode()) as string,
+          flats.find((flat: Flat) => flat.url === activeTab.url)?.id as string
+        );
         removeFlat(activeTab.url as string);
         setIsFlatDuplicated(false);
       }
