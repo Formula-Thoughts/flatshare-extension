@@ -35,5 +35,11 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["sidePanel", "tabs", "storage", "activeTab"]
+  "permissions": ["sidePanel", "tabs", "storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://www.openrent.co.uk/*",
+    "https://www.spareroom.co.uk/*",
+    "https://www.zoopla.co.uk/*",
+    "https://www.rightmove.co.uk/*"
+  ]
 }

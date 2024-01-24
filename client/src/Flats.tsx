@@ -5,6 +5,7 @@ import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import { useFlats } from "./context/AppProvider";
 import { useEffect } from "react";
 import { _getGroupById } from "./utils/resources";
+import MainLayout from "./layouts/MainLayout";
 
 const FlatCard = styled.div`
   display: flex;
@@ -41,18 +42,16 @@ const FlatName = styled.div`
 export const Flats = () => {
   const { flats, initFlatsFromApi } = useFlats();
 
-  useEffect(() => {
-    (async () => {
-      await initFlatsFromApi();
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     await initFlatsFromApi();
+  //   })();
+  // }, []);
 
   return (
-    <div>
+    <MainLayout>
       <div className="App">
-        <div style={{ height: 10, margin: 20 }}>
-          {flats?.length === 0 && <div>No flats found</div>}
-        </div>
+        {flats?.length === 0 && <div>No flats found</div>}
         {flats?.map((item) => {
           return (
             <FlatCard
@@ -78,6 +77,6 @@ export const Flats = () => {
           );
         })}
       </div>
-    </div>
+    </MainLayout>
   );
 };
