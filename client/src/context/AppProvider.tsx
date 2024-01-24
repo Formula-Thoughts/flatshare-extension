@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext } from "react";
 import { _getGroupById } from "../utils/resources";
-import { getGroupCode } from "../utils/storage";
 
 interface FlatContextType {
   flats: Flat[]; // Assuming flats is an array of strings, replace with your actual data type
@@ -17,7 +16,7 @@ export type Flat = {
 };
 
 export type Props = {
-  children: JSX.Element[];
+  children: JSX.Element[] | JSX.Element;
 };
 
 const FlatContext = createContext<FlatContextType | undefined>(undefined);
@@ -26,9 +25,7 @@ const FlatProvider = (props: Props) => {
   const [flats, setFlats] = useState<Flat[]>([]); // Initialize state here
 
   const initFlatsFromApi = async () => {
-    const data = await _getGroupById((await getGroupCode()) as string);
-    console.log("data", data);
-    setFlats(data?.flats || []);
+    setFlats([]);
   };
 
   const removeFlat = (url: string) => {

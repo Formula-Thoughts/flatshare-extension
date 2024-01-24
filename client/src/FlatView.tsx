@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import Button from "./Button";
 import SaveDataButton from "./SaveDataButton";
-import { Flat, useFlats } from "./context/FlatsContext";
+import { Flat, useFlats } from "./context/AppProvider";
 import { _addFlat, _deleteFlat } from "./utils/resources";
-import { getGroupCode } from "./utils/storage";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -43,7 +41,6 @@ const FlatView = () => {
       url: url,
       price: price,
     };
-    await _addFlat((await getGroupCode()) as string, url, price, title);
     setFlats([...flats, newFlat]);
     setIsFlatDuplicated(true);
   };
@@ -52,10 +49,6 @@ const FlatView = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (tabs.length > 0) {
         const activeTab = tabs[0];
-        await _deleteFlat(
-          (await getGroupCode()) as string,
-          flats.find((flat: Flat) => flat.url === activeTab.url)?.id as string
-        );
         removeFlat(activeTab.url as string);
         setIsFlatDuplicated(false);
       }
@@ -72,11 +65,7 @@ const FlatView = () => {
         <p>The flat you’re viewing has already been added to the list</p>
         <div
           style={{ marginTop: 30, display: "flex", flexDirection: "column" }}
-        >
-          <Button onClick={removeFlatFromList} style={{ padding: 15 }}>
-            Remove
-          </Button>
-        </div>
+        ></div>
       </Wrapper>
     );
   } else {
