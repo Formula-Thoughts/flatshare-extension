@@ -10,7 +10,69 @@ Globals:
       Variables:
         ENVIRONMENT: PROD
 
+Parameters:
+  GoogleClientId:
+    Description: ClientId
+    Type: String
+  GoogleClientSecret:
+    Description: ClientSecret
+    Type: String
+
 Resources:
+
+  FlatiniUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UsernameConfiguration:
+        CaseSensitive: false
+      AutoVerifiedAttributes:
+        - email
+      UserPoolName: flatini-user-pool
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+
+  FlatiniUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref FlatiniUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      CallbackURLs:
+        - https://localhost:3000
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - profile
+      SupportedIdentityProviders:
+        - Google
+
+  CognitoUserPoolIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      ProviderName: Google
+      AttributeMapping:
+        email: email
+        name: name
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: email profile
+      ProviderType: Google
+      UserPoolId: !Ref FlatiniUserPool
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: flatini
+      UserPoolId: !Ref FlatiniUserPool
 
   Database:
     Type: AWS::S3::Bucket
@@ -134,3 +196,9 @@ Outputs:
   FlatiniBaseUrl:
     Description: "Base URL for Flatini API"
     Value: !Sub "https://${FlatiniHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+  CognitoAppClientID:
+    Value: !Ref FlatiniUserPoolClient
+    Description: The app client
+  HostedUIURL:
+    Value: !Sub https://flatini.auth.${AWS::Region}.amazoncognito.com/login?client_id=${FlatiniUserPoolClient}&response_type=code&scope=email+profile&redirect_uri=https://localhost:3000
+    Description: The hosted UI URL
