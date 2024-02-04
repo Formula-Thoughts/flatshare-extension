@@ -2,11 +2,9 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
-import { useFlats } from "./context/FlatsContext";
-import GroupCodeShare from "./GroupCodeShare";
+import { useFlats } from "./context/AppProvider";
 import { useEffect } from "react";
 import { _getGroupById } from "./utils/resources";
-import { getGroupCode } from "./utils/storage";
 
 const FlatCard = styled.div`
   display: flex;
@@ -52,7 +50,6 @@ export const Flats = () => {
   return (
     <div>
       <div className="App">
-        <GroupCodeShare />
         <div style={{ height: 10, margin: 20 }}>
           {flats?.length === 0 && <div>No flats found</div>}
         </div>

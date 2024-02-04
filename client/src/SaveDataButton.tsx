@@ -1,5 +1,3 @@
-import Button from "./Button";
-
 // Declare a type for the tab object
 type TabInfo = {
   url?: string;
@@ -38,9 +36,9 @@ function SaveDataButton({ onClickAction }: SaveDataButtonProps) {
   };
   return (
     <div>
-      <Button onClick={saveData} style={{ padding: 15, marginTop: 20 }}>
+      <button onClick={saveData} style={{ padding: 15, marginTop: 20 }}>
         Add to the list
-      </Button>
+      </button>
     </div>
   );
 }
