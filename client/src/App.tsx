@@ -12,10 +12,11 @@ function App() {
   // const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const state = useFlats();
-
+  const [token, setToken] = useState("");
+  let url;
   const setActiveUrl = () => {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-      let url = tabs[0].url;
+      url = tabs[0].url;
       if (url) {
         const getPropertyProvider = (url: string) => {
           if (url?.includes("https://www.rightmove.co.uk/properties/")) {
@@ -46,6 +47,7 @@ function App() {
           contents: url,
           propertyProvider: getPropertyProvider(url),
         });
+
         defaultNavigation(url);
       }
     });
@@ -61,6 +63,8 @@ function App() {
       url?.includes("https://www.openrent.co.uk/property-to-rent/")
     ) {
       navigate("/FlatView");
+    } else if (url?.includes("flatiniToken")) {
+      setToken(url?.split("flatiniToken=")[1]);
     } else {
       navigate("/");
     }
@@ -99,6 +103,7 @@ function App() {
 
   return (
     <>
+      <p>token{token}</p>
       {state.activeUrl ? (
         <Routes>
           {/* <Route path="/" element={<Landing />} /> */}

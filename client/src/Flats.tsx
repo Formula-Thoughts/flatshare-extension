@@ -6,52 +6,22 @@ import { useFlats } from "./context/AppProvider";
 import { useEffect } from "react";
 import { _getGroupById } from "./utils/resources";
 import MainLayout from "./layouts/MainLayout";
+import Text, { TextTypes } from "./dwelly-library/components/Text";
+import { Authenticator } from "@aws-amplify/ui-react";
 
 const FlatCard = styled.div`
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 10px;
-  margin: 10px;
-  width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: left;
-  background-color: #2a4d1a;
-  flex-direction: column;
-  gap: 10px;
-  cursor: pointer;
+  position: relative;
 `;
 
-const FlatCardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const FlatCardBody = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const FlatName = styled.div`
-  font-size: 18px;
-  background-color: #2a4d1a;
-`;
+const FlatCardBody = styled.div``;
 
 export const Flats = () => {
   const { flats, initFlatsFromApi } = useFlats();
 
-  // useEffect(() => {
-  //   (async () => {
-  //     await initFlatsFromApi();
-  //   })();
-  // }, []);
-
   return (
     <MainLayout>
       <div className="App">
-        {flats?.length === 0 && <div>No flats found</div>}
+        {flats?.length === 0 && <div>No flat2 found</div>}
         {flats?.map((item) => {
           return (
             <FlatCard
@@ -60,19 +30,26 @@ export const Flats = () => {
                 chrome.tabs.create({ url: item.url });
               }}
             >
-              <FlatCardHeader>
-                <FontAwesomeIcon icon={faHouseChimney} />
-                <FlatName>{item.price}</FlatName>
+              <div style={{ display: "flex", gap: "1rem" }}>
                 <FontAwesomeIcon
-                  icon={faArrowUpRightFromSquare}
-                  onClick={() => {
-                    chrome.tabs.create({ url: item.url });
-                  }}
+                  style={{ fontSize: "1.4rem" }}
+                  icon={faHouseChimney}
                 />
-              </FlatCardHeader>
-              <FlatCardBody>
-                <FlatName>{item.title}</FlatName>
-              </FlatCardBody>
+                <FlatCardBody>
+                  <Text type={TextTypes.title}>{item.title}</Text>
+                  <div>
+                    <Text type={TextTypes.small}>{item.price}</Text>
+                    <Text type={TextTypes.small}>Added by</Text>
+                  </div>
+                </FlatCardBody>
+              </div>
+              <FontAwesomeIcon
+                icon={faArrowUpRightFromSquare}
+                style={{ position: "absolute", top: 0, right: 0 }}
+                onClick={() => {
+                  chrome.tabs.create({ url: item.url });
+                }}
+              />
             </FlatCard>
           );
         })}
