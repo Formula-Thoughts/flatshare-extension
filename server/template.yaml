@@ -3,11 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   Flatini backend stack
 
-Parameters:
-  LambdaRole:
-    Type: String
-    Description: The role which the lambda executes
-
 Globals:
   Function:
     Timeout: 50
@@ -15,12 +10,115 @@ Globals:
       Variables:
         ENVIRONMENT: PROD
 
+Parameters:
+  GoogleClientId:
+    Description: ClientId
+    Type: String
+  GoogleClientSecret:
+    Description: ClientSecret
+    Type: String
+
 Resources:
+
+  FlatiniUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UsernameConfiguration:
+        CaseSensitive: false
+      AutoVerifiedAttributes:
+        - email
+      UserPoolName: flatini-user-pool
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+
+  FlatiniUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref FlatiniUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      CallbackURLs:
+        - https://localhost:3000
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - profile
+      SupportedIdentityProviders:
+        - Google
+
+  CognitoUserPoolIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      ProviderName: Google
+      AttributeMapping:
+        email: email
+        name: name
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: email profile
+      ProviderType: Google
+      UserPoolId: !Ref FlatiniUserPool
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: flatini
+      UserPoolId: !Ref FlatiniUserPool
 
   Database:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: "flatini-blob-db"
+
+  FlatiniAppRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: FlatiniAppRoleLogsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: arn:aws:logs:*:*:*
+        - PolicyName: FlatiniAppRoleSqsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:*
+                Resource: arn:aws:sqs:*:*:*
+        - PolicyName: FlatiniAppRoleDbPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource: !Sub arn:aws:s3:::${Database}*
 
   FlatiniHttpApi:
     Type: AWS::Serverless::HttpApi
@@ -43,10 +141,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       MemorySize: 1024
-      Role: !Ref LambdaRole
       CodeUri: ./
       Handler: src/app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.10
       Events:
         GetGroupById:
           Type: HttpApi
@@ -72,6 +169,15 @@ Resources:
             Path: /groups/{group_id}/flats/{flat_id}
             Method: delete
             ApiId: !Ref FlatiniHttpApi
+      Role: !GetAtt FlatiniAppRole.Arn
+
+  FlatiniApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt FlatiniFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/*/
 
   LambdaFunctionEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
@@ -90,3 +196,9 @@ Outputs:
   FlatiniBaseUrl:
     Description: "Base URL for Flatini API"
     Value: !Sub "https://${FlatiniHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+  CognitoAppClientID:
+    Value: !Ref FlatiniUserPoolClient
+    Description: The app client
+  HostedUIURL:
+    Value: !Sub https://flatini.auth.${AWS::Region}.amazoncognito.com/login?client_id=${FlatiniUserPoolClient}&response_type=code&scope=email+profile&redirect_uri=https://localhost:3000
+    Description: The hosted UI URL
