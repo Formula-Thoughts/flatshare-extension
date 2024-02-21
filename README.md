@@ -5,6 +5,7 @@ A browser extension that helps organise your flatshare search
 This project uses <a href="https://www.flaticon.com/free-icons/partnership" title="partnership icons">Partnership icons created by Flat Icons - Flaticon</a>
 
 # Back End
+
 - live at https://gbjrcfuc7b.execute-api.eu-west-2.amazonaws.com/groups/5130831f-f57f-42e6-87fc-894ba74eea6e
 - Install packages
   - `pip install -r requirements.txt && pip install -r requirements-test.txt`
@@ -16,6 +17,8 @@ This project uses <a href="https://www.flaticon.com/free-icons/partnership" titl
   - `python -m unittest`
 
 # Front End
+
+- In a terminal, change folder to the client folder under the root of the project
 - Install packages
   - `npm install`
 - Build extension
@@ -34,3 +37,11 @@ This project uses <a href="https://www.flaticon.com/free-icons/partnership" titl
   - Select the dist directory
 
     ![dist directory selected](.readme_files/load-dist-dir.png)
+
+  - You will now see Flatini loaded into your extension.
+
+    ![flatini loaded](.readme_files/flatini-extension-loaded.png)
+
+- Open the side panel and select Flatini extension
+
+  ![flatini side panel](.readme_files/flatini-side-panel.png)
