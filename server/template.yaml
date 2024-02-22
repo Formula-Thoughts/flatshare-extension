@@ -38,22 +38,6 @@ Resources:
           Mutable: true
           Required: true
 
-  FlatiniUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId: !Ref FlatiniUserPool
-      AllowedOAuthFlowsUserPoolClient: true
-      CallbackURLs:
-        - https://localhost:3000
-      AllowedOAuthFlows:
-        - code
-        - implicit
-      AllowedOAuthScopes:
-        - email
-        - profile
-      SupportedIdentityProviders:
-        - Google
-
   CognitoUserPoolIdentityProvider:
     Type: AWS::Cognito::UserPoolIdentityProvider
     Properties:
@@ -67,6 +51,23 @@ Resources:
         authorize_scopes: email profile
       ProviderType: Google
       UserPoolId: !Ref FlatiniUserPool
+
+  FlatiniUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref FlatiniUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      CallbackURLs:
+        - https://localhost:3000
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - profile
+        - openid
+      SupportedIdentityProviders:
+        - !Ref CognitoUserPoolIdentityProvider
 
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
@@ -145,6 +146,12 @@ Resources:
       Handler: src/app.lambda_handler
       Runtime: python3.10
       Events:
+        TestProxy:
+          Type: HttpApi
+          Properties:
+            Path: /proxy/{path+}
+            Method: any
+            ApiId: !Ref FlatiniHttpApi
         GetGroupById:
           Type: HttpApi
           Properties:

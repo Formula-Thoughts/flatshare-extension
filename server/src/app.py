@@ -41,9 +41,14 @@ def delete_flat_event_handler(msg, data_client):
 
 def lambda_event_handler(event, context):
     handler_id = str(uuid.uuid4())
+    print(json.dumps(event))
     # aws spins up multiple lambdas with batches of events
     for record in event['Records']:
-        print(f"logging from handler {handler_id}")
+        print(json.dumps({
+            "message": "start handler",
+            "handler_id": handler_id,
+            "severity": "INFO"
+        }))
 
         try:
             s3_client = boto3.client("s3")
@@ -60,12 +65,22 @@ def lambda_event_handler(event, context):
 
             handlers[message_type](payload, s3_client)
 
-            print(str(payload))
+            print(json.dumps({
+                "message": "end handler",
+                "handler_id": handler_id,
+                "severity": "INFO",
+                "payload": str(payload)
+            }))
         except Exception as e:
-            print(f"error occured in handler {handler_id} {str(e)}")
-
+            print(json.dumps({
+                "message": "error occured in handler",
+                "handler_id": handler_id,
+                "severity": "ERROR",
+                "exception": str(e)
+            }))
 
 def lambda_api_handler(event, context):
+    print(event)
     route = event['routeKey']
 
     s3_client = boto3.client('s3')
@@ -79,6 +94,12 @@ def lambda_api_handler(event, context):
         'Access-Control-Allow-Methods': '*'
     }
 
+    print(json.dumps({
+        "message": "start api",
+        "route": route,
+        "severity": "INFO"
+    }))
+
     routes = {
         'POST /groups': lambda data_client, queue_client, queue, x: api_create_group(data_client, queue_client, queue,
                                                                                      x),
@@ -91,6 +112,12 @@ def lambda_api_handler(event, context):
             data_client, queue_client, queue, x)
     }
 
+    print(json.dumps({
+        "message": "end api",
+        "route": route,
+        "severity": "INFO"
+    }))
+
     try:
         (response, status) = routes[route](s3_client, sqs_client, flatini_queue, event)
         return {
@@ -99,7 +126,12 @@ def lambda_api_handler(event, context):
             'headers': default_headers
         }
     except Exception as e:
-        print(f'error occured {str(e)}')
+        print(json.dumps({
+            "message": "error occured in api",
+            "route": route,
+            "severity": "ERROR",
+            "exception": str(e)
+        }))
 
         return {
             'statusCode': 500,
