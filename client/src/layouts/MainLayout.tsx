@@ -5,11 +5,13 @@ import Header from "../components/Header";
 const Wrapper = styled.div`
   position: fixed;
   height: 100%;
+  width: 100%;
 `;
 
 const Content = styled.div`
   padding: 1rem;
   height: 100%;
+  background: #171113;
 `;
 
 type Props = {

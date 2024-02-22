@@ -5,7 +5,7 @@ import { device } from "../util/mediaQueries";
 const Input = styled.input`
   padding: 1.5rem;
   border-radius: 0.7rem;
-  font-size: ${(props) => props.theme.fonts.types.medium.size};
+  font-size: ${(props) => props.theme.fonts.types.paragraph.size};
 
   @media ${device.tablet} {
     padding: 1.1rem;

@@ -2,20 +2,32 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout head
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.9"
-      - name: Test with unittest
+      - name: Filter by which directory changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'server/**'
+            web:
+              - 'web/**'
+            extension:
+              - 'client/**'
+      - name: server tests
+        if: steps.filter.outputs.server == 'true'
         run: |
           cd server
           python -m pip install --upgrade pip
@@ -24,6 +36,7 @@ jobs:
           cd ..
           python -m unittest
       - name: AWS build and deploy
+        if: steps.filter.outputs.server == 'true' && success()
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

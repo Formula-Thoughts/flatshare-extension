@@ -3,14 +3,15 @@ import styled from "styled-components";
 import { device } from "../util/mediaQueries";
 
 const Primary = styled.button`
-  background: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.text};
+  background: ${(props) => props.theme.colors.text};
+  color: ${(props) => props.theme.colors.background};
   padding: 1.5rem;
   border-radius: 0.7rem;
-  font-size: ${(props) => props.theme.fonts.types.medium.size};
+  font-weight: bold;
+  font-size: ${(props) => props.theme.fonts.types.paragraph.size};
 
   &:hover {
-    background: ${(props) => props.theme.colors.primaryDark};
+    background: ${(props) => props.theme.colors.primary};
   }
 
   @media ${device.tablet} {

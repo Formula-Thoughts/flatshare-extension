@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "key": "llamjlhmafniahohhcnmaefjhjinljeh",
   "manifest_version": 3,
   "name": "Flatini",
   "action": {
@@ -35,5 +36,11 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["sidePanel", "tabs", "storage", "activeTab"]
+  "permissions": ["sidePanel", "tabs", "storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://www.openrent.co.uk/*",
+    "https://www.spareroom.co.uk/*",
+    "https://www.zoopla.co.uk/*",
+    "https://www.rightmove.co.uk/*"
+  ]
 }
