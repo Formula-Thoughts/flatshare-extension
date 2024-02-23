@@ -16,7 +16,7 @@ function App() {
           rel="noopener noreferrer"
         >
           Welcome to Flatini - As good as a Mixtons on a summer's day at helping
-          you and your friends find the perfect flatshare
+          you and your friends find the perfect <i>flatshare</i>
         </a>
       </header>
     </div>
