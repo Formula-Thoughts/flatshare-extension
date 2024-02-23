@@ -243,20 +243,20 @@ $RECYCLE.BIN/
 # SAM
 packaged.yaml
 .aws-sam/
-server/samconfig.toml
+backend/samconfig.toml
 samconfig.toml.olddb
 env.json
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
 
 # sandbox
-server/sandbox.py
+backend/sandbox.py
 
 # aws
-server/awssecrets.secrets
+backend/awssecrets.secrets
 
 # test runenr artifacts
-/server/tests/template.yaml
+/backend/tests/template.yaml
 
 # client stuff
 **/node_modules/
