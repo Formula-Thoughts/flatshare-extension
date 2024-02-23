@@ -59,6 +59,8 @@ Resources:
       AllowedOAuthFlowsUserPoolClient: true
       CallbackURLs:
         - https://localhost:3000
+        - https://flatin.formulathoughts.com
+        - http://localhost:3000
       AllowedOAuthFlows:
         - code
         - implicit
@@ -128,6 +130,7 @@ Resources:
         AllowOrigins:
           - "https://localhost:3000"
           - "http://localhost:3000"
+          - "https://flatin.formulathoughts.com"
         AllowHeaders:
           - "*"
         AllowMethods:
