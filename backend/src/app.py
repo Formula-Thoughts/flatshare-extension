@@ -58,7 +58,7 @@ def delete_flat_event_handler(msg, data_client):
 
 def lambda_event_handler(event, context):
     handler_id = str(uuid.uuid4())
-    print("event dump!", json.dumps(event))
+    print("event dump!!", json.dumps(event))
     # aws spins up multiple lambdas with batches of events
     for record in event["Records"]:
         print(
