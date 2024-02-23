@@ -35,11 +35,15 @@ jobs:
           pip install -r requirements-test.txt
           cd ..
           python -m unittest
-      - name: AWS build and deploy
+      - name: setup aws cli
+        if: steps.filter.outputs.server == 'true'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
-      - run: cd server && sh clean_build.sh
-      - run: cd server && sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-prod --s3-bucket flatini-api-prod-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides GoogleClientId=${{ secrets.GOOGLE_CLIENT_ID }},GoogleClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET }}
+      - name: build and deploy to aws
+        if: steps.filter.outputs.server == 'true'
+        run: |
+          cd server && sh clean_build.sh
+          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-prod --s3-bucket flatini-api-prod-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides GoogleClientId=${{ secrets.GOOGLE_CLIENT_ID }},GoogleClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET }}

@@ -1,0 +1,17 @@
+name: Manual Server Deploy
+
+on: workflow_dispatch
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup aws cli
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+      - name: build and deploy to aws
+        run: |
+          cd server && sh clean_build.sh
+          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-prod --s3-bucket flatini-api-prod-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides GoogleClientId=${{ secrets.GOOGLE_CLIENT_ID }},GoogleClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET }}
