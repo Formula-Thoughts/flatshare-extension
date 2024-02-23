@@ -36,15 +36,15 @@ Located under the [client](./client/) directory of the project. A JS based chrom
   - `npm run build`
 - Open extension in browser
 
-  <span  style="display: flex; align-items: center;">![nativate to browsers extension page](.readme_files/extensions-location.png)</span>
+  <span  style="display: flex; align-items: center;"><img width="300" alt="navigate to browsers extension page" src=".readme_files/extensions-location.png" ></span>
 
 - Switch into developer mode
 
   <div style="display: flex;
     align-items: center;">
-    <img style="margin-right: 10px;" width="300" src=".readme_files/developer-mode.png" alt="developer mode switch off">
+    <img width="300" src=".readme_files/developer-mode.png" alt="developer mode switch off">
     <span style="margin: 0 10px">TO</span>
-    <img style="margin-right: 10px;" width="300" src=".readme_files/developer-mode-on.png" alt="developer mode switch on">
+    <img width="300" src=".readme_files/developer-mode-on.png" alt="developer mode switch on">
   </div>
 
 - Load unpacked extension into Chrome [Brave unfortunately doesn't support side panels at this time]
@@ -52,15 +52,15 @@ Located under the [client](./client/) directory of the project. A JS based chrom
   - Click Load unpacked button
   - Select the dist directory
 
-    <span style="display: inline-block;  max-width: 300px; max-height: 300px;">![dist directory selected](.readme_files/load-dist-dir.png)</span>
+    <span style="display: inline-block;  max-width: 300px; max-height: 300px;"><img width="300" alt="dist directory selected" src=".readme_files/load-dist-dir.png" ></span>
 
   - You will now see Flatini loaded into your extension.
 
-    <span style="display: inline-block;  max-width: 300px; max-height: 300px;">![flatini loaded](.readme_files/flatini-extension-loaded.png)</span>
+    <span style="display: inline-block;  max-width: 300px; max-height: 300px;"><img width="300" alt="flatini loaded" src=".readme_files/flatini-extension-loaded.png" ></span>
 
 - Open the side panel and select Flatini extension
 
-  <span style="display: inline-block;  max-width: 300px; max-height: 300px;">![flatini side panel](.readme_files/flatini-side-panel.png)</span>
+  <span style="display: inline-block;  max-width: 300px; max-height: 300px;"><img width="300" alt="flatini side panel" src=".readme_files/flatini-side-panel.png"></span>
 
 </details>
 
