@@ -6,59 +6,66 @@ from unittest import TestCase
 
 from ddt import ddt, data
 
-from server.src.crosscutting import AutoFixture, ObjectMapper, JsonCamelToSnakeCaseDeserializer, \
-    JsonSnakeToCamelSerializer
+from backend.src.crosscutting import (
+    AutoFixture,
+    ObjectMapper,
+    JsonCamelToSnakeCaseDeserializer,
+    JsonSnakeToCamelSerializer,
+)
 
 
-TEST_DICT_JSON = "{\"name\": \"adam raymond\", \"snakeInValue\": \"snake_in_value\", \"value2To3Values\": 2}"
-TEST_LIST_SERIALIZATION_JSON = "[{\"name\": \"adam raymond\", \"snakeInValue\": \"snake_in_value\", \"value2To3Values\": 2}, {\"name\": \"adam raymond\", \"snakeInValue\": \"snake_in_value\", \"value2To3Values\": 2}, {\"name\": \"adam raymond\", \"snakeInValue\": \"snake_in_value\", \"value2To3Values\": 2}]"
+TEST_DICT_JSON = (
+    '{"name": "adam raymond", "snakeInValue": "snake_in_value", "value2To3Values": 2}'
+)
+TEST_LIST_SERIALIZATION_JSON = '[{"name": "adam raymond", "snakeInValue": "snake_in_value", "value2To3Values": 2}, {"name": "adam raymond", "snakeInValue": "snake_in_value", "value2To3Values": 2}, {"name": "adam raymond", "snakeInValue": "snake_in_value", "value2To3Values": 2}]'
 TEST_LIST_SERIALIZATION_EMPTY_JSON = "[]"
-TEST_DICT_NESTED_JSON = "{\"name\": \"adam raymond\", \"snakeInValue\": \"snake_in_value\", \"value2To3Values\": 2, \"nestedObject\": {\"name\": \"dennis reynolds\", \"snakeValue\": 3}, \"arrayValue\": [\"apples\", \"pears\", \"oranges\"]}"
-TEST_DICT_JSON_WITH_CAPS_KEY = "{\"name\": \"adam raymond\", \"snakeInValue\": \"snake_in_value\", \"value2To3Values\": 2, \"capitalLETTERSValue\": 1}"
-TEST_DICT_WITH_ENUM_JSON = "{\"name\": \"adam raymond\", \"enum\": \"VALUE1\"}"
-TEST_DICT_WITH_ENUM_LIST_JSON = "{\"name\": \"adam raymond\", \"enum\": [\"VALUE1\", \"VALUE2\"]}"
-TEST_LIST_OF_DICTS_WITH_ENUM_JSON = "[{\"name\": \"adam raymond\", \"enum\": \"VALUE1\"}, {\"name\": \"adam raymond\", \"enum\": \"VALUE2\"}]"
-TEST_LIST_OF_DICTS_WITH_ENUM_LIST_JSON = "[{\"name\": \"adam raymond\", \"enum\": [\"VALUE1\", \"VALUE2\"]}, {\"name\": \"adam raymond\", \"enum\": [\"VALUE1\", \"VALUE2\"]}]"
+TEST_DICT_NESTED_JSON = '{"name": "adam raymond", "snakeInValue": "snake_in_value", "value2To3Values": 2, "nestedObject": {"name": "dennis reynolds", "snakeValue": 3}, "arrayValue": ["apples", "pears", "oranges"]}'
+TEST_DICT_JSON_WITH_CAPS_KEY = '{"name": "adam raymond", "snakeInValue": "snake_in_value", "value2To3Values": 2, "capitalLETTERSValue": 1}'
+TEST_DICT_WITH_ENUM_JSON = '{"name": "adam raymond", "enum": "VALUE1"}'
+TEST_DICT_WITH_ENUM_LIST_JSON = '{"name": "adam raymond", "enum": ["VALUE1", "VALUE2"]}'
+TEST_LIST_OF_DICTS_WITH_ENUM_JSON = '[{"name": "adam raymond", "enum": "VALUE1"}, {"name": "adam raymond", "enum": "VALUE2"}]'
+TEST_LIST_OF_DICTS_WITH_ENUM_LIST_JSON = '[{"name": "adam raymond", "enum": ["VALUE1", "VALUE2"]}, {"name": "adam raymond", "enum": ["VALUE1", "VALUE2"]}]'
 
 
 TEST_DICT = {
     "name": "adam raymond",
     "snake_in_value": "snake_in_value",
-    "value_2_to_3_values": 2
+    "value_2_to_3_values": 2,
 }
 
 TEST_LIST_SERIALIZATION_EMPTY = []
 
-TEST_LIST_SERIALIZATION = [{
-    "name": "adam raymond",
-    "snake_in_value": "snake_in_value",
-    "value_2_to_3_values": 2
-}, {
-    "name": "adam raymond",
-    "snake_in_value": "snake_in_value",
-    "value_2_to_3_values": 2
-}, {
-    "name": "adam raymond",
-    "snake_in_value": "snake_in_value",
-    "value_2_to_3_values": 2
-}]
+TEST_LIST_SERIALIZATION = [
+    {
+        "name": "adam raymond",
+        "snake_in_value": "snake_in_value",
+        "value_2_to_3_values": 2,
+    },
+    {
+        "name": "adam raymond",
+        "snake_in_value": "snake_in_value",
+        "value_2_to_3_values": 2,
+    },
+    {
+        "name": "adam raymond",
+        "snake_in_value": "snake_in_value",
+        "value_2_to_3_values": 2,
+    },
+]
 
 TEST_NESTED_DICT = {
     "name": "adam raymond",
     "snake_in_value": "snake_in_value",
     "value_2_to_3_values": 2,
-    "nested_object": {
-        "name": "dennis reynolds",
-        "snake_value": 3
-    },
-    "array_value": ["apples", "pears", "oranges"]
+    "nested_object": {"name": "dennis reynolds", "snake_value": 3},
+    "array_value": ["apples", "pears", "oranges"],
 }
 
 TEST_DICT_WITH_CAPS_KEY = {
     "name": "adam raymond",
     "snake_in_value": "snake_in_value",
     "value_2_to_3_values": 2,
-    "capital_letters_value": 1
+    "capital_letters_value": 1,
 }
 
 
@@ -67,39 +74,24 @@ class TestEnum(Enum):
     VALUE2 = "VALUE2"
 
 
-TEST_DICT_WITH_ENUM = {
-    "name": "adam raymond",
-    "enum": TestEnum.VALUE1
-}
+TEST_DICT_WITH_ENUM = {"name": "adam raymond", "enum": TestEnum.VALUE1}
 
 
 TEST_DICT_WITH_ENUM_LIST = {
     "name": "adam raymond",
-    "enum": [TestEnum.VALUE1, TestEnum.VALUE2]
+    "enum": [TestEnum.VALUE1, TestEnum.VALUE2],
 }
 
 
 TEST_LIST_OF_DICTS_WITH_ENUM = [
-    {
-        "name": "adam raymond",
-        "enum": TestEnum.VALUE1
-    },
-    {
-        "name": "adam raymond",
-        "enum": TestEnum.VALUE2
-    }
+    {"name": "adam raymond", "enum": TestEnum.VALUE1},
+    {"name": "adam raymond", "enum": TestEnum.VALUE2},
 ]
 
 
 TEST_LIST_OF_DICTS_WITH_ENUM_LIST = [
-    {
-        "name": "adam raymond",
-        "enum": [TestEnum.VALUE1, TestEnum.VALUE2]
-    },
-    {
-        "name": "adam raymond",
-        "enum": [TestEnum.VALUE1, TestEnum.VALUE2]
-    }
+    {"name": "adam raymond", "enum": [TestEnum.VALUE1, TestEnum.VALUE2]},
+    {"name": "adam raymond", "enum": [TestEnum.VALUE1, TestEnum.VALUE2]},
 ]
 
 
@@ -156,16 +148,14 @@ class TestDto(InheritedDto):
 
 
 class TestMapper(TestCase):
-
     def test_map(self):
         # arrange
-        test_dto = AutoFixture().create(dto=TestDto,
-                                        list_limit=5,
-                                        seed="1234",
-                                        num=1)
+        test_dto = AutoFixture().create(dto=TestDto, list_limit=5, seed="1234", num=1)
 
         # act
-        test_other_dto: TestOtherDto = ObjectMapper().map(_from=test_dto, to=TestOtherDto)
+        test_other_dto: TestOtherDto = ObjectMapper().map(
+            _from=test_dto, to=TestOtherDto
+        )
 
         # assert
         with self.subTest(msg="id with default value matches"):
@@ -185,8 +175,10 @@ class TestMapper(TestCase):
 
         # assert
         with self.subTest(msg="nested list types match"):
-
-            self.assertEqual(get_args(list[NestedTestOtherDto])[0], type(test_other_dto.nested_list[0]))
+            self.assertEqual(
+                get_args(list[NestedTestOtherDto])[0],
+                type(test_other_dto.nested_list[0]),
+            )
 
         # assert
         with self.subTest(msg="nested list lengths match"):
@@ -195,7 +187,10 @@ class TestMapper(TestCase):
         # assert
         with self.subTest(msg="nested list field matches"):
             for i in range(0, len(test_other_dto.nested_list)):
-                self.assertEqual(test_other_dto.nested_list[i].__dict__, test_dto.nested_list[i].__dict__)
+                self.assertEqual(
+                    test_other_dto.nested_list[i].__dict__,
+                    test_dto.nested_list[i].__dict__,
+                )
 
         # assert
         with self.subTest(msg="nested id field matches"):
@@ -243,15 +238,12 @@ class TestMapper(TestCase):
 
 
 class TestAutoFixture(TestCase):
-
     def test_create(self):
         # arrange
         autofixture = AutoFixture()
 
         # act
-        dto: TestDto = autofixture.create(dto=TestDto,
-                                          seed="1234",
-                                          num=2)
+        dto: TestDto = autofixture.create(dto=TestDto, seed="1234", num=2)
 
         # assert
         with self.subTest(msg="ids match"):
@@ -270,7 +262,9 @@ class TestAutoFixture(TestCase):
             self.assertEqual(dto.list_of_enums, [TestEnum.VALUE1, TestEnum.VALUE1])
 
         with self.subTest(msg="string lists match"):
-            self.assertEqual(dto.list_of_strings, ["list_of_strings12340", "list_of_strings12341"])
+            self.assertEqual(
+                dto.list_of_strings, ["list_of_strings12340", "list_of_strings12341"]
+            )
 
         with self.subTest(msg="int lists match"):
             self.assertEqual(dto.list_of_ints, [2, 3])
@@ -315,7 +309,6 @@ class TestAutoFixture(TestCase):
 
 @ddt
 class TestJsonSnakeToCamelSerializer(TestCase):
-
     def setUp(self):
         self.__json_snake_to_camel_serializer = JsonSnakeToCamelSerializer()
 
@@ -330,10 +323,12 @@ class TestJsonSnakeToCamelSerializer(TestCase):
         # assert
         assert expected == actual
 
-    @data((TEST_DICT_WITH_ENUM, TEST_DICT_WITH_ENUM_JSON),
-          (TEST_DICT_WITH_ENUM_LIST, TEST_DICT_WITH_ENUM_LIST_JSON),
-          (TEST_LIST_OF_DICTS_WITH_ENUM, TEST_LIST_OF_DICTS_WITH_ENUM_JSON),
-          (TEST_LIST_OF_DICTS_WITH_ENUM_LIST, TEST_LIST_OF_DICTS_WITH_ENUM_LIST_JSON))
+    @data(
+        (TEST_DICT_WITH_ENUM, TEST_DICT_WITH_ENUM_JSON),
+        (TEST_DICT_WITH_ENUM_LIST, TEST_DICT_WITH_ENUM_LIST_JSON),
+        (TEST_LIST_OF_DICTS_WITH_ENUM, TEST_LIST_OF_DICTS_WITH_ENUM_JSON),
+        (TEST_LIST_OF_DICTS_WITH_ENUM_LIST, TEST_LIST_OF_DICTS_WITH_ENUM_LIST_JSON),
+    )
     def test_serialize_with_enum(self, data: tuple[Union[list, dict], str]):
         # arrange
         (input_data, expected) = data
@@ -379,9 +374,10 @@ class TestJsonSnakeToCamelSerializer(TestCase):
 
 
 class TestJsonCamelToSnakeCaseDeserializer(TestCase):
-
     def setUp(self):
-        self.__json_camel_to_snake_case_deserializer = JsonCamelToSnakeCaseDeserializer()
+        self.__json_camel_to_snake_case_deserializer = (
+            JsonCamelToSnakeCaseDeserializer()
+        )
 
     def test_deserialize(self):
         # arrange

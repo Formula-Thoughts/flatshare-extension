@@ -5,11 +5,15 @@ from unittest.mock import Mock, MagicMock
 
 from callee import Captor
 
-from server.src.domain.abstractions import BlobRepo
-from server.src.crosscutting import AutoFixture, JsonSnakeToCamelSerializer, JsonCamelToSnakeCaseDeserializer
-from server.src.data import S3ClientWrapper
-from server.src.data.repositories import S3BlobRepo, S3GroupRepo
-from server.src.domain.models import Group
+from backend.src.domain.abstractions import BlobRepo
+from backend.src.crosscutting import (
+    AutoFixture,
+    JsonSnakeToCamelSerializer,
+    JsonCamelToSnakeCaseDeserializer,
+)
+from backend.src.data import S3ClientWrapper
+from backend.src.data.repositories import S3BlobRepo, S3GroupRepo
+from backend.src.domain.models import Group
 
 
 @dataclass(unsafe_hash=True)
@@ -19,14 +23,15 @@ class TestDataModel:
 
 
 class BlobRepoTestCase(TestCase):
-
     def setUp(self):
         self.__s3_wrapper: S3ClientWrapper = Mock()
         self.__serializer = JsonSnakeToCamelSerializer()
         self.__deserializer = JsonCamelToSnakeCaseDeserializer()
-        self.__sut = S3BlobRepo(s3_client_wrapper=self.__s3_wrapper,
-                                serializer=self.__serializer,
-                                deserializer=self.__deserializer)
+        self.__sut = S3BlobRepo(
+            s3_client_wrapper=self.__s3_wrapper,
+            serializer=self.__serializer,
+            deserializer=self.__deserializer,
+        )
 
     @mock.patch.dict(os.environ, {"S3_BUCKET_NAME": "bucketname"}, clear=True)
     def test_create_group(self):
@@ -35,7 +40,9 @@ class BlobRepoTestCase(TestCase):
         self.__s3_wrapper.put_object = MagicMock()
 
         # act
-        self.__sut.create(data=data, key_gen=lambda x: f"testmodel/{x.prop_1}/{x.prop_2}")
+        self.__sut.create(
+            data=data, key_gen=lambda x: f"testmodel/{x.prop_1}/{x.prop_2}"
+        )
 
         # assert
         with self.subTest(msg="s3 object was created once"):
@@ -43,20 +50,20 @@ class BlobRepoTestCase(TestCase):
 
         # assert
         with self.subTest(msg="s3 object was created with correct body"):
-            self.__s3_wrapper.put_object.assert_called_with(bucket="bucketname",
-                                                            key=f"testmodel/{data.prop_1}/{data.prop_2}",
-                                                            body=self.__serializer.serialize(data=data.__dict__),
-                                                            content_type="application/json")
+            self.__s3_wrapper.put_object.assert_called_with(
+                bucket="bucketname",
+                key=f"testmodel/{data.prop_1}/{data.prop_2}",
+                body=self.__serializer.serialize(data=data.__dict__),
+                content_type="application/json",
+            )
 
 
 class TestGroupRepo(TestCase):
-
     def setUp(self) -> None:
         self.__blob_repo: BlobRepo = Mock()
         self.__sut = S3GroupRepo(blob_repo=self.__blob_repo)
 
     def test_create(self):
-
         # arrange
         self.__blob_repo.create = MagicMock()
         group = AutoFixture().create(dto=Group)
@@ -71,8 +78,9 @@ class TestGroupRepo(TestCase):
         # assert
         key_gen_captor = Captor()
         with self.subTest(msg="assert blob repo is called with correct args"):
-            self.__blob_repo.create.assert_called_with(data=group,
-                                                       key_gen=key_gen_captor)
+            self.__blob_repo.create.assert_called_with(
+                data=group, key_gen=key_gen_captor
+            )
 
         with self.subTest(msg="assert key gen generates correct key"):
-            self.assertEqual(f'groups/{group.code}', key_gen_captor.arg(group))
+            self.assertEqual(f"groups/{group.code}", key_gen_captor.arg(group))
