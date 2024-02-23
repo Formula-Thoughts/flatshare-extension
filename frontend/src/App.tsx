@@ -10,19 +10,19 @@ Amplify.configure({
         oauth: {
           scopes: ["email", "openid", "profile"],
           redirectSignIn: [
-            "https://localhost:3000/",
-            "https://www.example.com/",
+            "https://localhost:3000",
+            "https://flatini.formulathoughts.com",
           ],
           redirectSignOut: [
-            "https://localhost:3000/",
-            "https://www.example.com/",
+            "https://localhost:3000",
+            "https://flatini.formulathoughts.com",
           ],
           responseType: "code",
           domain: "flatini.auth.eu-west-2.amazoncognito.com/",
         },
       },
       userPoolId: "eu-west-2_U2HUbgIZK",
-      userPoolClientId: "95rl77bq6dosrgerjfkgm12f5D",
+      userPoolClientId: "95rl77bq6dosrgerjfkgm12f5",
     },
   },
 });
