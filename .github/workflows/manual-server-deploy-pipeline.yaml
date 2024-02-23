@@ -14,5 +14,5 @@ jobs:
       - name: build and deploy to aws
         run: |
           echo "$PWD"
-          cd server && sh clean_build.sh
+          cd backend && sh clean_build.sh
           sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-prod --s3-bucket flatini-api-prod-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides GoogleClientId=${{ secrets.GOOGLE_CLIENT_ID }},GoogleClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET }}
