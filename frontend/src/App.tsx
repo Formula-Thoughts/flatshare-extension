@@ -15,8 +15,8 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Welcome to Flatini - As good as a Mixtons on a summer's day at helping
-          you and your friends find the perfect <i>flatshare</i>
+          Welcome to Flatini - As good as a Mixtons on a summer's day...at
+          helping you and your friends find the perfect flatshare 🍸🏠
         </a>
       </header>
     </div>
