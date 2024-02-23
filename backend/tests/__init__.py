@@ -1,4 +1,4 @@
-from server.src.crosscutting import DummyLogger
+from backend.src.crosscutting import DummyLogger
 
 
 def logger_factory():

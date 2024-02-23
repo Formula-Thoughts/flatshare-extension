@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Protocol, Union
 
-from server.src.domain.abstractions import Logger
+from backend.src.domain.abstractions import Logger
 
 SUBSEQUENCE = "subsequence"
 COMMAND = "command"
@@ -29,13 +29,11 @@ class ApplicationContext:
 
 
 class Command(Protocol):
-
     def run(self, context: ApplicationContext) -> None:
         ...
 
 
 class SequenceBuilder(Protocol):
-
     def generate_sequence(self) -> list[Command]:
         ...
 
@@ -47,22 +45,23 @@ SequenceComponent = Union[SequenceBuilder, Command]
 
 
 class FluentSequenceBuilder(ABC):
-
     def __init__(self):
         self.__components: list[(str, SequenceComponent)] = []
 
-    def _add_command(self, command: Command) -> 'FluentSequenceBuilder':
+    def _add_command(self, command: Command) -> "FluentSequenceBuilder":
         self.__components.append((COMMAND, command))
         return self
 
-    def _add_sequence_builder(self, sequence_builder: SequenceBuilder) -> 'FluentSequenceBuilder':
+    def _add_sequence_builder(
+        self, sequence_builder: SequenceBuilder
+    ) -> "FluentSequenceBuilder":
         self.__components.append((SUBSEQUENCE, sequence_builder))
         return self
 
     def generate_sequence(self) -> list[Command]:
         self.build()
         new_list = []
-        for (name, component) in self.__components:
+        for name, component in self.__components:
             if name == COMMAND:
                 new_list.append(component)
             if name == SUBSEQUENCE:
@@ -81,12 +80,12 @@ class FluentSequenceBuilder(ABC):
 
 
 class MiddlewarePipeline:
-
     def __init__(self, logger: Logger):
         self.__logger = logger
 
-    def execute_middleware(self, context: ApplicationContext,
-                           sequence: SequenceBuilder):
+    def execute_middleware(
+        self, context: ApplicationContext, sequence: SequenceBuilder
+    ):
         middleware = sequence.generate_sequence()
         for action in middleware:
             name = "anonymous"
@@ -101,7 +100,9 @@ class MiddlewarePipeline:
             # for now, we throw on first error in top level sequence
             if any(context.error_capsules):
                 error = context.error_capsules[-1]
-                self.__logger.log_error(f"error found in error capsule {type(error).__name__}")
+                self.__logger.log_error(
+                    f"error found in error capsule {type(error).__name__}"
+                )
                 context.response.body = {"message": error.msg}
                 context.response.status_code = error.status_code
                 self.__logger.log_error(f"middleware SHORTED!")

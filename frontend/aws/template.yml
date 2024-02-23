@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: |
+  Create website bucket within a subdomain of previously configured hosted zone. 
+  Have that subdomain served via cloud front over https
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Domain name, but not the subdomain
+  SubdomainName:
+    Type: String
+    Description: Subdomain name, but not the full domain
+  AliasTargetHostedZoneId:
+    Type: String
+    Description: The AWS wide Hosted zone ID for the alias target. IE, for cloud front
+  HostedZoneId:
+    Type: String
+    Description: Hosted zone ID of the domain
+
+Resources:
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${SubdomainName}.${DomainName}"
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource:
+              - !Sub "${WebsiteBucket.Arn}/*"
+
+  SubdomainRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Sub "${DomainName}."
+      Comment: A record for S3 bucket subdomain website
+      Name: !Sub "${SubdomainName}.${DomainName}."
+      Type: A
+      AliasTarget:
+        HostedZoneId: !Sub ${AliasTargetHostedZoneId}
+        DNSName: !GetAtt WebsiteDistribution.DomainName
+
+  ACMCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub "${DomainName}"
+      SubjectAlternativeNames:
+        - !Sub "${SubdomainName}.${DomainName}"
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub "${SubdomainName}.${DomainName}"
+          HostedZoneId: !Sub "${HostedZoneId}"
+
+  WebsiteDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - ACMCertificate
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Aliases:
+          - !Sub "${SubdomainName}.${DomainName}"
+        Origins:
+          - DomainName:
+              !Select [2, !Split ["/", !GetAtt WebsiteBucket.WebsiteURL]]
+            Id: S3Origin
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+        DefaultRootObject: index.html
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ACMCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        HttpVersion: http2and3

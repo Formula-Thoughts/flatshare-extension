@@ -6,7 +6,54 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  build-and-deploy:
+  # Change detection for filtering jobs
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      # For pull requests it's not necessary to checkout the code
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+  frontend:
+    defaults:
+      run:
+        working-directory: frontend
+    permissions:
+      id-token: write
+      contents: read
+    needs: changes
+    if: ${{needs.changes.outputs.frontend == 'true'}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm install
+      - run: npm run build
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::035306758865:role/gh-short-lived-creds
+          aws-region: us-east-1
+      - run: aws s3 sync build/ s3://flatini.formulathoughts.com
+      - run: aws cloudfront create-invalidation --distribution-id ${{secrets.DISTRIBUTION_ID}} --paths "/*"
+
+  backend:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout head
@@ -15,35 +62,21 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
-      - name: Filter by which directory changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            server:
-              - 'server/**'
-            web:
-              - 'web/**'
-            extension:
-              - 'client/**'
-      - name: server tests
-        if: steps.filter.outputs.server == 'true'
+      - name: backend tests
         run: |
-          cd server
+          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-test.txt
           cd ..
           python -m unittest
       - name: setup aws cli
-        if: steps.filter.outputs.server == 'true'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
       - name: build and deploy to aws
-        if: steps.filter.outputs.server == 'true'
         run: |
           cd server && sh clean_build.sh
           sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-prod --s3-bucket flatini-api-prod-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides GoogleClientId=${{ secrets.GOOGLE_CLIENT_ID }},GoogleClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET }}
