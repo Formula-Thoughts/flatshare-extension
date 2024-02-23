@@ -1,6 +1,5 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import logo from "./logo.svg";
 
 function App() {
   return (
@@ -16,7 +15,8 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Welcome to Flatini - As good as a Mixtons on a summer's day at helping
+          you and your friends find the perfect flatshare
         </a>
       </header>
     </div>
