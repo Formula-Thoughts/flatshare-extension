@@ -1,26 +1,41 @@
-import "./App.css";
-import logo from "./512.png";
+import { Amplify } from "aws-amplify";
 
-function App() {
+import { Authenticator } from "@aws-amplify/ui-react";
+import "@aws-amplify/ui-react/styles.css";
+
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      loginWith: {
+        oauth: {
+          scopes: ["email", "openid", "profile"],
+          redirectSignIn: [
+            "https://localhost:3000/",
+            "https://www.example.com/",
+          ],
+          redirectSignOut: [
+            "https://localhost:3000/",
+            "https://www.example.com/",
+          ],
+          responseType: "code",
+          domain: "flatini.auth.eu-west-2.amazoncognito.com/",
+        },
+      },
+      userPoolId: "eu-west-2_U2HUbgIZK",
+      userPoolClientId: "95rl77bq6dosrgerjfkgm12f5D",
+    },
+  },
+});
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Welcome to Flatini - As good as a Mixtons on a summer's day...at
-          helping you and your friends find the perfect flatshare 🍸🏠
-        </a>
-      </header>
-    </div>
+    <Authenticator socialProviders={["google"]}>
+      {({ signOut, user }) => (
+        <main>
+          <h1>Hello {user?.username}</h1>
+          <button onClick={signOut}>Sign out</button>
+        </main>
+      )}
+    </Authenticator>
   );
 }
-
-export default App;

@@ -1,0 +1,15 @@
+{
+  "authenticationFlowType": "USER_PASSWORD_AUTH",
+  "oauth": {
+    "domain": "flatini.auth.eu-west-2.amazoncognito.com/",
+    "scope": ["email", "openid", "profile"],
+    "redirectSignIn": "https://localhost:3000",
+    "redirectSignOut": "https://localhost:3000",
+    "responseType": "code"
+  },
+  "userPoolId": "eu-west-2_U2HUbgIZK",
+  "userPoolWebClientId": "95rl77bq6dosrgerjfkgm12f5D",
+  "mandatorySignIn": false,
+  "federationTarget": "COGNITO_USER_POOLS",
+  "federationDefault": true
+}
