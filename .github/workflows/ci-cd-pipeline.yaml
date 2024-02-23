@@ -27,6 +27,9 @@ jobs:
             frontend:
               - 'frontend/**'
   frontend:
+    defaults:
+      run:
+        working-directory: frontend
     permissions:
       id-token: write
       contents: read
@@ -38,7 +41,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: cd frontend
       - run: npm install
       - run: npm run build
       - name: Configure AWS Credentials
