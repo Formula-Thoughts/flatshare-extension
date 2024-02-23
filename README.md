@@ -1,20 +1,3 @@
-<style>
-  .image-wrapper {
-    display: inline-block; /* Ensures the span wraps around the image */
-  
-    max-width: 300px; /* Maximum width for the image */
-    max-height: 300px; /* Maximum height for the image */
-  }
-  .image-container {
-    display: flex;
-    align-items: center;
-  }
-  .image-container span {
-    margin: 0 10px; /* Adjust spacing between images */
-  }
-
-</style>
-
 # Flatini
 
 Helps organise your flat share search
@@ -53,14 +36,15 @@ Located under the [client](./client/) directory of the project. A JS based chrom
   - `npm run build`
 - Open extension in browser
 
-  <span class="image-wrapper">![nativate to browsers extension page](.readme_files/extensions-location.png)</span>
+  <span  style="display: flex; align-items: center;">![nativate to browsers extension page](.readme_files/extensions-location.png)</span>
 
 - Switch into developer mode
 
-  <div class="image-container">
-    <img width="300" src=".readme_files/developer-mode.png" alt="developer mode switch off">
-    <span>TO</span>
-    <img width="300" src=".readme_files/developer-mode-on.png" alt="developer mode switch on">
+  <div style="display: flex;
+    align-items: center;">
+    <img style="margin-right: 10px;" width="300" src=".readme_files/developer-mode.png" alt="developer mode switch off">
+    <span style="margin: 0 10px">TO</span>
+    <img style="margin-right: 10px;" width="300" src=".readme_files/developer-mode-on.png" alt="developer mode switch on">
   </div>
 
 - Load unpacked extension into Chrome [Brave unfortunately doesn't support side panels at this time]
@@ -68,15 +52,15 @@ Located under the [client](./client/) directory of the project. A JS based chrom
   - Click Load unpacked button
   - Select the dist directory
 
-    <span class="image-wrapper">![dist directory selected](.readme_files/load-dist-dir.png)</span>
+    <span style="display: inline-block;  max-width: 300px; max-height: 300px;">![dist directory selected](.readme_files/load-dist-dir.png)</span>
 
   - You will now see Flatini loaded into your extension.
 
-    <span class="image-wrapper">![flatini loaded](.readme_files/flatini-extension-loaded.png)</span>
+    <span style="display: inline-block;  max-width: 300px; max-height: 300px;">![flatini loaded](.readme_files/flatini-extension-loaded.png)</span>
 
 - Open the side panel and select Flatini extension
 
-  <span class="image-wrapper">![flatini side panel](.readme_files/flatini-side-panel.png)</span>
+  <span style="display: inline-block;  max-width: 300px; max-height: 300px;">![flatini side panel](.readme_files/flatini-side-panel.png)</span>
 
 </details>
 
