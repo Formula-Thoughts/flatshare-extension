@@ -1,7 +1,6 @@
-import { Amplify } from "aws-amplify";
-
-import { Authenticator } from "@aws-amplify/ui-react";
+import { Button, View, useAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import { Amplify } from "aws-amplify";
 
 Amplify.configure({
   Auth: {
@@ -28,14 +27,27 @@ Amplify.configure({
 });
 
 export default function App() {
+  const components = {
+    SignIn: {
+      Footer() {
+        const { toForgotPassword } = useAuthenticator();
+        return (
+          <View textAlign="center">
+            <Button fontWeight="normal" onClick={toForgotPassword} size="small">
+              Forgot Password???
+            </Button>
+          </View>
+        );
+      },
+    },
+  };
+  const { user, signOut, toSignIn } = useAuthenticator((context) => [
+    context.user,
+  ]);
   return (
-    <Authenticator socialProviders={["google"]}>
-      {({ signOut, user }) => (
-        <main>
-          <h1>Hello {user?.username}</h1>
-          <button onClick={signOut}>Sign out</button>
-        </main>
-      )}
-    </Authenticator>
+    <div>
+      Here{user?.username}
+      <button onClick={toSignIn}>Sign In</button>
+    </div>
   );
 }
