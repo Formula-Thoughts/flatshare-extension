@@ -27,23 +27,22 @@ Amplify.configure({
 });
 
 export default function App() {
-  const components = {
-    SignIn: {
-      Footer() {
-        const { toForgotPassword } = useAuthenticator();
-        return (
-          <View textAlign="center">
-            <Button fontWeight="normal" onClick={toForgotPassword} size="small">
-              Forgot Password???
-            </Button>
-          </View>
-        );
-      },
-    },
-  };
-  const { user, signOut, toSignIn } = useAuthenticator((context) => [
-    context.user,
-  ]);
+  // const components = {
+  //   SignIn: {
+  //     Footer() {
+  //       const { toForgotPassword } = useAuthenticator();
+  //       return (
+  //         <View textAlign="center">
+  //           <Button fontWeight="normal" onClick={toForgotPassword} size="small">
+  //             Forgot Password???
+  //           </Button>
+  //         </View>
+  //       );
+  //     },
+  //   },
+  // };
+  const { user, toSignIn } = useAuthenticator((context) => [context.user]);
+  console.log(`user ${user}\ntoSignIn ${toSignIn}`);
   return (
     <div>
       Here{user?.username}
