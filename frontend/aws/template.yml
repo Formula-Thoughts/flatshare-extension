@@ -16,6 +16,12 @@ Parameters:
   HostedZoneId:
     Type: String
     Description: Hosted zone ID of the domain
+  GoogleClientId:
+    Description: ClientId
+    Type: String
+  GoogleClientSecret:
+    Description: ClientSecret
+    Type: String
 
 Resources:
   WebsiteBucket:
