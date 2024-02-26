@@ -9,8 +9,10 @@ aws cloudformation create-stack \
 --parameters \
 ParameterKey=DomainName,ParameterValue=formulathoughts.com \
 ParameterKey=SubdomainName,ParameterValue=flatini \
-ParameterKey=AliasTargetHostedZoneId,ParameterValue=Z2FDTNDATAQYW2
-ParameterKey=HostedZoneId,ParameterValue=***********
+ParameterKey=AliasTargetHostedZoneId,ParameterValue=Z2FDTNDATAQYW2 \
+ParameterKey=HostedZoneId,ParameterValue=****** \
+ParameterKey=GoogleClientId,ParameterValue=****** \
+ParameterKey=GoogleClientSecret,ParameterValue=******
 ```
 
 `aws s3 sync build/ s3://flatini.formulathoughts.com`

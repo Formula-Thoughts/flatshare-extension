@@ -1,7 +1,14 @@
 import { Amplify } from "aws-amplify";
 
-import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import {
+  AuthUser,
+  getCurrentUser,
+  signInWithRedirect,
+  signOut,
+} from "aws-amplify/auth";
+import { Hub } from "aws-amplify/utils";
+import { useEffect, useState } from "react";
 
 Amplify.configure({
   Auth: {
@@ -15,6 +22,7 @@ Amplify.configure({
           ],
           redirectSignOut: [
             "https://localhost:3000",
+            "https://localhost:3000/",
             "https://flatini.formulathoughts.com",
           ],
           responseType: "code",
@@ -27,15 +35,83 @@ Amplify.configure({
   },
 });
 
-export default function App() {
+const SocialLogin = () => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [error, setError] = useState<unknown>(null);
+  const [customState, setCustomState] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = Hub.listen("auth", ({ payload }) => {
+      switch (payload.event) {
+        case "signInWithRedirect":
+          getUser();
+          break;
+        case "signInWithRedirect_failure":
+          setError("An error has occurred during the OAuth flow.");
+          break;
+        case "customOAuthState":
+          setCustomState(payload.data); // this is the customState provided on signInWithRedirect function
+          break;
+      }
+    });
+
+    user && getUser();
+
+    return unsubscribe;
+  }, [user]);
+
+  const getUser = async (): Promise<void> => {
+    try {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    } catch (error) {
+      console.error(error);
+      console.log("Not signed in");
+    }
+  };
+  error && console.error("error", { error });
   return (
-    <Authenticator socialProviders={["google"]}>
-      {({ signOut, user }) => (
-        <main>
-          <h1>Hello {user?.username}</h1>
-          <button onClick={signOut}>Sign out</button>
-        </main>
-      )}
-    </Authenticator>
+    <div
+      style={{
+        marginTop: 25,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <button
+        style={{ width: 200 }}
+        onClick={() =>
+          signInWithRedirect({
+            customState:
+              "some state that was past during sign in, eg redirect url",
+          })
+        }
+      >
+        Sign In with Hosted UI
+      </button>
+      or
+      <button
+        style={{ width: 200 }}
+        onClick={() =>
+          signInWithRedirect({
+            provider: "Google",
+            customState:
+              "some state that was past during sign in, eg redirect url",
+          })
+        }
+      >
+        Sign In with Google
+      </button>
+      {user && <button onClick={() => signOut()}>Sign Out</button>}
+      <div style={{ marginTop: 25 }}>
+        Authenticated User: {user ? user.username : "anonymous"}
+      </div>
+      <div>Custom State: {customState}</div>
+    </div>
   );
+};
+
+export default function App() {
+  return <SocialLogin />;
 }
