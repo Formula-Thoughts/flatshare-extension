@@ -22,6 +22,7 @@ Amplify.configure({
           ],
           redirectSignOut: [
             "https://localhost:3000",
+            "https://localhost:3000/",
             "https://flatini.formulathoughts.com",
           ],
           responseType: "code",
@@ -54,10 +55,10 @@ const SocialLogin = () => {
       }
     });
 
-    getUser();
+    user && getUser();
 
     return unsubscribe;
-  }, []);
+  }, [user]);
 
   const getUser = async (): Promise<void> => {
     try {
@@ -68,10 +69,18 @@ const SocialLogin = () => {
       console.log("Not signed in");
     }
   };
-  console.error("error", { error });
+  error && console.error("error", { error });
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div
+      style={{
+        marginTop: 25,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <button
+        style={{ width: 200 }}
         onClick={() =>
           signInWithRedirect({
             customState:
@@ -79,19 +88,25 @@ const SocialLogin = () => {
           })
         }
       >
-        Open Hosted UI
+        Sign In with Hosted UI
       </button>
+      or
       <button
+        style={{ width: 200 }}
         onClick={() =>
           signInWithRedirect({
             provider: "Google",
+            customState:
+              "some state that was past during sign in, eg redirect url",
           })
         }
       >
-        Open Google
+        Sign In with Google
       </button>
       {user && <button onClick={() => signOut()}>Sign Out</button>}
-      <div>Authenticated User: {user ? user.username : "anonymous"}</div>
+      <div style={{ marginTop: 25 }}>
+        Authenticated User: {user ? user.username : "anonymous"}
+      </div>
       <div>Custom State: {customState}</div>
     </div>
   );
