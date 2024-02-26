@@ -70,6 +70,10 @@ Resources:
         - openid
       SupportedIdentityProviders:
         - !Ref CognitoUserPoolIdentityProvider
+      LogoutURLs:
+        - https://localhost:3000
+        - https://flatin.formulathoughts.com
+        - http://localhost:3000
 
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
