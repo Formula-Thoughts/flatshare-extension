@@ -1,5 +1,21 @@
+import typing
 import uuid
 from dataclasses import dataclass, field
+from typing import Protocol
+
+from backend.src.domain.models import Group
+
+T = typing.TypeVar("T")
+
+
+class BlobRepo(Protocol[T]):
+    def create(self, data: T, key_gen: typing.Callable[[T], str]) -> None:
+        ...
+
+
+class GroupRepo(Protocol[T]):
+    def create(self, data: Group) -> None:
+        ...
 
 
 def uuid4_str():

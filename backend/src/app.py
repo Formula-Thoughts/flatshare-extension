@@ -299,9 +299,8 @@ def send_sqs_message(message_group_id, payload: dict, queue_client, queue):
         QueueUrl=queue["QueueUrl"],
         MessageBody=json.dumps(payload),
         MessageGroupId=message_group_id,
-        MessageDeduplicationId=str(uuid.uuid4()),
+        MessageDeduplicationId=str(uuid.uuid4())
     )
-
 
 def send_delete_flat_message(id, group_id, queue_client, queue):
     send_sqs_message(

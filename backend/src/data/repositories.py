@@ -1,7 +1,7 @@
 import os
 import typing
 
-from backend.src.domain.abstractions import BlobRepo, Deserializer, Serializer
+from backend.src.abstractions import BlobRepo, Deserializer, Serializer
 from backend.src.data import S3ClientWrapper
 from backend.src.domain.models import Group
 

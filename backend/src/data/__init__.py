@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-from typing import Protocol
-
 import boto3
 
 S3Key = str
