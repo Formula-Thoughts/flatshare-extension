@@ -55,7 +55,7 @@ const SocialLogin = () => {
       }
     });
 
-    user && getUser();
+    getUser();
 
     return unsubscribe;
   }, [user]);
