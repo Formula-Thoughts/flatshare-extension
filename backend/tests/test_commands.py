@@ -13,7 +13,7 @@ from formula_thoughts_web.events import SQSEventPublisher
 from backend.src.core import UpsertGroupRequest, Group
 from backend.src.domain import UPSERT_GROUP_REQUEST
 from backend.src.domain.commands import SetGroupRequestContextCommand, ValidateGroupRequestContextCommand, \
-    SaveGroupAsyncOverSQSCommand
+    CreateGroupAsyncOverSQSCommand
 from backend.src.domain.errors import invalid_price_error
 
 
@@ -84,7 +84,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
     def setUp(self):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = SaveGroupAsyncOverSQSCommand(sqs_event_publisher=self.__sqs_event_publisher)
+        self.__sut = CreateGroupAsyncOverSQSCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
 
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))

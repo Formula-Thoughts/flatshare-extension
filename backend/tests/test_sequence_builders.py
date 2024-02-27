@@ -1,14 +1,14 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from backend.src.core import ValidateGroupCommand, SetGroupRequestCommand, SaveGroupAsyncCommand
+from backend.src.core import ValidateGroupCommand, SetGroupRequestCommand, CreateGroupAsyncCommand
 from backend.src.domain.sequence_builders import CreateGroupAsyncSequenceBuilder
 
 
 class TestCreateGroupAsyncSequenceBuilder(TestCase):
 
     def setUp(self):
-        self.__save: SaveGroupAsyncCommand = Mock()
+        self.__save: CreateGroupAsyncCommand = Mock()
         self.__build_request: SetGroupRequestCommand = Mock()
         self.__validate_request: ValidateGroupCommand = Mock()
         self.__sut = CreateGroupAsyncSequenceBuilder(set_group_request=self.__build_request,

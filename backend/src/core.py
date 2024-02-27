@@ -58,9 +58,17 @@ class ValidateGroupCommand(Command, Protocol):
     pass
 
 
-class SaveGroupAsyncCommand(Command, Protocol):
+class CreateGroupAsyncCommand(Command, Protocol):
     pass
 
 
 class CreateGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class UpsertGroupBackgroundCommand(Command, Protocol):
+    pass
+
+
+class UpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
     pass

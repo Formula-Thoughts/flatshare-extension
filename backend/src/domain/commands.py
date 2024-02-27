@@ -28,7 +28,7 @@ class ValidateGroupRequestContextCommand:
             context.error_capsules.append(invalid_price_error)
 
 
-class SaveGroupAsyncOverSQSCommand:
+class CreateGroupAsyncOverSQSCommand:
 
     def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
         self.__sqs_event_publisher = sqs_event_publisher
