@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from formula_thoughts_web.abstractions import ApplicationContext
+from formula_thoughts_web.crosscutting import ObjectMapper
 
 from backend.src.core import UpsertGroupRequest
 from backend.src.domain.commands import SetGroupRequestContextCommand
@@ -9,7 +10,7 @@ from backend.src.domain.commands import SetGroupRequestContextCommand
 class TestSetGroupRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = SetGroupRequestContextCommand()
+        self.__sut = SetGroupRequestContextCommand(object_mapper=ObjectMapper())
 
     def test_run(self):
         # arrange
