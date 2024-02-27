@@ -12,8 +12,8 @@ from formula_thoughts_web.events import SQSEventPublisher
 
 from backend.src.core import UpsertGroupRequest, Group
 from backend.src.domain import UPSERT_GROUP_REQUEST
-from backend.src.domain.commands import SetGroupRequestContextCommand, ValidateGroupRequestContextCommand, \
-    CreateGroupAsyncOverSQSCommand
+from backend.src.domain.commands import SetGroupRequestCommand, ValidateGroupRequestCommand, \
+    CreateGroupAsyncCommand
 from backend.src.domain.errors import invalid_price_error
 
 
@@ -23,7 +23,7 @@ UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 class TestSetGroupRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = SetGroupRequestContextCommand(object_mapper=ObjectMapper())
+        self.__sut = SetGroupRequestCommand(object_mapper=ObjectMapper())
 
     def test_run(self):
         # arrange
@@ -46,7 +46,7 @@ class TestSetGroupRequestCommand(TestCase):
 class TestValidateGroupRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = ValidateGroupRequestContextCommand()
+        self.__sut = ValidateGroupRequestCommand()
 
     def test_run_with_valid_data(self):
         # arrange
@@ -84,7 +84,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
     def setUp(self):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = CreateGroupAsyncOverSQSCommand(sqs_event_publisher=self.__sqs_event_publisher)
+        self.__sut = CreateGroupAsyncCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
 
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))

@@ -9,7 +9,7 @@ from backend.src.domain import UPSERT_GROUP_REQUEST
 from backend.src.domain.errors import invalid_price_error
 
 
-class SetGroupRequestContextCommand:
+class SetGroupRequestCommand:
 
     def __init__(self, object_mapper: ObjectMapper):
         self.__object_mapper = object_mapper
@@ -19,7 +19,7 @@ class SetGroupRequestContextCommand:
                                                                                  to=UpsertGroupRequest))
 
 
-class ValidateGroupRequestContextCommand:
+class ValidateGroupRequestCommand:
 
     def run(self, context: ApplicationContext) -> None:
         request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
@@ -28,7 +28,7 @@ class ValidateGroupRequestContextCommand:
             context.error_capsules.append(invalid_price_error)
 
 
-class CreateGroupAsyncOverSQSCommand:
+class CreateGroupAsyncCommand:
 
     def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
         self.__sqs_event_publisher = sqs_event_publisher

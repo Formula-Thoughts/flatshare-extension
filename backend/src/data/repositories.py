@@ -3,7 +3,7 @@ import typing
 
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 
-from backend.src.core import BlobRepo, Group
+from backend.src.core import IBlobRepo, Group
 from backend.src.data import S3ClientWrapper
 
 T = typing.TypeVar("T")
@@ -30,7 +30,7 @@ class S3BlobRepo(typing.Generic[T]):
 
 
 class S3GroupRepo:
-    def __init__(self, blob_repo: BlobRepo):
+    def __init__(self, blob_repo: IBlobRepo):
         self.__blob_repo = blob_repo
 
     def create(self, group: Group) -> None:

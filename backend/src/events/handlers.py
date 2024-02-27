@@ -3,12 +3,12 @@ from formula_thoughts_web.application import TopLevelSequenceRunner
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import EventHandlerBase
 
-from backend.src.core import Group, UpsertGroupBackgroundSequenceBuilder
+from backend.src.core import Group, IUpsertGroupBackgroundSequenceBuilder
 
 
 class UpsertGroupEventHandler(EventHandlerBase):
 
-    def __init__(self, sequence: UpsertGroupBackgroundSequenceBuilder,
+    def __init__(self, sequence: IUpsertGroupBackgroundSequenceBuilder,
                  command_pipeline: TopLevelSequenceRunner,
                  deserializer: Deserializer,
                  object_mapper: ObjectMapper):

@@ -40,35 +40,35 @@ class UpsertGroupRequest:
     location: str = None
 
 
-class BlobRepo(Protocol[T]):
+class IBlobRepo(Protocol[T]):
     def create(self, data: T, key_gen: typing.Callable[[T], str]) -> None:
         ...
 
 
-class GroupRepo(Protocol[T]):
+class IGroupRepo(Protocol[T]):
     def create(self, data: Group) -> None:
         ...
 
 
-class SetGroupRequestCommand(Command, Protocol):
+class ISetGroupRequestCommand(Command, Protocol):
     pass
 
 
-class ValidateGroupCommand(Command, Protocol):
+class IValidateGroupCommand(Command, Protocol):
     pass
 
 
-class CreateGroupAsyncCommand(Command, Protocol):
+class ICreateGroupAsyncCommand(Command, Protocol):
     pass
 
 
-class CreateGroupSequenceBuilder(SequenceBuilder, Protocol):
+class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
-class UpsertGroupBackgroundCommand(Command, Protocol):
+class IUpsertGroupBackgroundCommand(Command, Protocol):
     pass
 
 
-class UpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
+class IUpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
     pass
