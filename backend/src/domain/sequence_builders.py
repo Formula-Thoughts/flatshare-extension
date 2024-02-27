@@ -14,4 +14,6 @@ class CreateGroupAsyncSequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        pass
+        self._add_command(command=self.__set_group_request)\
+            ._add_command(command=self.__validate_group)\
+            ._add_command(command=self.__save_group_async)
