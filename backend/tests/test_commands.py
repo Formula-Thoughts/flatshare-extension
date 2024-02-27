@@ -91,9 +91,11 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
     def test_run_should_publish_to_sqs(self, _) -> None:
         # arrange
         group_request = AutoFixture().create(dto=UpsertGroupRequest)
+        auth_user_id = "12345"
         context = ApplicationContext(variables={
             UPSERT_GROUP_REQUEST: group_request
-        })
+        },
+        auth_user_id=auth_user_id)
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -113,5 +115,5 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                                                                price_limit=group_request.price_limit,
                                                                                location=group_request.location,
                                                                                flats=[],
-                                                                               participants=[]
+                                                                               participants=[auth_user_id]
                                                                            ))
