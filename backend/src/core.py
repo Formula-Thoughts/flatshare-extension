@@ -3,6 +3,8 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Protocol
 
+from formula_thoughts_web.abstractions import SequenceBuilder
+
 T = typing.TypeVar("T")
 
 
@@ -34,3 +36,7 @@ class BlobRepo(Protocol[T]):
 class GroupRepo(Protocol[T]):
     def create(self, data: Group) -> None:
         ...
+
+
+class CreateGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
