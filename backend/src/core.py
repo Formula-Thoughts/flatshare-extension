@@ -19,13 +19,25 @@ class Flat:
     price: float = None
 
 
+GroupParticipantAuthId = str
+
+
 @dataclass(unsafe_hash=True)
 class Group:
     id: str = field(default_factory=uuid4_str)
     flats: list[Flat] = field(default_factory=lambda: [])
+    participants: list[GroupParticipantAuthId] = field(default_factory=lambda: [])
+    price_limit: float = None
+    location: str = None
 
     def can_add_flat(self, flat: Flat) -> bool:
         ...
+
+
+@dataclass(unsafe_hash=True)
+class UpsertGroupRequest:
+    price_limit: float = None
+    location: str = None
 
 
 class BlobRepo(Protocol[T]):
