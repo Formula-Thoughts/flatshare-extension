@@ -5,7 +5,7 @@ from typing import Protocol
 
 from formula_thoughts_web.abstractions import SequenceBuilder, Command
 
-T = typing.TypeVar("T")
+TData = typing.TypeVar("TData")
 
 
 def uuid4_str():
@@ -40,8 +40,8 @@ class UpsertGroupRequest:
     location: str = None
 
 
-class IBlobRepo(Protocol[T]):
-    def create(self, data: T, key_gen: typing.Callable[[T], str]) -> None:
+class IBlobRepo(Protocol):
+    def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
         ...
 
 

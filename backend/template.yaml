@@ -170,7 +170,7 @@ Resources:
 
       MemorySize: 1024
       CodeUri: ./
-      Handler: src/app2.lambda_handler
+      Handler: src/app.lambda_handler
       Runtime: python3.10
       Events:
         GetGroupById:

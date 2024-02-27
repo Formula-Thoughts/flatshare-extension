@@ -3,13 +3,11 @@ import typing
 
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 
-from src.core import IBlobRepo, Group
+from src.core import IBlobRepo, Group, TData
 from src.data import S3ClientWrapper
 
-T = typing.TypeVar("T")
 
-
-class S3BlobRepo(typing.Generic[T]):
+class S3BlobRepo:
     def __init__(
         self,
         s3_client_wrapper: S3ClientWrapper,
@@ -20,7 +18,7 @@ class S3BlobRepo(typing.Generic[T]):
         self.__serializer = serializer
         self.__s3_client_wrapper = s3_client_wrapper
 
-    def create(self, data: T, key_gen: typing.Callable[[T], str]) -> None:
+    def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
         self.__s3_client_wrapper.put_object(
             bucket=os.environ["S3_BUCKET_NAME"],
             key=key_gen(data),
@@ -30,7 +28,7 @@ class S3BlobRepo(typing.Generic[T]):
 
 
 class S3GroupRepo:
-    def __init__(self, blob_repo: IBlobRepo[Group]):
+    def __init__(self, blob_repo: IBlobRepo):
         self.__blob_repo = blob_repo
 
     def create(self, group: Group) -> None:

@@ -10,5 +10,5 @@ s3 = boto3.client('s3')
 
 def register_data_dependencies(container: Container):
     (container.register_factory(service=S3ClientWrapper, factory=lambda: S3ClientWrapper(client=s3))
-     .register(service=IBlobRepo[Group], implementation=S3BlobRepo[Group])
+     .register(service=IBlobRepo, implementation=S3BlobRepo)
      .register(service=IGroupRepo, implementation=S3GroupRepo))
