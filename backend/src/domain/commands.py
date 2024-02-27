@@ -1,6 +1,6 @@
 import uuid
 
-from formula_thoughts_web.events import SQSEventPublisher
+from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
@@ -50,4 +50,4 @@ class UpsertGroupBackgroundCommand:
         self.__group_repo = group_repo
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        self.__group_repo.create(data=context.get_var(EVENT, Group))
