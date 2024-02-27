@@ -7,16 +7,17 @@ import { useEffect, useState } from "react";
 import Landing from "./views/Landing";
 import Settings from "./views/Settings";
 import Invitations from "./views/Invitations";
+import Auth from "./views/Auth";
 
 function App() {
   // const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const state = useFlats();
-  const [token, setToken] = useState("");
   let url;
   const setActiveUrl = () => {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       url = tabs[0].url;
+
       if (url) {
         const getPropertyProvider = (url: string) => {
           if (url?.includes("https://www.rightmove.co.uk/properties/")) {
@@ -63,27 +64,43 @@ function App() {
       url?.includes("https://www.openrent.co.uk/property-to-rent/")
     ) {
       navigate("/FlatView");
-    } else if (url?.includes("flatiniToken")) {
-      setToken(url?.split("flatiniToken=")[1]);
+    } else if (url?.includes("https://localhost:3000/")) {
+      authenticate();
     } else {
       navigate("/");
     }
   };
 
-  // // Listens to changes on tabs
-  // chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
-  //   console.log("updating tab2", tab);
-  //   defaultNavigation(tab.url);
-  // });
+  const authenticate = () => {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+      async function getAuthenticationDetails() {
+        const authDetails = await chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id as number },
+          func: () => {
+            return JSON.stringify(localStorage);
+          },
+        });
+        console.log("test", JSON.parse((authDetails as any)[0].result));
 
-  // // Reads changes when active tab changes
-  // chrome.tabs.onActivated.addListener(function (activeInfo) {
-  //   // Gets the URL of the active tab
-  //   chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-  //     let url = tabs[0].url;
-  //     defaultNavigation(url);
-  //   });
-  // });
+        console.log("tye", typeof (authDetails as any)[0].result);
+
+        if ((authDetails as any)[0].result !== "{}") {
+          console.log("tye val", (authDetails as any)[0].result);
+
+          localStorage.setItem(
+            "flatini-auth",
+            JSON.stringify((authDetails as any)[0].result)
+          );
+        } else {
+          localStorage.removeItem("flatini-auth");
+        }
+      }
+      getAuthenticationDetails();
+    });
+  };
+
+  const getAuthDetailsFromExtensionStorage = () =>
+    localStorage.getItem("flatini-auth") || null;
 
   useEffect(() => {
     chrome.tabs.onCreated.addListener(function () {
@@ -101,9 +118,17 @@ function App() {
     });
   }, []);
 
+  if (!getAuthDetailsFromExtensionStorage()) {
+    return (
+      <Routes>
+        <Route path="/" element={<Auth />} />
+      </Routes>
+    );
+  }
+
   return (
     <>
-      <p>token{token}</p>
+      <p>authDetails {JSON.stringify(getAuthDetailsFromExtensionStorage())}</p>
       {state.activeUrl ? (
         <Routes>
           {/* <Route path="/" element={<Landing />} /> */}
