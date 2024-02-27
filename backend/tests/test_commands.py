@@ -86,12 +86,16 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
         self.__sut = CreateGroupAsyncCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
-
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
     def test_run_should_publish_to_sqs(self, _) -> None:
         # arrange
         group_request = AutoFixture().create(dto=UpsertGroupRequest)
         auth_user_id = "12345"
+        expected_group = Group(id=UUID_EXAMPLE,
+                               price_limit=group_request.price_limit,
+                               location=group_request.location,
+                               flats=[],
+                               participants=[auth_user_id])
         context = ApplicationContext(variables={
             UPSERT_GROUP_REQUEST: group_request
         },
@@ -100,8 +104,6 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
         # act
         self.__sut.run(context=context)
-
-        group_captor = Captor()
 
         # assert
         with self.subTest(msg="assert sqs message is sent once"):
@@ -117,6 +119,10 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                                                                flats=[],
                                                                                participants=[auth_user_id]
                                                                            ))
+
+        # assert
+        with self.subTest(msg="assert response is set to group"):
+            self.assertEqual(expected_group, context.response)
 
 
 class TestUpsertGroupBackgroundCommand(TestCase):
