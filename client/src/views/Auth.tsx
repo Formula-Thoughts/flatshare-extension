@@ -1,4 +1,5 @@
 import React from "react";
+import { flatiniAuthWebsite } from "../utils/constants";
 
 const Auth = () => {
   return (
@@ -6,7 +7,7 @@ const Auth = () => {
       Auth.{" "}
       <div>
         Click{" "}
-        <a href="https://localhost:3000/" target="_blank">
+        <a href={flatiniAuthWebsite} target="_blank">
           here
         </a>
         to authenticate

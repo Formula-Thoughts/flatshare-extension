@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
-import { useFlats } from "./context/AppProvider";
+import { useProvider } from "./context/AppProvider";
 import { useEffect } from "react";
 import { _getGroupById } from "./utils/resources";
 import MainLayout from "./layouts/MainLayout";
@@ -16,7 +16,7 @@ const FlatCard = styled.div`
 const FlatCardBody = styled.div``;
 
 export const Flats = () => {
-  const { flats, initFlatsFromApi } = useFlats();
+  const { flats } = useProvider();
 
   return (
     <MainLayout>

@@ -2,7 +2,7 @@ import React from "react";
 import MainLayout from "../layouts/MainLayout";
 import InputText from "../dwelly-library/components/InputText";
 import styled from "styled-components";
-import { useFlats } from "../context/AppProvider";
+import { useProvider } from "../context/AppProvider";
 
 const Wrapper = styled.div`
   display: flex;
@@ -10,12 +10,11 @@ const Wrapper = styled.div`
 `;
 
 const Settings = () => {
-  const { requirements, setRequirements } = useFlats();
+  const { requirements, setRequirements } = useProvider();
   return (
     <MainLayout>
       <Wrapper>
         <div>Settings</div>
-
         <form>
           <div>
             <label style={{ display: "block" }}>Price</label>
