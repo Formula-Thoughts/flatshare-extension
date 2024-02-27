@@ -3,6 +3,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 
 from backend.src.core import UpsertGroupRequest
 from backend.src.domain import UPSERT_GROUP_REQUEST
+from backend.src.domain.errors import invalid_price_error
 
 
 class SetGroupRequestContextCommand:
@@ -18,4 +19,7 @@ class SetGroupRequestContextCommand:
 class ValidateGroupRequestContextCommand:
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
+
+        if request.price_limit <= 0:
+            context.error_capsules.append(invalid_price_error)

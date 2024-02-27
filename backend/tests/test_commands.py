@@ -53,8 +53,9 @@ class TestValidateGroupRequestCommand(TestCase):
     @data([0], [-14])
     def test_run_with_invalid_data(self, price):
         # arrange
+        [price_limit] = price
         context = ApplicationContext(variables={
-            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price, location="UK")
+            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, location="UK")
         })
 
         # act
