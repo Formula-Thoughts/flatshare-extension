@@ -4,7 +4,7 @@ from formula_thoughts_web.events import SQSEventPublisher
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from backend.src.core import UpsertGroupRequest, Group
+from backend.src.core import UpsertGroupRequest, Group, IGroupRepo
 from backend.src.domain import UPSERT_GROUP_REQUEST
 from backend.src.domain.errors import invalid_price_error
 
@@ -42,3 +42,12 @@ class CreateGroupAsyncCommand:
                                                                   participants=[context.auth_user_id],
                                                                   price_limit=group_request.price_limit,
                                                                   location=group_request.location))
+
+
+class UpsertGroupBackgroundCommand:
+
+    def __init__(self, group_repo: IGroupRepo):
+        self.__group_repo = group_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

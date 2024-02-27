@@ -8,12 +8,12 @@ from callee import Any, Captor
 from ddt import ddt, data
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
-from formula_thoughts_web.events import SQSEventPublisher
+from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from backend.src.core import UpsertGroupRequest, Group
+from backend.src.core import UpsertGroupRequest, Group, IGroupRepo
 from backend.src.domain import UPSERT_GROUP_REQUEST
 from backend.src.domain.commands import SetGroupRequestCommand, ValidateGroupRequestCommand, \
-    CreateGroupAsyncCommand
+    CreateGroupAsyncCommand, UpsertGroupBackgroundCommand
 from backend.src.domain.errors import invalid_price_error
 
 
@@ -117,3 +117,27 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                                                                flats=[],
                                                                                participants=[auth_user_id]
                                                                            ))
+
+
+class TestUpsertGroupBackgroundCommand(TestCase):
+
+    def setUp(self):
+        self.__group_repo: IGroupRepo = Mock()
+        self.__sut = UpsertGroupBackgroundCommand(group_repo=self.__group_repo)
+
+    def test_run_should_upsert_group(self):
+        # arrange
+        self.__group_repo.create = MagicMock()
+        event = AutoFixture().create(dto=Group)
+        context = ApplicationContext(variables={EVENT: event})
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert group is stored once"):
+            self.__group_repo.create.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert group is stored with valid params"):
+            self.__group_repo.create.assert_called_with(data=event)
