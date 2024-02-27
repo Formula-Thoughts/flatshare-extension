@@ -7,9 +7,9 @@ from autofixture import AutoFixture
 from callee import Captor
 from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCamelToSnakeDeserializer
 
-from backend.src.core import IBlobRepo, Group
-from backend.src.data import S3ClientWrapper
-from backend.src.data.repositories import S3BlobRepo, S3GroupRepo
+from src.core import IBlobRepo, Group
+from src.data import S3ClientWrapper
+from src.data.repositories import S3BlobRepo, S3GroupRepo
 
 
 @dataclass(unsafe_hash=True)

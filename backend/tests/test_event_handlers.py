@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from backend.src.core import Group
-from backend.src.events.handlers import UpsertGroupEventHandler
+from src.core import Group
+from src.events.handlers import UpsertGroupEventHandler
 
 
 class TestUpsertGroupEventHandler(TestCase):

@@ -5,7 +5,7 @@ from formula_thoughts_web.abstractions import EventHandler, Serializer
 from formula_thoughts_web.events import SQSEventPublisher
 from formula_thoughts_web.ioc import Container
 
-from backend.src.events.handlers import UpsertGroupEventHandler
+from src.events.handlers import UpsertGroupEventHandler
 
 
 sqs = boto3.client('sqs')

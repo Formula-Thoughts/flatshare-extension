@@ -4,9 +4,9 @@ from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from backend.src.core import UpsertGroupRequest, Group, IGroupRepo
-from backend.src.domain import UPSERT_GROUP_REQUEST
-from backend.src.domain.errors import invalid_price_error
+from src.core import UpsertGroupRequest, Group, IGroupRepo
+from src.domain import UPSERT_GROUP_REQUEST
+from src.domain.errors import invalid_price_error
 
 
 class SetGroupRequestCommand:

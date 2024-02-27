@@ -1,8 +1,8 @@
 import boto3
 
-from backend.src.core import IBlobRepo, Group, IGroupRepo
-from backend.src.data import S3ClientWrapper
-from backend.src.data.repositories import S3BlobRepo, S3GroupRepo
+from src.core import IBlobRepo, Group, IGroupRepo
+from src.data import S3ClientWrapper
+from src.data.repositories import S3BlobRepo, S3GroupRepo
 from formula_thoughts_web.ioc import Container
 
 s3 = boto3.client('s3')

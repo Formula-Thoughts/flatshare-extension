@@ -1,6 +1,6 @@
 from formula_thoughts_web.application import FluentSequenceBuilder
 
-from backend.src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
+from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand
 
 

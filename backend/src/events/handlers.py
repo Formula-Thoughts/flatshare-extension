@@ -3,7 +3,7 @@ from formula_thoughts_web.application import TopLevelSequenceRunner
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import EventHandlerBase
 
-from backend.src.core import Group, IUpsertGroupBackgroundSequenceBuilder
+from src.core import Group, IUpsertGroupBackgroundSequenceBuilder
 
 
 class UpsertGroupEventHandler(EventHandlerBase):

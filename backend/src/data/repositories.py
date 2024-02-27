@@ -3,8 +3,8 @@ import typing
 
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 
-from backend.src.core import IBlobRepo, Group
-from backend.src.data import S3ClientWrapper
+from src.core import IBlobRepo, Group
+from src.data import S3ClientWrapper
 
 T = typing.TypeVar("T")
 

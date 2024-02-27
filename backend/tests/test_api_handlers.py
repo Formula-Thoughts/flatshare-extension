@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from backend.src.web.handlers import CreateGroupApiHandler
+from src.web.handlers import CreateGroupApiHandler
 
 
 class TestCreateGroupHandler(TestCase):

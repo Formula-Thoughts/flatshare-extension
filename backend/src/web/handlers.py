@@ -2,7 +2,7 @@ from formula_thoughts_web.abstractions import Deserializer
 from formula_thoughts_web.application import TopLevelSequenceRunner
 from formula_thoughts_web.web import ApiRequestHandlerBase
 
-from backend.src.core import ICreateGroupSequenceBuilder
+from src.core import ICreateGroupSequenceBuilder
 
 
 class CreateGroupApiHandler(ApiRequestHandlerBase):

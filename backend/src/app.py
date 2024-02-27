@@ -1,11 +1,7 @@
-import sys
-module = sys.modules[__name__]
-print(module)
-
-from backend.src.data.ioc import register_data_dependencies
-from backend.src.domain.ioc import register_domain_dependencies
-from backend.src.events.ioc import register_event_dependencies
-from backend.src.web.ioc import register_web_dependencies
+from src.data.ioc import register_data_dependencies
+from src.domain.ioc import register_domain_dependencies
+from src.events.ioc import register_event_dependencies
+from src.web.ioc import register_web_dependencies
 from formula_thoughts_web.ioc import register_web, Container, LambdaRunner
 
 
