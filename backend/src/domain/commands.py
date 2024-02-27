@@ -1,3 +1,4 @@
+from formula_thoughts_web.events import SQSEventPublisher
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
@@ -23,3 +24,12 @@ class ValidateGroupRequestContextCommand:
 
         if request.price_limit <= 0:
             context.error_capsules.append(invalid_price_error)
+
+
+class SaveGroupAsyncOverSQSCommand:
+
+    def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
+        self.__sqs_event_publisher = sqs_event_publisher
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

@@ -165,12 +165,6 @@ Resources:
             Path: /groups
             Method: post
             ApiId: !Ref FlatiniHttpApi
-        AmendGroup:
-          Type: HttpApi
-          Properties:
-            Path: /groups/{group_id}
-            Method: put
-            ApiId: !Ref FlatiniHttpApi
         AddFlatToGroup:
           Type: HttpApi
           Properties:
