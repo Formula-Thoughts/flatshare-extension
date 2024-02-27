@@ -56,7 +56,7 @@ class BlobRepoTestCase(TestCase):
 
 class TestGroupRepo(TestCase):
     def setUp(self) -> None:
-        self.__blob_repo: IBlobRepo = Mock()
+        self.__blob_repo: IBlobRepo[Group] = Mock()
         self.__sut = S3GroupRepo(blob_repo=self.__blob_repo)
 
     def test_create(self):

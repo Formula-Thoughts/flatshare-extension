@@ -45,7 +45,7 @@ class IBlobRepo(Protocol[T]):
         ...
 
 
-class IGroupRepo(Protocol[T]):
+class IGroupRepo(Protocol):
     def create(self, data: Group) -> None:
         ...
 
@@ -62,11 +62,11 @@ class ICreateGroupAsyncCommand(Command, Protocol):
     pass
 
 
-class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
+class IUpsertGroupBackgroundCommand(Command, Protocol):
     pass
 
 
-class IUpsertGroupBackgroundCommand(Command, Protocol):
+class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 

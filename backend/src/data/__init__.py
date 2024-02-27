@@ -1,4 +1,5 @@
 import boto3
+from botocore.client import BaseClient
 
 S3Key = str
 
@@ -13,8 +14,8 @@ ContentType = str
 
 class S3ClientWrapper:
 
-    def __init__(self):
-        self.__s3_client = boto3.client("s3")
+    def __init__(self, client: BaseClient):
+        self.__s3_client = client
 
     def put_object(self,
                    bucket: S3BucketName,

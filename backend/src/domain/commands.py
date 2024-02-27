@@ -19,7 +19,7 @@ class SetGroupRequestCommand:
                                                                                  to=UpsertGroupRequest))
 
 
-class ValidateGroupRequestCommand:
+class ValidateGroupCommand:
 
     def run(self, context: ApplicationContext) -> None:
         request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)

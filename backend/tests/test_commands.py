@@ -12,7 +12,7 @@ from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from backend.src.core import UpsertGroupRequest, Group, IGroupRepo
 from backend.src.domain import UPSERT_GROUP_REQUEST
-from backend.src.domain.commands import SetGroupRequestCommand, ValidateGroupRequestCommand, \
+from backend.src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand
 from backend.src.domain.errors import invalid_price_error
 
@@ -46,7 +46,7 @@ class TestSetGroupRequestCommand(TestCase):
 class TestValidateGroupRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = ValidateGroupRequestCommand()
+        self.__sut = ValidateGroupCommand()
 
     def test_run_with_valid_data(self):
         # arrange
