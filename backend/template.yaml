@@ -61,6 +61,7 @@ Resources:
         - https://localhost:3000
         - https://flatin.formulathoughts.com
         - http://localhost:3000
+        - https://oauth.pstmn.io/v1/browser-callback
       AllowedOAuthFlows:
         - code
         - implicit
@@ -162,9 +163,14 @@ Resources:
   FlatiniFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Environment:
+        Variables:
+          QUEUE_NAME: !GetAtt MyQueue.QueueName
+          S3_BUCKET_NAME: !Ref Database
+
       MemorySize: 1024
       CodeUri: ./
-      Handler: src/app.lambda_handler
+      Handler: src/app2.lambda_handler
       Runtime: python3.10
       Events:
         GetGroupById:
