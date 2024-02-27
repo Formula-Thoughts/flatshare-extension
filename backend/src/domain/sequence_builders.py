@@ -1,0 +1,17 @@
+from formula_thoughts_web.application import FluentSequenceBuilder
+
+from backend.src.core import SetGroupRequestCommand, ValidateGroupCommand, SaveGroupAsyncCommand
+
+
+class CreateGroupAsyncSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, set_group_request: SetGroupRequestCommand,
+                 validate_group: ValidateGroupCommand,
+                 save_group_async: SaveGroupAsyncCommand):
+        self.__save_group_async = save_group_async
+        self.__validate_group = validate_group
+        self.__set_group_request = set_group_request
+        super().__init__()
+
+    def build(self):
+        pass
