@@ -13,3 +13,9 @@ class SetGroupRequestContextCommand:
     def run(self, context: ApplicationContext) -> None:
         context.set_var(UPSERT_GROUP_REQUEST, self.__object_mapper.map_from_dict(_from=context.body,
                                                                                  to=UpsertGroupRequest))
+
+
+class ValidateGroupRequestContextCommand:
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
