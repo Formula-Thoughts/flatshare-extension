@@ -43,13 +43,12 @@ class CreateGroupAsyncCommand:
                       participants=[context.auth_user_id],
                       price_limit=group_request.price_limit,
                       location=group_request.location)
-        context.response = typing.cast(typ=CreatedGroupResponse, val=group)
-        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id,
-                                                    payload=Group(id=group_id,
-                                                                  flats=[],
-                                                                  participants=[context.auth_user_id],
-                                                                  price_limit=group_request.price_limit,
-                                                                  location=group_request.location))
+        context.response = CreatedGroupResponse(id=group.id,
+                                                flats=group.flats,
+                                                participants=group.participants,
+                                                price_limit=group.price_limit,
+                                                location=group.location)
+        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id, payload=group)
 
 
 class UpsertGroupBackgroundCommand:
