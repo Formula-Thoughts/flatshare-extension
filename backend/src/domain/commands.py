@@ -56,4 +56,4 @@ class UpsertGroupBackgroundCommand:
         self.__group_repo = group_repo
 
     def run(self, context: ApplicationContext) -> None:
-        self.__group_repo.create(data=context.get_var(EVENT, Group))
+        self.__group_repo.create(group=context.get_var(EVENT, Group))

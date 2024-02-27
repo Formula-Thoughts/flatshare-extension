@@ -15,7 +15,7 @@ from src.domain import UPSERT_GROUP_REQUEST
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand
 from src.domain.errors import invalid_price_error
-
+from src.domain.responses import CreatedGroupResponse
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 
@@ -99,7 +99,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         context = ApplicationContext(variables={
             UPSERT_GROUP_REQUEST: group_request
         },
-        auth_user_id=auth_user_id)
+            auth_user_id=auth_user_id)
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -122,7 +122,11 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert response is set to group"):
-            self.assertEqual(expected_group, context.response)
+            self.assertEqual(CreatedGroupResponse(id=UUID_EXAMPLE,
+                                                  price_limit=group_request.price_limit,
+                                                  location=group_request.location,
+                                                  flats=[],
+                                                  participants=[auth_user_id]), context.response)
 
 
 class TestUpsertGroupBackgroundCommand(TestCase):

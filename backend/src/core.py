@@ -46,7 +46,7 @@ class IBlobRepo(Protocol):
 
 
 class IGroupRepo(Protocol):
-    def create(self, data: Group) -> None:
+    def create(self, group: Group) -> None:
         ...
 
 
