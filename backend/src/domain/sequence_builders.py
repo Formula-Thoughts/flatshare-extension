@@ -27,4 +27,4 @@ class UpsertGroupBackgroundSequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        pass
+        self._add_command(command=self.__upsert_background_command)
