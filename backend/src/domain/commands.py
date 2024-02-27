@@ -1,3 +1,4 @@
+import typing
 import uuid
 
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
@@ -7,6 +8,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import UpsertGroupRequest, Group, IGroupRepo
 from src.domain import UPSERT_GROUP_REQUEST
 from src.domain.errors import invalid_price_error
+from src.domain.responses import CreatedGroupResponse
 
 
 class SetGroupRequestCommand:
@@ -41,7 +43,7 @@ class CreateGroupAsyncCommand:
                       participants=[context.auth_user_id],
                       price_limit=group_request.price_limit,
                       location=group_request.location)
-        context.response = group
+        context.response = typing.cast(typ=CreatedGroupResponse, val=group)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id,
                                                     payload=Group(id=group_id,
                                                                   flats=[],
