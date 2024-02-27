@@ -1,8 +1,10 @@
+import uuid
+
 from formula_thoughts_web.events import SQSEventPublisher
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from backend.src.core import UpsertGroupRequest
+from backend.src.core import UpsertGroupRequest, Group
 from backend.src.domain import UPSERT_GROUP_REQUEST
 from backend.src.domain.errors import invalid_price_error
 
@@ -32,4 +34,11 @@ class SaveGroupAsyncOverSQSCommand:
         self.__sqs_event_publisher = sqs_event_publisher
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
+        group_id = str(uuid.uuid4())
+        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id,
+                                                    payload=Group(id=group_id,
+                                                                  flats=[],
+                                                                  participants=[],
+                                                                  price_limit=group_request.price_limit,
+                                                                  location=group_request.location))

@@ -87,8 +87,8 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         self.__sut = SaveGroupAsyncOverSQSCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
 
-    @patch('uuid.uuid4', side_effect=UUID(UUID_EXAMPLE))
-    def test_run_should_publish_to_sqs(self) -> None:
+    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
+    def test_run_should_publish_to_sqs(self, _) -> None:
         # arrange
         group_request = AutoFixture().create(dto=UpsertGroupRequest)
         context = ApplicationContext(variables={
