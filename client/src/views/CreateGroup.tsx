@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "../dwelly-library/components/Button";
+import Button from "../flatini-library/components/Button";
 
 const CreateGroup = () => {
   return (

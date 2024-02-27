@@ -1,6 +1,6 @@
 import React from "react";
 import MainLayout from "../layouts/MainLayout";
-import InputText from "../dwelly-library/components/InputText";
+import InputText from "../flatini-library/components/InputText";
 import styled from "styled-components";
 import { useProvider } from "../context/AppProvider";
 

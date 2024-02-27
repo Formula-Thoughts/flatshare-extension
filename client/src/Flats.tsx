@@ -6,7 +6,7 @@ import { useProvider } from "./context/AppProvider";
 import { useEffect } from "react";
 import { _getGroupById } from "./utils/resources";
 import MainLayout from "./layouts/MainLayout";
-import Text, { TextTypes } from "./dwelly-library/components/Text";
+import Text, { TextTypes } from "./flatini-library/components/Text";
 import { Authenticator } from "@aws-amplify/ui-react";
 
 const FlatCard = styled.div`

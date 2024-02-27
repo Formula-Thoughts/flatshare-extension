@@ -9,12 +9,12 @@ import {
   getFlatDataFromSpareroom,
   getFlatDataFromZoopla,
 } from "./utils/url";
-import Text, { TextTypes } from "./dwelly-library/components/Text";
-import Image from "./dwelly-library/components/Image";
-import checkmark from "./dwelly-library/assets/checkmark.png";
-import cross from "./dwelly-library/assets/cross.png";
+import Text, { TextTypes } from "./flatini-library/components/Text";
+import Image from "./flatini-library/components/Image";
+import checkmark from "./flatini-library/assets/checkmark.png";
+import cross from "./flatini-library/assets/cross.png";
 import { extractNumber } from "./utils/util";
-import Button from "./dwelly-library/components/Button";
+import Button from "./flatini-library/components/Button";
 
 const Wrapper = styled.div<{
   isFlatDuplicated: boolean;

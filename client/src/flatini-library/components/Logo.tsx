@@ -1,7 +1,7 @@
 import React, { HTMLProps } from "react";
 import Image from "./Image";
 import styled from "styled-components";
-import LogoStandard from "../assets/dwelly-logo.png";
+import LogoStandard from "../assets/flatini-logo.png";
 
 const Wrapper = styled.div``;
 
