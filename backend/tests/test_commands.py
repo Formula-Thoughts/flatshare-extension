@@ -129,6 +129,10 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                                   flats=[],
                                                   participants=[auth_user_id]), context.response)
 
+        # assert
+        with self.subTest(msg="assert group id is saved as context var"):
+            self.assertEqual(context.get_var("GROUP_ID", str), UUID_EXAMPLE)
+
 
 class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
 
@@ -156,7 +160,6 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         with self.subTest(msg="assert sqs message is sent with correct params"):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
                                                                            payload=expected_user_group)
-
 
 
 class TestUpsertGroupBackgroundCommand(TestCase):
