@@ -61,6 +61,7 @@ Resources:
         - https://localhost:3000
         - https://flatin.formulathoughts.com
         - http://localhost:3000
+        - https://oauth.pstmn.io/v1/browser-callback
       AllowedOAuthFlows:
         - code
         - implicit
@@ -144,42 +145,71 @@ Resources:
           - DELETE
           - OPTIONS
           - PATCH
+      Auth:
+        Authorizers:
+          UserAuth:
+            IdentitySource: "$request.header.Authorization"
+            JwtConfiguration:
+              issuer:
+                !Join
+                - ''
+                - - 'https://cognito-idp.'
+                  - !Sub ${AWS::Region}
+                  - '.amazonaws.com/'
+                  - !Ref FlatiniUserPool
+              audience:
+                - !Ref FlatiniUserPoolClient
 
   FlatiniFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Environment:
+        Variables:
+          QUEUE_NAME: !GetAtt MyQueue.QueueName
+          S3_BUCKET_NAME: !Ref Database
+
       MemorySize: 1024
       CodeUri: ./
       Handler: src/app.lambda_handler
       Runtime: python3.10
       Events:
-        TestProxy:
-          Type: HttpApi
-          Properties:
-            Path: /proxy/{path+}
-            Method: any
-            ApiId: !Ref FlatiniHttpApi
         GetGroupById:
           Type: HttpApi
           Properties:
-            Path: /groups/{group_id}
+            Auth:
+              Authorizer: UserAuth
+            Path: /groups
             Method: get
             ApiId: !Ref FlatiniHttpApi
         CreateGroup:
           Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: UserAuth
             Path: /groups
             Method: post
             ApiId: !Ref FlatiniHttpApi
-        CreateFlat:
+        AddFlatToGroup:
           Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: UserAuth
             Path: /groups/{group_id}/flats
+            Method: post
+            ApiId: !Ref FlatiniHttpApi
+        AddUserToGroup:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: UserAuth
+            Path: /groups/{group_id}/users
             Method: post
             ApiId: !Ref FlatiniHttpApi
         DeleteFlat:
           Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: UserAuth
             Path: /groups/{group_id}/flats/{flat_id}
             Method: delete
             ApiId: !Ref FlatiniHttpApi

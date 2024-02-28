@@ -56,7 +56,7 @@ jobs:
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout head
+      - name: checkout head
         uses: actions/checkout@v4
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -68,7 +68,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-test.txt
-          cd ..
           python -m unittest
       - name: setup aws cli
         uses: aws-actions/configure-aws-credentials@v1

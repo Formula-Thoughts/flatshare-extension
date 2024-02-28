@@ -4,9 +4,9 @@ import App from "./App";
 import "./sidepanel";
 import { MemoryRouter } from "react-router-dom";
 import AppProvider from "./context/AppProvider";
-import theme from "./dwelly-library/theme";
+import theme from "./flatini-library/theme";
 import { ThemeProvider } from "styled-components";
-import GlobalStyle from "./dwelly-library/globalStyle";
+import GlobalStyle from "./flatini-library/globalStyle";
 
 const root = document.createElement("div");
 root.className = "container";

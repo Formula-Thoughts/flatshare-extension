@@ -1,7 +1,7 @@
 import React from "react";
-import Logo from "../dwelly-library/components/Logo";
+import Logo from "../flatini-library/components/Logo";
 import styled from "styled-components";
-import Text, { TextTypes } from "../dwelly-library/components/Text";
+import Text, { TextTypes } from "../flatini-library/components/Text";
 import { useNavigate } from "react-router";
 
 const Wrapper = styled.div`

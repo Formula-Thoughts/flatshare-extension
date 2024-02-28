@@ -1,2 +1,2 @@
-class AutoFixtureException(Exception):
-    ...
+class UserGroupsNotFoundException(Exception):
+    pass
