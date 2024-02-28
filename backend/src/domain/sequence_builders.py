@@ -1,14 +1,16 @@
 from formula_thoughts_web.application import FluentSequenceBuilder
 
 from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
-    IUpsertGroupBackgroundCommand
+    IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self, set_group_request: ISetGroupRequestCommand,
                  validate_group: IValidateGroupCommand,
-                 save_group_async: ICreateGroupAsyncCommand):
+                 save_group_async: ICreateGroupAsyncCommand,
+                 create_user_group_async: ICreateUserGroupsAsyncCommand):
+        self.__create_user_group_async = create_user_group_async
         self.__save_group_async = save_group_async
         self.__validate_group = validate_group
         self.__set_group_request = set_group_request

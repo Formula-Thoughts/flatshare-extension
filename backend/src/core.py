@@ -66,6 +66,10 @@ class ICreateGroupAsyncCommand(Command, Protocol):
     pass
 
 
+class ICreateUserGroupsAsyncCommand(Command, Protocol):
+    pass
+
+
 class IUpsertGroupBackgroundCommand(Command, Protocol):
     pass
 

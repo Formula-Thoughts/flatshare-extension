@@ -51,6 +51,15 @@ class CreateGroupAsyncCommand:
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id, payload=group)
 
 
+class CreateUserGroupsAsyncCommand:
+
+    def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
+        self.__sqs_event_publisher = sqs_event_publisher
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
+
+
 class UpsertGroupBackgroundCommand:
 
     def __init__(self, group_repo: IGroupRepo):
