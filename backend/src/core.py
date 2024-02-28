@@ -92,7 +92,7 @@ class IUpsertUserGroupsBackgroundCommand(Command, Protocol):
     pass
 
 
-class IFetchUserGroupsCommand(SequenceBuilder, Protocol):
+class IFetchUserGroupsCommand(Command, Protocol):
     pass
 
 
