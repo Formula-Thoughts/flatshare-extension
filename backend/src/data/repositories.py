@@ -10,11 +10,11 @@ from src.data import S3ClientWrapper
 
 class S3BlobRepo:
     def __init__(
-        self,
-        s3_client_wrapper: S3ClientWrapper,
-        serializer: Serializer,
-        deserializer: Deserializer,
-        object_mapper: ObjectMapper
+            self,
+            s3_client_wrapper: S3ClientWrapper,
+            serializer: Serializer,
+            deserializer: Deserializer,
+            object_mapper: ObjectMapper
     ):
         self.__object_mapper = object_mapper
         self.__deserializer = deserializer
@@ -29,8 +29,11 @@ class S3BlobRepo:
             content_type="application/json",
         )
 
-    def get(self, key: str) -> TData:
-        ...
+    def get(self, key: str, model_type: typing.Type[TData]) -> TData:
+        response = self.__s3_client_wrapper.get_object(bucket=os.environ["S3_BUCKET_NAME"],
+                                                       key=key)
+        return self.__object_mapper.map_from_dict(_from=self.__deserializer.deserialize(data=response),
+                                                  to=model_type)
 
 
 class S3GroupRepo:

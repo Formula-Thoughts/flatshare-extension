@@ -62,7 +62,7 @@ class BlobRepoTestCase(TestCase):
         self.__s3_wrapper.get_object = MagicMock(return_value=self.__serializer.serialize(data=data.__dict__))
 
         # act
-        response = self.__sut.get(key=f"testmodel/{data.prop_1}/{data.prop_2}")
+        response = self.__sut.get(key=f"testmodel/{data.prop_1}/{data.prop_2}", model_type=TestDataModel)
 
         # assert
         with self.subTest(msg="response matches fetched resource"):
