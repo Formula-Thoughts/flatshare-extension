@@ -83,7 +83,15 @@ class IUpsertUserGroupsBackgroundCommand(Command, Protocol):
     pass
 
 
+class IFetchUserGroupsCommand(SequenceBuilder, Protocol):
+    pass
+
+
 class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class IFetchUserGroupsSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
