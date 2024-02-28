@@ -2,6 +2,7 @@ import os
 import typing
 
 from formula_thoughts_web.abstractions import Serializer, Deserializer
+from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import IBlobRepo, Group, TData, UserGroups
 from src.data import S3ClientWrapper
@@ -13,7 +14,9 @@ class S3BlobRepo:
         s3_client_wrapper: S3ClientWrapper,
         serializer: Serializer,
         deserializer: Deserializer,
+        object_mapper: ObjectMapper
     ):
+        self.__object_mapper = object_mapper
         self.__deserializer = deserializer
         self.__serializer = serializer
         self.__s3_client_wrapper = s3_client_wrapper
@@ -26,7 +29,7 @@ class S3BlobRepo:
             content_type="application/json",
         )
 
-    def get(self, key_gen: typing.Callable[[TData], str]) -> TData:
+    def get(self, key: str) -> TData:
         ...
 
 

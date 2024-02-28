@@ -5,7 +5,7 @@ from unittest.mock import Mock, MagicMock
 
 from autofixture import AutoFixture
 from callee import Captor
-from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCamelToSnakeDeserializer
+from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCamelToSnakeDeserializer, ObjectMapper
 
 from src.core import IBlobRepo, Group, UserGroups
 from src.data import S3ClientWrapper
@@ -23,10 +23,12 @@ class BlobRepoTestCase(TestCase):
         self.__s3_wrapper: S3ClientWrapper = Mock()
         self.__serializer = JsonSnakeToCamelSerializer()
         self.__deserializer = JsonCamelToSnakeDeserializer()
+        self.__object_mapper = ObjectMapper()
         self.__sut = S3BlobRepo(
             s3_client_wrapper=self.__s3_wrapper,
             serializer=self.__serializer,
             deserializer=self.__deserializer,
+            object_mapper=self.__object_mapper
         )
 
     @mock.patch.dict(os.environ, {"S3_BUCKET_NAME": "bucketname"}, clear=True)
@@ -51,6 +53,30 @@ class BlobRepoTestCase(TestCase):
                 key=f"testmodel/{data.prop_1}/{data.prop_2}",
                 body=self.__serializer.serialize(data=data.__dict__),
                 content_type="application/json",
+            )
+
+    @mock.patch.dict(os.environ, {"S3_BUCKET_NAME": "bucketname"}, clear=True)
+    def test_get(self):
+        # arrange
+        data = AutoFixture().create(TestDataModel)
+        self.__s3_wrapper.get_object = MagicMock(return_value=self.__serializer.serialize(data=data.__dict__))
+
+        # act
+        response = self.__sut.get(key=f"testmodel/{data.prop_1}/{data.prop_2}")
+
+        # assert
+        with self.subTest(msg="response matches fetched resource"):
+            self.assertEqual(response, data)
+
+        # assert
+        with self.subTest(msg="s3 object was created once"):
+            self.__s3_wrapper.get_object.assert_called_once()
+
+        # assert
+        with self.subTest(msg="s3 object was created with correct body"):
+            self.__s3_wrapper.get_object.assert_called_with(
+                bucket="bucketname",
+                key=f"testmodel/{data.prop_1}/{data.prop_2}",
             )
 
 

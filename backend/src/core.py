@@ -48,7 +48,7 @@ class IBlobRepo(Protocol):
     def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
         ...
 
-    def get(self, key_gen: typing.Callable[[TData], str]) -> TData:
+    def get(self, key: str) -> TData:
         ...
 
 
