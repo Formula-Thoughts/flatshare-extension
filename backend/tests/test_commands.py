@@ -1,6 +1,6 @@
 import uuid
 from unittest import TestCase
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, MagicMock, patch, call
 from uuid import UUID
 
 from autofixture import AutoFixture
@@ -14,7 +14,7 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
-    CreateUserGroupsAsyncCommand
+    CreateUserGroupsAsyncCommand, FetchUserGroupsCommand
 from src.domain.errors import invalid_price_error
 from src.domain.responses import CreatedGroupResponse
 
@@ -208,3 +208,48 @@ class TestUpsertUserGroupsBackgroundCommand(TestCase):
         # assert
         with self.subTest(msg="assert group is stored with valid params"):
             self.__user_groups_repo.create.assert_called_with(user_groups=event)
+
+
+class TestFetchUserGroupsCommand(TestCase):
+
+    def setUp(self):
+        self.__group_repo: IGroupRepo = Mock()
+        self.__user_groups_repo: IUserGroupsRepo = Mock()
+        self.__sut = FetchUserGroupsCommand(group_repo=self.__group_repo, user_group_repo=self.__user_groups_repo)
+
+    def test_(self):
+        # arrange
+        auth_user_id = "12345"
+        context = ApplicationContext(auth_user_id=auth_user_id)
+        user_groups = AutoFixture().create(dto=UserGroups)
+        user_groups.groups = [str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())]
+        groups = AutoFixture().create_many(dto=Group, ammount=3)
+        self.__user_groups_repo.get = MagicMock(return_value=user_groups)
+        self.__group_repo.get = MagicMock(side_effect=groups)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest("assert response is set to groups"):
+            self.assertEqual(context.response, groups)
+
+        # assert
+        with self.subTest("assert groups is set as context var"):
+            self.assertEqual(context.get_var("USER_GROUPS", list[Group]), groups)
+
+        # assert
+        with self.subTest("assert user groups repo is called once"):
+            self.__user_groups_repo.get.assert_called_once()
+
+        # assert
+        with self.subTest("assert user groups repo is called with auth user id"):
+            self.__user_groups_repo.get.assert_called_with(_id=auth_user_id)
+
+        # assert
+        with self.subTest("assert group repo is called 3 times for each group"):
+            self.__group_repo.get.assert_has_calls([
+                call(_id=user_groups.groups[0]),
+                call(_id=user_groups.groups[1]),
+                call(_id=user_groups.groups[2])
+            ])
