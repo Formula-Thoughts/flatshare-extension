@@ -17,7 +17,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
 from src.domain.responses import CreatedGroupResponse
-from src.exceptions import UserGroupNotFoundException
+from src.exceptions import UserGroupsNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 
@@ -259,7 +259,7 @@ class TestFetchUserGroupsCommand(TestCase):
         # arrange
         auth_user_id = "12345"
         context = ApplicationContext(auth_user_id=auth_user_id, variables={})
-        self.__user_groups_repo.get = MagicMock(side_effect=UserGroupNotFoundException())
+        self.__user_groups_repo.get = MagicMock(side_effect=UserGroupsNotFoundException())
         self.__group_repo.get = MagicMock()
 
         # act

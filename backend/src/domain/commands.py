@@ -7,8 +7,9 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS
-from src.domain.errors import invalid_price_error
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
 from src.domain.responses import CreatedGroupResponse
+from src.exceptions import UserGroupsNotFoundException
 
 
 class SetGroupRequestCommand:
@@ -60,12 +61,15 @@ class FetchUserGroupsCommand:
         self.__group_repo = group_repo
 
     def run(self, context: ApplicationContext) -> None:
-        user_groups = self.__user_group_repo.get(_id=context.auth_user_id)
-        groups = []
-        for group_id in user_groups.groups:
-            groups.append(self.__group_repo.get(_id=group_id))
-        context.response = groups
-        context.set_var(USER_GROUPS, groups)
+        try:
+            user_groups = self.__user_group_repo.get(_id=context.auth_user_id)
+            groups = []
+            for group_id in user_groups.groups:
+                groups.append(self.__group_repo.get(_id=group_id))
+            context.response = groups
+            context.set_var(USER_GROUPS, groups)
+        except UserGroupsNotFoundException:
+            context.error_capsules.append(UserGroupsNotFoundError(auth_user_id=context.auth_user_id))
 
 
 class CreateUserGroupsAsyncCommand:
