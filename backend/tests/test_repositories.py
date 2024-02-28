@@ -109,8 +109,8 @@ class TestGroupRepo(TestCase):
 
     def test_get(self):
         # arrange
-        self.__blob_repo.get = MagicMock()
         group = AutoFixture().create(dto=Group)
+        self.__blob_repo.get = MagicMock(return_value=group)
 
         # act
         response = self.__sut.get(_id=group.id)

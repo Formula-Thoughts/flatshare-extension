@@ -44,7 +44,7 @@ class S3GroupRepo:
         self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.id}")
 
     def get(self, _id: str) -> Group:
-        ...
+        return self.__blob_repo.get(key=f"groups/{_id}", model_type=Group)
 
 
 class S3UserGroupsRepo:
