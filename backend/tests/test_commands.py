@@ -16,7 +16,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
-from src.domain.responses import CreatedGroupResponse
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -229,7 +229,7 @@ class TestFetchUserGroupsCommand(TestCase):
 
         # assert
         with self.subTest("assert response is set to groups"):
-            self.assertEqual(context.response, groups)
+            self.assertEqual(context.response, ListUserGroupsResponse(groups=groups))
 
         # assert
         with self.subTest("assert groups is set as context var"):
