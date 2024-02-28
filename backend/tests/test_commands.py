@@ -10,10 +10,10 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
 from src.domain import UPSERT_GROUP_REQUEST
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
-    CreateGroupAsyncCommand, UpsertGroupBackgroundCommand
+    CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand
 from src.domain.errors import invalid_price_error
 from src.domain.responses import CreatedGroupResponse
 
@@ -151,3 +151,27 @@ class TestUpsertGroupBackgroundCommand(TestCase):
         # assert
         with self.subTest(msg="assert group is stored with valid params"):
             self.__group_repo.create.assert_called_with(group=event)
+
+
+class TestUpsertUserGroupsBackgroundCommand(TestCase):
+
+    def setUp(self):
+        self.__user_groups_repo: IUserGroupsRepo = Mock()
+        self.__sut = UpsertUserGroupsBackgroundCommand(user_groups_repo=self.__user_groups_repo)
+
+    def test_run_should_upsert_group(self):
+        # arrange
+        self.__user_groups_repo.create = MagicMock()
+        event = AutoFixture().create(dto=UserGroups)
+        context = ApplicationContext(variables={EVENT: event})
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert group is stored once"):
+            self.__user_groups_repo.create.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert group is stored with valid params"):
+            self.__user_groups_repo.create.assert_called_with(user_groups=event)

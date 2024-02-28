@@ -5,7 +5,7 @@ from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo
 from src.domain import UPSERT_GROUP_REQUEST
 from src.domain.errors import invalid_price_error
 from src.domain.responses import CreatedGroupResponse
@@ -67,3 +67,12 @@ class UpsertGroupBackgroundCommand:
 
     def run(self, context: ApplicationContext) -> None:
         self.__group_repo.create(group=context.get_var(EVENT, Group))
+
+
+class UpsertUserGroupsBackgroundCommand:
+
+    def __init__(self, user_groups_repo: IUserGroupsRepo):
+        self.__user_groups_repo = user_groups_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
