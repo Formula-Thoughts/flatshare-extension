@@ -154,3 +154,22 @@ class TestUserGroupsRepo(TestCase):
 
         with self.subTest(msg="assert key gen generates correct key"):
             self.assertEqual(f"user_groups/{user_groups.auth_user_id}", key_gen_captor.arg(user_groups))
+
+    def test_get(self):
+        # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
+        self.__blob_repo.get = MagicMock(return_value=user_groups)
+
+        # act
+        response = self.__sut.get(_id=user_groups.auth_user_id)
+
+        # assert
+        with self.subTest(msg="assert blob repo is called once"):
+            self.__blob_repo.get.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert blob repo is called with correct args"):
+            self.__blob_repo.get.assert_called_with(key=f"user_groups/{user_groups.auth_user_id}", model_type=UserGroups)
+
+        with self.subTest(msg="assert response matches group"):
+            self.assertEqual(response, user_groups)

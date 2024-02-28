@@ -53,3 +53,6 @@ class S3UserGroupsRepo:
 
     def create(self, user_groups: UserGroups) -> None:
         self.__blob_repo.create(data=user_groups, key_gen=lambda x: f"user_groups/{x.auth_user_id}")
+
+    def get(self, _id: str) -> UserGroups:
+        ...
