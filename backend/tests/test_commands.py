@@ -150,4 +150,4 @@ class TestUpsertGroupBackgroundCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert group is stored with valid params"):
-            self.__group_repo.create.assert_called_with(data=event)
+            self.__group_repo.create.assert_called_with(group=event)
