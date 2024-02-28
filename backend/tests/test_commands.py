@@ -11,7 +11,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
-from src.domain import UPSERT_GROUP_REQUEST
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand
@@ -142,11 +142,11 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
 
     def test_run_should_publish_to_sqs(self) -> None:
         # arrange
-        group_response = AutoFixture().create(dto=Group)
+        group_id = str(uuid.uuid4())
         auth_user_id = "12345"
         expected_user_group = UserGroups(auth_user_id=auth_user_id,
-                                         groups=[group_response.id])
-        context = ApplicationContext(response=group_response, auth_user_id=auth_user_id)
+                                         groups=[group_id])
+        context = ApplicationContext(variables={GROUP_ID: group_id}, auth_user_id=auth_user_id)
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
