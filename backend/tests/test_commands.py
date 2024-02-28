@@ -124,11 +124,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert response is set to group"):
-            self.assertEqual(CreatedGroupResponse(id=UUID_EXAMPLE,
-                                                  price_limit=group_request.price_limit,
-                                                  location=group_request.location,
-                                                  flats=[],
-                                                  participants=[auth_user_id]), context.response)
+            self.assertEqual(CreatedGroupResponse(group=expected_group), context.response)
 
         # assert
         with self.subTest(msg="assert group id is saved as context var"):
