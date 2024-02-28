@@ -15,8 +15,9 @@ from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand
-from src.domain.errors import invalid_price_error
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
 from src.domain.responses import CreatedGroupResponse
+from src.exceptions import UserGroupNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 
@@ -217,7 +218,7 @@ class TestFetchUserGroupsCommand(TestCase):
         self.__user_groups_repo: IUserGroupsRepo = Mock()
         self.__sut = FetchUserGroupsCommand(group_repo=self.__group_repo, user_group_repo=self.__user_groups_repo)
 
-    def test_(self):
+    def test_run_should_fetch_groups_for_auth_user(self):
         # arrange
         auth_user_id = "12345"
         context = ApplicationContext(auth_user_id=auth_user_id, variables={})
@@ -253,3 +254,25 @@ class TestFetchUserGroupsCommand(TestCase):
                 call(_id=user_groups.groups[1]),
                 call(_id=user_groups.groups[2])
             ])
+
+    def test_run_should_error_when_user_groups_cannot_be_found(self):
+        # arrange
+        auth_user_id = "12345"
+        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
+        self.__user_groups_repo.get = MagicMock(side_effect=UserGroupNotFoundException())
+        self.__group_repo.get = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest("assert error is added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest("assert error is user group not found"):
+            self.assertEqual(type(context.error_capsules[0]), UserGroupsNotFoundError)
+
+        # assert
+        with self.subTest("assert user groups repo is never called"):
+            self.__group_repo.get.assert_not_called()

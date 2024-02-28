@@ -1,0 +1,2 @@
+class UserGroupNotFoundException(Exception):
+    pass
