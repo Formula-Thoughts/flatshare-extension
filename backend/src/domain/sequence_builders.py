@@ -1,7 +1,8 @@
 from formula_thoughts_web.application import FluentSequenceBuilder
 
 from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
-    IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand
+    IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
+    IFetchUserGroupsCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -41,3 +42,13 @@ class UpsertUserGroupsBackgroundSequenceBuilder(FluentSequenceBuilder):
 
     def build(self):
         self._add_command(command=self.__upsert_background_command)
+
+
+class FetchUserGroupsSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, fetch_user_group_command: IFetchUserGroupsCommand):
+        super().__init__()
+        self.__fetch_user_group_command = fetch_user_group_command
+
+    def build(self):
+        pass

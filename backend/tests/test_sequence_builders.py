@@ -2,9 +2,10 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGroupAsyncCommand, \
-    IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand
+    IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
+    IFetchUserGroupsCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
-    UpsertUserGroupsBackgroundSequenceBuilder
+    UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder
 
 
 class TestCreateGroupAsyncSequenceBuilder(TestCase):
@@ -56,3 +57,17 @@ class TestUpsertUserGroupsBackgroundSequenceBuilder(TestCase):
 
         # assert
         self.assertEqual(self.__sut.components, [self.__upsert_background_command])
+
+
+class TestFetchUserGroupsSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__fetch_user_groups_command: IFetchUserGroupsCommand = Mock()
+        self.__sut = FetchUserGroupsSequenceBuilder(fetch_user_group_command=self.__fetch_user_groups_command)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [self.__fetch_user_groups_command])
