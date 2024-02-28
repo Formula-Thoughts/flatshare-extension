@@ -55,4 +55,4 @@ class S3UserGroupsRepo:
         self.__blob_repo.create(data=user_groups, key_gen=lambda x: f"user_groups/{x.auth_user_id}")
 
     def get(self, _id: str) -> UserGroups:
-        ...
+        return self.__blob_repo.get(key=f"user_groups/{_id}", model_type=UserGroups)
