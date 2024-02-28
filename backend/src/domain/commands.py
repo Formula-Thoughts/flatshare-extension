@@ -60,7 +60,7 @@ class CreateUserGroupsAsyncCommand:
     def run(self, context: ApplicationContext) -> None:
         self.__sqs_event_publisher.send_sqs_message(message_group_id=context.auth_user_id,
                                                     payload=UserGroups(auth_user_id=context.auth_user_id,
-                                                                       groups=[context.response.id]))
+                                                                       groups=[context.get_var(GROUP_ID, str)]))
 
 
 class UpsertGroupBackgroundCommand:
