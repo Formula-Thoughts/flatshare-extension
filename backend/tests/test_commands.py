@@ -13,7 +13,8 @@ from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
 from src.domain import UPSERT_GROUP_REQUEST
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
-    CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand
+    CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
+    CreateUserGroupsAsyncCommand
 from src.domain.errors import invalid_price_error
 from src.domain.responses import CreatedGroupResponse
 
@@ -127,6 +128,35 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                                   location=group_request.location,
                                                   flats=[],
                                                   participants=[auth_user_id]), context.response)
+
+
+class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
+
+    def setUp(self):
+        self.__sqs_event_publisher: SQSEventPublisher = Mock()
+        self.__sut = CreateUserGroupsAsyncCommand(sqs_event_publisher=self.__sqs_event_publisher)
+
+    def test_run_should_publish_to_sqs(self) -> None:
+        # arrange
+        group_response = AutoFixture().create(dto=Group)
+        auth_user_id = "12345"
+        expected_user_group = UserGroups(auth_user_id=auth_user_id,
+                                         groups=[group_response.id])
+        context = ApplicationContext(response=group_response, auth_user_id=auth_user_id)
+        self.__sqs_event_publisher.send_sqs_message = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert sqs message is sent once"):
+            self.__sqs_event_publisher.send_sqs_message.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert sqs message is sent with correct params"):
+            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
+                                                                           payload=expected_user_group)
+
 
 
 class TestUpsertGroupBackgroundCommand(TestCase):
