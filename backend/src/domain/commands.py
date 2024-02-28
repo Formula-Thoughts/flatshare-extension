@@ -6,7 +6,7 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
-from src.domain import UPSERT_GROUP_REQUEST
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID
 from src.domain.errors import invalid_price_error
 from src.domain.responses import CreatedGroupResponse
 
@@ -48,6 +48,7 @@ class CreateGroupAsyncCommand:
                                                 participants=group.participants,
                                                 price_limit=group.price_limit,
                                                 location=group.location)
+        context.set_var(GROUP_ID, group_id)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id, payload=group)
 
 
