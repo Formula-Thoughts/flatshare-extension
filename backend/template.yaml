@@ -178,7 +178,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /groups/{group_id}
+            Path: /groups
             Method: get
             ApiId: !Ref FlatiniHttpApi
         CreateGroup:
