@@ -48,14 +48,23 @@ class IBlobRepo(Protocol):
     def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
         ...
 
+    def get(self, key_gen: typing.Callable[[TData], str]) -> TData:
+        ...
+
 
 class IGroupRepo(Protocol):
     def create(self, group: Group) -> None:
         ...
 
+    def get(self, _id: str) -> Group:
+        ...
+
 
 class IUserGroupsRepo(Protocol):
     def create(self, user_groups: UserGroups) -> None:
+        ...
+
+    def get(self, _id: str) -> UserGroups:
         ...
 
 
