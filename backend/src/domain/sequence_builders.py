@@ -51,4 +51,4 @@ class FetchUserGroupsSequenceBuilder(FluentSequenceBuilder):
         self.__fetch_user_group_command = fetch_user_group_command
 
     def build(self):
-        pass
+        self._add_command(command=self.__fetch_user_group_command)
