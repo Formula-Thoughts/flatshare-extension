@@ -25,8 +25,8 @@ GroupId = str
 
 @dataclass(unsafe_hash=True)
 class UserGroups:
-    id: GroupParticipantAuthId = None
-    flats: list[GroupId] = field(default_factory=lambda: [])
+    auth_user_id: GroupParticipantAuthId = None
+    groups: list[GroupId] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
@@ -74,9 +74,17 @@ class IUpsertGroupBackgroundCommand(Command, Protocol):
     pass
 
 
+class IUpsertUserGroupsBackgroundCommand(Command, Protocol):
+    pass
+
+
 class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
 class IUpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class IUpsertUserGroupsBackgroundSequenceBuilder(SequenceBuilder, Protocol):
     pass

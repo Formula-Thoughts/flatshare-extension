@@ -3,7 +3,7 @@ import typing
 
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 
-from src.core import IBlobRepo, Group, TData
+from src.core import IBlobRepo, Group, TData, UserGroups
 from src.data import S3ClientWrapper
 
 
@@ -32,4 +32,12 @@ class S3GroupRepo:
         self.__blob_repo = blob_repo
 
     def create(self, group: Group) -> None:
-        self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.id}")
+        self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.auth_user_id}")
+
+
+class S3UserGroupsRepo:
+    def __init__(self, blob_repo: IBlobRepo):
+        self.__blob_repo = blob_repo
+
+    def create(self, user_groups: UserGroups) -> None:
+        ...
