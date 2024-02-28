@@ -20,6 +20,13 @@ class Flat:
 
 
 GroupParticipantAuthId = str
+GroupId = str
+
+
+@dataclass(unsafe_hash=True)
+class UserGroups:
+    id: GroupParticipantAuthId = None
+    flats: list[GroupId] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
@@ -29,9 +36,6 @@ class Group:
     participants: list[GroupParticipantAuthId] = field(default_factory=lambda: [])
     price_limit: float = None
     location: str = None
-
-    def can_add_flat(self, flat: Flat) -> bool:
-        ...
 
 
 @dataclass(unsafe_hash=True)
