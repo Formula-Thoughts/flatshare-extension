@@ -54,6 +54,11 @@ class IGroupRepo(Protocol):
         ...
 
 
+class IUserGroupsRepo(Protocol):
+    def create(self, user_groups: UserGroups) -> None:
+        ...
+
+
 class ISetGroupRequestCommand(Command, Protocol):
     pass
 

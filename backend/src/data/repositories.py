@@ -32,7 +32,7 @@ class S3GroupRepo:
         self.__blob_repo = blob_repo
 
     def create(self, group: Group) -> None:
-        self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.auth_user_id}")
+        self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.id}")
 
 
 class S3UserGroupsRepo:
@@ -40,4 +40,4 @@ class S3UserGroupsRepo:
         self.__blob_repo = blob_repo
 
     def create(self, user_groups: UserGroups) -> None:
-        ...
+        self.__blob_repo.create(data=user_groups, key_gen=lambda x: f"user_groups/{x.auth_user_id}")

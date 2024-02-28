@@ -1,8 +1,8 @@
 import boto3
 
-from src.core import IBlobRepo, Group, IGroupRepo
+from src.core import IBlobRepo, Group, IGroupRepo, IUserGroupsRepo
 from src.data import S3ClientWrapper
-from src.data.repositories import S3BlobRepo, S3GroupRepo
+from src.data.repositories import S3BlobRepo, S3GroupRepo, S3UserGroupsRepo
 from formula_thoughts_web.ioc import Container
 
 s3 = boto3.client('s3')
@@ -11,4 +11,5 @@ s3 = boto3.client('s3')
 def register_data_dependencies(container: Container):
     (container.register_factory(service=S3ClientWrapper, factory=lambda: S3ClientWrapper(client=s3))
      .register(service=IBlobRepo, implementation=S3BlobRepo)
-     .register(service=IGroupRepo, implementation=S3GroupRepo))
+     .register(service=IGroupRepo, implementation=S3GroupRepo)
+     .register(service=IUserGroupsRepo, implementation=S3UserGroupsRepo))
