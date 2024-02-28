@@ -1,22 +1,22 @@
 import { Route, Routes, useNavigate } from "react-router-dom";
 import FlatView from "./FlatView";
 import { Flats } from "./Flats";
-import Logo from "./assets/flatini-logo.png";
-import FlatsContext, { useFlats } from "./context/AppProvider";
-import { useEffect, useState } from "react";
-import Landing from "./views/Landing";
+import { useProvider } from "./context/AppProvider";
+import { useEffect } from "react";
 import Settings from "./views/Settings";
 import Invitations from "./views/Invitations";
+import Auth from "./views/Auth";
+import CreateGroup from "./views/CreateGroup";
+import { flatiniAuthWebsite } from "./utils/constants";
 
 function App() {
-  // const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const state = useFlats();
-  const [token, setToken] = useState("");
+  const state = useProvider();
   let url;
   const setActiveUrl = () => {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       url = tabs[0].url;
+
       if (url) {
         const getPropertyProvider = (url: string) => {
           if (url?.includes("https://www.rightmove.co.uk/properties/")) {
@@ -63,29 +63,14 @@ function App() {
       url?.includes("https://www.openrent.co.uk/property-to-rent/")
     ) {
       navigate("/FlatView");
-    } else if (url?.includes("flatiniToken")) {
-      setToken(url?.split("flatiniToken=")[1]);
+    } else if (url?.includes(flatiniAuthWebsite)) {
+      state.authenticateUser();
     } else {
       navigate("/");
     }
   };
 
-  // // Listens to changes on tabs
-  // chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
-  //   console.log("updating tab2", tab);
-  //   defaultNavigation(tab.url);
-  // });
-
-  // // Reads changes when active tab changes
-  // chrome.tabs.onActivated.addListener(function (activeInfo) {
-  //   // Gets the URL of the active tab
-  //   chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-  //     let url = tabs[0].url;
-  //     defaultNavigation(url);
-  //   });
-  // });
-
-  useEffect(() => {
+  const addChromeEvents = () => {
     chrome.tabs.onCreated.addListener(function () {
       // Code to run on extension installation or update
       setActiveUrl();
@@ -99,11 +84,35 @@ function App() {
       setActiveUrl();
       console.log("[Performance] onActivated");
     });
+  };
+
+  useEffect(() => {
+    addChromeEvents();
+    state.getGroup();
   }, []);
+
+  if (!state.getAuthenticatedUser()) {
+    return (
+      <Routes>
+        <Route path="/" element={<Auth />} />
+      </Routes>
+    );
+  }
+
+  if (state.isGroupLoading) {
+    return <p>loading...</p>;
+  }
+
+  if (!state.userHasGroup) {
+    return (
+      <Routes>
+        <Route path="/" element={<CreateGroup />} />
+      </Routes>
+    );
+  }
 
   return (
     <>
-      <p>token{token}</p>
       {state.activeUrl ? (
         <Routes>
           {/* <Route path="/" element={<Landing />} /> */}

@@ -41,6 +41,7 @@
     "https://www.openrent.co.uk/*",
     "https://www.spareroom.co.uk/*",
     "https://www.zoopla.co.uk/*",
-    "https://www.rightmove.co.uk/*"
+    "https://www.rightmove.co.uk/*",
+    "https://localhost:3000/"
   ]
 }
