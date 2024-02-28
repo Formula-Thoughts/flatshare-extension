@@ -26,6 +26,9 @@ class S3BlobRepo:
             content_type="application/json",
         )
 
+    def get(self, key_gen: typing.Callable[[TData], str]) -> TData:
+        ...
+
 
 class S3GroupRepo:
     def __init__(self, blob_repo: IBlobRepo):
