@@ -220,7 +220,7 @@ class TestFetchUserGroupsCommand(TestCase):
     def test_(self):
         # arrange
         auth_user_id = "12345"
-        context = ApplicationContext(auth_user_id=auth_user_id)
+        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
         user_groups = AutoFixture().create(dto=UserGroups)
         user_groups.groups = [str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())]
         groups = AutoFixture().create_many(dto=Group, ammount=3)
