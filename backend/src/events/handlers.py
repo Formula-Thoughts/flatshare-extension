@@ -3,7 +3,8 @@ from formula_thoughts_web.application import TopLevelSequenceRunner
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import EventHandlerBase
 
-from src.core import Group, IUpsertGroupBackgroundSequenceBuilder, UserGroups
+from src.core import Group, IUpsertGroupBackgroundSequenceBuilder, UserGroups, \
+    IUpsertUserGroupsBackgroundSequenceBuilder
 
 
 class UpsertGroupEventHandler(EventHandlerBase):
@@ -21,7 +22,7 @@ class UpsertGroupEventHandler(EventHandlerBase):
 
 class UpsertUserGroupsEventHandler(EventHandlerBase):
 
-    def __init__(self, sequence: IUpsertGroupBackgroundSequenceBuilder,
+    def __init__(self, sequence: IUpsertUserGroupsBackgroundSequenceBuilder,
                  command_pipeline: TopLevelSequenceRunner,
                  deserializer: Deserializer,
                  object_mapper: ObjectMapper):
