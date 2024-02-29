@@ -4,12 +4,14 @@ from unittest import TestCase, mock
 from unittest.mock import Mock, MagicMock
 
 from autofixture import AutoFixture
+from botocore.exceptions import ClientError
 from callee import Captor
 from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCamelToSnakeDeserializer, ObjectMapper
 
 from src.core import IBlobRepo, Group, UserGroups
 from src.data import S3ClientWrapper
 from src.data.repositories import S3BlobRepo, S3GroupRepo, S3UserGroupsRepo
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
 @dataclass(unsafe_hash=True)
@@ -126,6 +128,14 @@ class TestGroupRepo(TestCase):
         with self.subTest(msg="assert response matches group"):
             self.assertEqual(response, group)
 
+    def test_get_when_s3_object_is_not_found(self):
+        # arrange
+        self.__blob_repo.get = MagicMock(side_effect=ClientError(error_response={}, operation_name=""))
+
+        # act/assert
+        with self.assertRaises(expected_exception=GroupNotFoundException):
+            self.__sut.get(_id="1234")
+
 
 class TestUserGroupsRepo(TestCase):
 
@@ -173,3 +183,11 @@ class TestUserGroupsRepo(TestCase):
 
         with self.subTest(msg="assert response matches group"):
             self.assertEqual(response, user_groups)
+
+    def test_get_when_s3_object_is_not_found(self):
+        # arrange
+        self.__blob_repo.get = MagicMock(side_effect=ClientError(error_response={}, operation_name=""))
+
+        # act/assert
+        with self.assertRaises(expected_exception=UserGroupsNotFoundException):
+            self.__sut.get(_id="1234")

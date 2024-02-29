@@ -68,6 +68,15 @@ class FetchUserGroupsCommand:
             context.error_capsules.append(UserGroupsNotFoundError(auth_user_id=context.auth_user_id))
 
 
+class ValidateIfUserBelongsToAtLeastOneGroupCommand:
+
+    def __init__(self, user_groups_repo: IUserGroupsRepo):
+        self.__user_groups_repo = user_groups_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
+
+
 class CreateUserGroupsAsyncCommand:
 
     def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:

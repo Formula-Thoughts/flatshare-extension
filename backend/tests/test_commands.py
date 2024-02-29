@@ -14,7 +14,7 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
-    CreateUserGroupsAsyncCommand, FetchUserGroupsCommand
+    CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
@@ -272,3 +272,62 @@ class TestFetchUserGroupsCommand(TestCase):
         # assert
         with self.subTest("assert user groups repo is never called"):
             self.__group_repo.get.assert_not_called()
+
+
+class TestValidateIfUserBelongsToAtLeastOneGroupCommand(TestCase):
+
+    def setUp(self):
+        self.__user_groups_repo: IUserGroupsRepo = Mock()
+        self.__sut = ValidateIfUserBelongsToAtLeastOneGroupCommand(user_groups_repo=self.__user_groups_repo)
+
+    def test_run_when_user_has_at_least_one_group(self):
+        # arrange
+        auth_user_id = "1235"
+        context = ApplicationContext(auth_user_id=auth_user_id)
+        user_groups = AutoFixture().create(dto=UserGroups)
+        self.__user_groups_repo.get = MagicMock(return_value=user_groups)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest("repo is called once"):
+            self.__user_groups_repo.get.assert_called_once()
+
+        # assert
+        with self.subTest("repo is called with args"):
+            self.__user_groups_repo.get.assert_called_with(_id=auth_user_id)
+
+        # assert
+        with self.subTest("user groups is set as context var"):
+            self.assertEqual(context.get_var("USER_GROUPS", UserGroups), user_groups)
+
+        # assert
+        with self.subTest("validation result is set as context var"):
+            self.assertEqual(context.get_var("USER_BELONGS_TO_AT_LEAST_ONE_GROUP", bool), True)
+
+    def test_run_when_user_has_no_groups(self):
+        # arrange
+        auth_user_id = "1235"
+        context = ApplicationContext(auth_user_id=auth_user_id)
+        user_groups = AutoFixture().create(dto=UserGroups)
+        self.__user_groups_repo.get = MagicMock(return_value=user_groups)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest("repo is called once"):
+            self.__user_groups_repo.get.assert_called_once()
+
+        # assert
+        with self.subTest("repo is called with args"):
+            self.__user_groups_repo.get.assert_called_with(_id=auth_user_id)
+
+        # assert
+        with self.subTest("user groups is set as context var"):
+            self.assertEqual(context.get_var("USER_GROUPS", UserGroups), user_groups)
+
+        # assert
+        with self.subTest("validation result is set as context var"):
+            self.assertEqual(context.get_var("USER_BELONGS_TO_AT_LEAST_ONE_GROUP", bool), True)

@@ -92,6 +92,10 @@ class IUpsertUserGroupsBackgroundCommand(Command, Protocol):
     pass
 
 
+class IValidateIfUserBelongsToAtLeastOneGroupCommand(Command, Protocol):
+    pass
+
+
 class IFetchUserGroupsCommand(Command, Protocol):
     pass
 
