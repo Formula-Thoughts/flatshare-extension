@@ -16,6 +16,17 @@ class CreateGroupApiHandler(ApiRequestHandlerBase):
                          deserializer=deserializer)
 
 
+class CreateFlatApiHandler(ApiRequestHandlerBase):
+
+    def __init__(self, sequence: ICreateGroupSequenceBuilder,
+                 command_pipeline: TopLevelSequenceRunner,
+                 deserializer: Deserializer):
+        super().__init__(route_key='POST /groups/{group_id}/flats',
+                         sequence=sequence,
+                         command_pipeline=command_pipeline,
+                         deserializer=deserializer)
+
+
 class FetchUserGroupsApiHandler(ApiRequestHandlerBase):
 
     def __init__(self, sequence: IFetchUserGroupsSequenceBuilder,
