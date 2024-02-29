@@ -9,11 +9,12 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest
-from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
+    CREATE_FLAT_REQUEST, GROUP
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand
+    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
@@ -455,3 +456,35 @@ class TestSetFlatRequestCommand(TestCase):
 
         # assert
         self.assertEqual(context.get_var(name="create_flat_request", _type=CreateFlatRequest), flat_request)
+
+
+class TestCreateFlatCommand(TestCase):
+
+    def setUp(self):
+        self.__sqs_message_publisher: SQSEventPublisher = Mock()
+        self.__sut = CreateFlatCommand(sqs_message_publisher=self.__sqs_message_publisher)
+
+    def test_run(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        flat = AutoFixture().create(dto=CreateFlatRequest)
+        context = ApplicationContext(variables={
+            CREATE_FLAT_REQUEST: flat,
+            GROUP: group
+        })
+        self.__sqs_message_publisher.send_sqs_message = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="sqs bus is called once"):
+            self.__sqs_message_publisher.send_sqs_message.assert_called_once()
+
+        # assert
+        with self.subTest(msg="sqs bus is called with valid params"):
+            self.__sqs_message_publisher.send_sqs_message.assert_called_with(message_group_id=group.id, payload=group)
+
+        # assert
+        with self.subTest(msg="response is set to updated group"):
+            self.assertEqual(context.response, group)

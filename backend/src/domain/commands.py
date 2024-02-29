@@ -148,3 +148,12 @@ class SetFlatRequestCommand:
     def run(self, context: ApplicationContext):
         request = self.__object_mapper.map_from_dict(_from=context.body, to=CreateFlatRequest)
         context.set_var(CREATE_FLAT_REQUEST, request)
+
+
+class CreateFlatCommand:
+
+    def __init__(self, sqs_message_publisher: SQSEventPublisher):
+        self.__sqs_message_publisher = sqs_message_publisher
+
+    def run(self, context: ApplicationContext):
+        ...
