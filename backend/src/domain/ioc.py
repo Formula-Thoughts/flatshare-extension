@@ -4,10 +4,11 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGrou
     IUpsertGroupBackgroundCommand, ICreateGroupSequenceBuilder, IUpsertGroupBackgroundSequenceBuilder, \
     ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundSequenceBuilder, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IFetchUserGroupsSequenceBuilder, IValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    IValidateIfGroupBelongsToUser
+    IValidateIfGroupBelongsToUser, IFetchGroupByIdCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, CreateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
-    FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser
+    FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
+    FetchGroupByIdCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder
 
@@ -23,6 +24,7 @@ def register_domain_dependencies(container: Container):
      .register(service=ICreateGroupSequenceBuilder, implementation=CreateGroupSequenceBuilder)
      .register(service=IUpsertGroupBackgroundSequenceBuilder, implementation=UpsertGroupBackgroundSequenceBuilder)
      .register(service=IFetchUserGroupsSequenceBuilder, implementation=FetchUserGroupsSequenceBuilder)
+     .register(service=IFetchGroupByIdCommand, implementation=FetchGroupByIdCommand)
      .register(service=IValidateIfGroupBelongsToUser,
                implementation=ValidateIfGroupBelongsToUser)
      .register(service=IValidateIfUserBelongsToAtLeastOneGroupCommand,
