@@ -9,4 +9,8 @@ class UserGroupsNotFoundError(Error):
     ...
 
 
+class GroupNotFoundError(Error):
+    ...
+
+
 invalid_price_error = InvalidGroupError(message="price has to be greater than 0")

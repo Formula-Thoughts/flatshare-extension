@@ -96,6 +96,10 @@ class IValidateIfUserBelongsToAtLeastOneGroupCommand(Command, Protocol):
     pass
 
 
+class IValidateIfGroupBelongsToUser(Command, Protocol):
+    pass
+
+
 class IFetchUserGroupsCommand(Command, Protocol):
     pass
 
@@ -105,6 +109,10 @@ class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
 
 
 class IFetchUserGroupsSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class ICreateFlatSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 

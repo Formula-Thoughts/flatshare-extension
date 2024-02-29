@@ -4,18 +4,17 @@ from unittest.mock import Mock, MagicMock, patch, call
 from uuid import UUID
 
 from autofixture import AutoFixture
-from callee import Any, Captor
 from ddt import ddt, data
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
-
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
-    CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand
-from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
+    CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
+    ValidateIfGroupBelongsToUser
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -342,3 +341,67 @@ class TestValidateIfUserBelongsToAtLeastOneGroupCommand(TestCase):
         # assert
         with self.subTest("validation result is set as context var"):
             self.assertEqual(context.get_var(USER_BELONGS_TO_AT_LEAST_ONE_GROUP, bool), False)
+
+
+class TestValidateIfGroupBelongsToUser(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateIfGroupBelongsToUser()
+
+    def test_run_if_group_belongs_to_user(self):
+        # arrange
+        user_groups = AutoFixture().create(UserGroups)
+        user_groups.groups = [str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())]
+        group_id = user_groups.groups[0]
+        context = ApplicationContext(variables={
+            "group_id": group_id,
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True,
+            USER_GROUPS: user_groups
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert no errors are raised"):
+            self.assertEqual(len(context.error_capsules), 0)
+
+    def test_run_if_user_has_no_groups(self):
+        # arrange
+        group_id = "12345"
+        context = ApplicationContext(variables={
+            "group_id": group_id,
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert 1 error raised"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="assert user groups not found error is raised"):
+            self.assertEqual(type(context.error_capsules[0]), UserGroupsNotFoundError)
+
+    def test_run_if_user_has_groups_but_group_id_does_not_belong(self):
+        # arrange
+        user_groups = AutoFixture().create(UserGroups)
+        user_groups.groups = [str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())]
+        context = ApplicationContext(variables={
+            "group_id": "1234",
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True,
+            USER_GROUPS: user_groups
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert 1 error raised"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="assert group not found error is raised"):
+            self.assertEqual(type(context.error_capsules[0]), GroupNotFoundError)

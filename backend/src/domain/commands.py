@@ -113,3 +113,9 @@ class UpsertUserGroupsBackgroundCommand:
 
     def run(self, context: ApplicationContext) -> None:
         self.__user_groups_repo.create(user_groups=context.get_var(EVENT, UserGroups))
+
+
+class ValidateIfGroupBelongsToUser:
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
