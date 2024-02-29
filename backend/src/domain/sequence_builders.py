@@ -81,9 +81,11 @@ class CreateFlatSequenceBuilder(FluentSequenceBuilder):
                  set_create_flat_request: ISetFlatRequestCommand,
                  create_flat: ICreateFlatCommand):
         self.__create_flat = create_flat
-        self.__set_create_flat_request_command = set_create_flat_request
-        self.__get_user_group_by_id_command = get_user_group_by_id
+        self.__set_create_flat_request = set_create_flat_request
+        self.__get_user_group_by_id = get_user_group_by_id
         super().__init__()
 
     def build(self):
-        pass
+        self._add_sequence_builder(self.__get_user_group_by_id)\
+            ._add_command(self.__set_create_flat_request)\
+            ._add_command(self.__create_flat)
