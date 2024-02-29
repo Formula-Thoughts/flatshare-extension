@@ -4,9 +4,10 @@ from unittest.mock import Mock
 from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
-    IFetchGroupByIdCommand
+    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
-    UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder
+    UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
+    CreateFlatSequenceBuilder
 
 
 class TestCreateGroupAsyncSequenceBuilder(TestCase):
@@ -99,3 +100,23 @@ class TestGetUserGroupByIdSequenceBuilder(TestCase):
             self.__validate_if_group_belongs_to_user,
             self.__fetch_group_by_id_command
         ])
+
+
+class TestCreateFlatSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__get_user_group_by_id: IGetUserGroupByIdSequenceBuilder = Mock()
+        self.__set_create_flat_request: ISetFlatRequestCommand = Mock()
+        self.__create_flat: ICreateFlatCommand = Mock()
+        self.__sut = CreateFlatSequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
+                                               set_create_flat_request=self.__set_create_flat_request,
+                                               create_flat=self.__create_flat)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [self.__get_user_group_by_id,
+                                                 self.__set_create_flat_request,
+                                                 self.__create_flat])

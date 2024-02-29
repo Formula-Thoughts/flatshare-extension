@@ -3,7 +3,7 @@ from formula_thoughts_web.application import FluentSequenceBuilder
 from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
-    IFetchGroupByIdCommand
+    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -72,3 +72,18 @@ class GetUserGroupByIdSequenceBuilder(FluentSequenceBuilder):
         self._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command)\
             ._add_command(command=self.__validate_if_group_belongs_to_user)\
             ._add_command(command=self.__fetch_group_by_id_command)
+
+
+class CreateFlatSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self,
+                 get_user_group_by_id: IGetUserGroupByIdSequenceBuilder,
+                 set_create_flat_request: ISetFlatRequestCommand,
+                 create_flat: ICreateFlatCommand):
+        self.__create_flat = create_flat
+        self.__set_create_flat_request_command = set_create_flat_request
+        self.__get_user_group_by_id_command = get_user_group_by_id
+        super().__init__()
+
+    def build(self):
+        pass
