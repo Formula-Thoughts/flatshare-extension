@@ -1,11 +1,13 @@
 import os
 import typing
 
+from botocore.exceptions import ClientError
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import IBlobRepo, Group, TData, UserGroups
 from src.data import S3ClientWrapper
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
 class S3BlobRepo:
@@ -44,7 +46,10 @@ class S3GroupRepo:
         self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.id}")
 
     def get(self, _id: str) -> Group:
-        return self.__blob_repo.get(key=f"groups/{_id}", model_type=Group)
+        try:
+            return self.__blob_repo.get(key=f"groups/{_id}", model_type=Group)
+        except ClientError:
+            raise GroupNotFoundException()
 
 
 class S3UserGroupsRepo:
@@ -55,4 +60,7 @@ class S3UserGroupsRepo:
         self.__blob_repo.create(data=user_groups, key_gen=lambda x: f"user_groups/{x.auth_user_id}")
 
     def get(self, _id: str) -> UserGroups:
-        return self.__blob_repo.get(key=f"user_groups/{_id}", model_type=UserGroups)
+        try:
+            return self.__blob_repo.get(key=f"user_groups/{_id}", model_type=UserGroups)
+        except ClientError:
+            raise UserGroupsNotFoundException()

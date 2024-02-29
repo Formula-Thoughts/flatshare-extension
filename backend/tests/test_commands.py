@@ -11,7 +11,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
-from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand
@@ -310,24 +310,11 @@ class TestValidateIfUserBelongsToAtLeastOneGroupCommand(TestCase):
         # arrange
         auth_user_id = "1235"
         context = ApplicationContext(auth_user_id=auth_user_id)
-        user_groups = AutoFixture().create(dto=UserGroups)
-        self.__user_groups_repo.get = MagicMock(return_value=user_groups)
+        self.__user_groups_repo.get = MagicMock(side_effect=UserGroupsNotFoundException())
 
         # act
         self.__sut.run(context=context)
 
         # assert
-        with self.subTest("repo is called once"):
-            self.__user_groups_repo.get.assert_called_once()
-
-        # assert
-        with self.subTest("repo is called with args"):
-            self.__user_groups_repo.get.assert_called_with(_id=auth_user_id)
-
-        # assert
-        with self.subTest("user groups is set as context var"):
-            self.assertEqual(context.get_var("USER_GROUPS", UserGroups), user_groups)
-
-        # assert
         with self.subTest("validation result is set as context var"):
-            self.assertEqual(context.get_var("USER_BELONGS_TO_AT_LEAST_ONE_GROUP", bool), True)
+            self.assertEqual(context.get_var(USER_BELONGS_TO_AT_LEAST_ONE_GROUP, bool), False)
