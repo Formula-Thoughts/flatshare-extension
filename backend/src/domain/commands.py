@@ -126,3 +126,12 @@ class ValidateIfGroupBelongsToUser:
         if not any(group_id_from_request in group_id for group_id in user_groups.groups):
             context.error_capsules.append(GroupNotFoundError(message=f"group {group_id_from_request} not found for "
                                                                      f"current user"))
+
+
+class FetchGroupByIdCommand:
+
+    def __init__(self, group_repo: IGroupRepo):
+        self.__group_repo = group_repo
+
+    def run(self, context: ApplicationContext):
+        ...

@@ -104,6 +104,10 @@ class IFetchUserGroupsCommand(Command, Protocol):
     pass
 
 
+class IFetchGroupByIdCommand(Command, Protocol):
+    pass
+
+
 class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

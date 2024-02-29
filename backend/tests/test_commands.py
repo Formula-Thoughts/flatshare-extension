@@ -13,7 +13,7 @@ from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    ValidateIfGroupBelongsToUser
+    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
@@ -405,3 +405,36 @@ class TestValidateIfGroupBelongsToUser(TestCase):
         # assert
         with self.subTest(msg="assert group not found error is raised"):
             self.assertEqual(type(context.error_capsules[0]), GroupNotFoundError)
+
+
+class TestFetchGroupByIdCommand(TestCase):
+
+    def setUp(self):
+        self.__group_repo: IGroupRepo = Mock()
+        self.__sut = FetchGroupByIdCommand(group_repo=self.__group_repo)
+
+    def test_run(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        group_id = "1234"
+        context = ApplicationContext(variables={GROUP_ID: group_id})
+        self.__group_repo.get = MagicMock(return_value=group)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert repo was called once"):
+            self.__group_repo.get.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert repo was called with correct params"):
+            self.__group_repo.get.assert_called_with(_id=group_id)
+
+        # assert
+        with self.subTest(msg="group was set as context var"):
+            self.assertEqual(context.get_var(name="group", _type=Group), group)
+
+        # assert
+        with self.subTest(msg="group was set as response"):
+            self.assertEqual(context.response, group)
