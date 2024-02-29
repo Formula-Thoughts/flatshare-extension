@@ -7,7 +7,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP
-from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -118,4 +118,11 @@ class UpsertUserGroupsBackgroundCommand:
 class ValidateIfGroupBelongsToUser:
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        if not context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool):
+            context.error_capsules.append(UserGroupsNotFoundError(message=f"current user has no groups"))
+            return
+        user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
+        group_id_from_request = context.get_var(name=GROUP_ID, _type=str)
+        if not any(group_id_from_request in group_id for group_id in user_groups.groups):
+            context.error_capsules.append(GroupNotFoundError(message=f"group {group_id_from_request} not found for "
+                                                                     f"current user"))
