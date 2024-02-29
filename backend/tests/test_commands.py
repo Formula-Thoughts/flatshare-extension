@@ -283,7 +283,7 @@ class TestValidateIfUserBelongsToAtLeastOneGroupCommand(TestCase):
     def test_run_when_user_has_at_least_one_group(self):
         # arrange
         auth_user_id = "1235"
-        context = ApplicationContext(auth_user_id=auth_user_id)
+        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
         user_groups = AutoFixture().create(dto=UserGroups)
         self.__user_groups_repo.get = MagicMock(return_value=user_groups)
 
@@ -309,7 +309,7 @@ class TestValidateIfUserBelongsToAtLeastOneGroupCommand(TestCase):
     def test_run_when_user_has_no_groups(self):
         # arrange
         auth_user_id = "1235"
-        context = ApplicationContext(auth_user_id=auth_user_id)
+        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
         self.__user_groups_repo.get = MagicMock(side_effect=UserGroupsNotFoundException())
 
         # act

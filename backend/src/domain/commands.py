@@ -6,7 +6,7 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
-from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
@@ -74,7 +74,12 @@ class ValidateIfUserBelongsToAtLeastOneGroupCommand:
         self.__user_groups_repo = user_groups_repo
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        try:
+            user_groups = self.__user_groups_repo.get(_id=context.auth_user_id)
+            context.set_var(USER_BELONGS_TO_AT_LEAST_ONE_GROUP, True)
+            context.set_var(USER_GROUPS, user_groups)
+        except UserGroupsNotFoundException:
+            context.set_var(USER_BELONGS_TO_AT_LEAST_ONE_GROUP, False)
 
 
 class CreateUserGroupsAsyncCommand:
