@@ -6,7 +6,7 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
-from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
@@ -134,4 +134,6 @@ class FetchGroupByIdCommand:
         self.__group_repo = group_repo
 
     def run(self, context: ApplicationContext):
-        ...
+        group = self.__group_repo.get(_id=context.get_var(name=GROUP_ID, _type=str))
+        context.set_var(GROUP, group)
+        context.response = group
