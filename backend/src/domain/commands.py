@@ -65,7 +65,7 @@ class FetchUserGroupsCommand:
             context.response = ListUserGroupsResponse(groups=groups)
             context.set_var(USER_GROUPS, groups)
         except UserGroupsNotFoundException:
-            context.error_capsules.append(UserGroupsNotFoundError(auth_user_id=context.auth_user_id))
+            context.error_capsules.append(UserGroupsNotFoundError(message=f"user group {context.auth_user_id} not found"))
 
 
 class ValidateIfUserBelongsToAtLeastOneGroupCommand:
