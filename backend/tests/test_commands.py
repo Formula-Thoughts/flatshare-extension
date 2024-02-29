@@ -11,7 +11,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
-from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand
@@ -143,7 +143,8 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         auth_user_id = "12345"
         expected_user_group = UserGroups(auth_user_id=auth_user_id,
                                          groups=[group_id])
-        context = ApplicationContext(variables={GROUP_ID: group_id}, auth_user_id=auth_user_id)
+        context = ApplicationContext(variables={GROUP_ID: group_id, USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False},
+                                     auth_user_id=auth_user_id)
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -157,6 +158,29 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         with self.subTest(msg="assert sqs message is sent with correct params"):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
                                                                            payload=expected_user_group)
+
+    def test_run_should_modify_existing_user_groups_if_user_already_has_group(self) -> None:
+        # arrange
+        group_id = str(uuid.uuid4())
+        auth_user_id = "12345"
+        user_groups = AutoFixture().create(dto=UserGroups)
+        expected_user_groups = user_groups.groups + [group_id]
+        context = ApplicationContext(variables={
+            GROUP_ID: group_id,
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False,
+            USER_GROUPS: user_groups
+        },
+                                     auth_user_id=auth_user_id)
+        self.__sqs_event_publisher.send_sqs_message = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert sqs message is sent with correct params"):
+            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
+                                                                           payload=UserGroups(auth_user_id=auth_user_id,
+                                                                                              groups=expected_user_groups))
 
 
 class TestUpsertGroupBackgroundCommand(TestCase):
