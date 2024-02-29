@@ -167,7 +167,7 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         expected_user_groups = user_groups.groups + [group_id]
         context = ApplicationContext(variables={
             GROUP_ID: group_id,
-            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False,
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True,
             USER_GROUPS: user_groups
         },
                                      auth_user_id=auth_user_id)
