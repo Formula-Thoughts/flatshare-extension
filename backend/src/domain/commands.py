@@ -156,4 +156,6 @@ class CreateFlatCommand:
         self.__sqs_message_publisher = sqs_message_publisher
 
     def run(self, context: ApplicationContext):
-        ...
+        group = context.get_var(name=GROUP, _type=Group)
+        self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
+        context.response = group
