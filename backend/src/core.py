@@ -44,6 +44,12 @@ class UpsertGroupRequest:
     location: str = None
 
 
+@dataclass(unsafe_hash=True)
+class CreateFlatRequest:
+    price: float = None
+    location: str = None
+    url: str = None
+
 class IBlobRepo(Protocol):
     def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
         ...
@@ -105,6 +111,14 @@ class IFetchUserGroupsCommand(Command, Protocol):
 
 
 class IFetchGroupByIdCommand(Command, Protocol):
+    pass
+
+
+class ISetFlatRequestCommand(Command, Protocol):
+    pass
+
+
+class ICreateFlatCommand(Command, Protocol):
     pass
 
 

@@ -137,3 +137,12 @@ class FetchGroupByIdCommand:
         group = self.__group_repo.get(_id=context.get_var(name=GROUP_ID, _type=str))
         context.set_var(GROUP, group)
         context.response = group
+
+
+class SetFlatRequestCommand:
+
+    def __init__(self, object_mapper: ObjectMapper):
+        self.__object_mapper = object_mapper
+
+    def run(self, context: ApplicationContext):
+        ...
