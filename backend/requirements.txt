@@ -1,1 +1,1 @@
-formula-thoughts-web==1.1.2
+formula-thoughts-web==1.1.4

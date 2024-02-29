@@ -25,7 +25,7 @@ class S3BlobRepo:
         self.__s3_client_wrapper.put_object(
             bucket=os.environ["S3_BUCKET_NAME"],
             key=key_gen(data),
-            body=self.__serializer.serialize(data.__dict__),
+            body=self.__serializer.serialize(self.__object_mapper.map_to_dict(_from=data, to=type(data))),
             content_type="application/json",
         )
 

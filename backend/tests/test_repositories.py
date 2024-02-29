@@ -51,7 +51,7 @@ class BlobRepoTestCase(TestCase):
             self.__s3_wrapper.put_object.assert_called_with(
                 bucket="bucketname",
                 key=f"testmodel/{data.prop_1}/{data.prop_2}",
-                body=self.__serializer.serialize(data=data.__dict__),
+                body=self.__serializer.serialize(data=self.__object_mapper.map_to_dict(_from=data, to=TestDataModel)),
                 content_type="application/json",
             )
 
@@ -59,7 +59,7 @@ class BlobRepoTestCase(TestCase):
     def test_get(self):
         # arrange
         data = AutoFixture().create(TestDataModel)
-        self.__s3_wrapper.get_object = MagicMock(return_value=self.__serializer.serialize(data=data.__dict__))
+        self.__s3_wrapper.get_object = MagicMock(return_value=self.__serializer.serialize(data=self.__object_mapper.map_to_dict(_from=data, to=TestDataModel)))
 
         # act
         response = self.__sut.get(key=f"testmodel/{data.prop_1}/{data.prop_2}", model_type=TestDataModel)
