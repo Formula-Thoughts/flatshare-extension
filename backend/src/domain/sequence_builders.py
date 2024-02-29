@@ -2,7 +2,8 @@ from formula_thoughts_web.application import FluentSequenceBuilder
 
 from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
-    IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand
+    IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
+    IFetchGroupByIdCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -55,3 +56,17 @@ class FetchUserGroupsSequenceBuilder(FluentSequenceBuilder):
 
     def build(self):
         self._add_command(command=self.__fetch_user_group_command)
+
+
+class GetUserGroupByIdSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
+                 validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser,
+                 fetch_group_by_id_command: IFetchGroupByIdCommand):
+        super().__init__()
+        self.__fetch_group_by_id_command = fetch_group_by_id_command
+        self.__validate_if_group_belongs_to_user = validate_if_group_belongs_to_user
+        self.__validate_if_user_belongs_to_at_least_one_group_command = validate_if_user_belongs_to_at_least_one_group_command
+
+    def build(self):
+        pass

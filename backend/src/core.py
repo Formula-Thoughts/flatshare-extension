@@ -116,6 +116,10 @@ class IFetchUserGroupsSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
+class IGetUserGroupByIdSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
 class ICreateFlatSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
