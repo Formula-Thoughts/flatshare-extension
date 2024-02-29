@@ -5,8 +5,9 @@ from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups
-from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest
+from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
+    CREATE_FLAT_REQUEST
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
 from src.exceptions import UserGroupsNotFoundException
@@ -145,4 +146,5 @@ class SetFlatRequestCommand:
         self.__object_mapper = object_mapper
 
     def run(self, context: ApplicationContext):
-        ...
+        request = self.__object_mapper.map_from_dict(_from=context.body, to=CreateFlatRequest)
+        context.set_var(CREATE_FLAT_REQUEST, request)

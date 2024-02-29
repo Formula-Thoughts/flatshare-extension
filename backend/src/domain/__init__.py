@@ -1,4 +1,5 @@
 UPSERT_GROUP_REQUEST = "upsert_group_request"
+CREATE_FLAT_REQUEST = "create_flat_request"
 USER_GROUPS = "user_groups"
 GROUP = "group"
 USER_BELONGS_TO_AT_LEAST_ONE_GROUP = "user_belongs_to_at_least_one_group"
