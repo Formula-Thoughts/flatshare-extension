@@ -39,7 +39,7 @@ class TestSetGroupRequestCommand(TestCase):
 
         # assert
         with self.subTest(msg="group request is set"):
-            create_group_request = context.get_var("UPSERT_GROUP_REQUEST", UpsertGroupRequest)
+            create_group_request = context.get_var("upsert_group_request", UpsertGroupRequest)
             self.assertEqual(create_group_request.location, location)
             self.assertEqual(create_group_request.price_limit, price_limit)
 
@@ -128,7 +128,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert group id is saved as context var"):
-            self.assertEqual(context.get_var("GROUP_ID", str), UUID_EXAMPLE)
+            self.assertEqual(context.get_var("group_id", str), UUID_EXAMPLE)
 
 
 class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
@@ -257,7 +257,7 @@ class TestFetchUserGroupsCommand(TestCase):
 
         # assert
         with self.subTest("assert groups is set as context var"):
-            self.assertEqual(context.get_var("USER_GROUPS", list[Group]), groups)
+            self.assertEqual(context.get_var("user_groups", list[Group]), groups)
 
         # assert
         with self.subTest("assert user groups repo is called once"):
@@ -324,11 +324,11 @@ class TestValidateIfUserBelongsToAtLeastOneGroupCommand(TestCase):
 
         # assert
         with self.subTest("user groups is set as context var"):
-            self.assertEqual(context.get_var("USER_GROUPS", UserGroups), user_groups)
+            self.assertEqual(context.get_var("user_groups", UserGroups), user_groups)
 
         # assert
         with self.subTest("validation result is set as context var"):
-            self.assertEqual(context.get_var("USER_BELONGS_TO_AT_LEAST_ONE_GROUP", bool), True)
+            self.assertEqual(context.get_var("user_belongs_to_at_least_one_group", bool), True)
 
     def test_run_when_user_has_no_groups(self):
         # arrange
