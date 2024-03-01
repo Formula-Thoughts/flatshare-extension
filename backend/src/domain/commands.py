@@ -7,9 +7,9 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
-    CREATE_FLAT_REQUEST
+    CREATE_FLAT_REQUEST, FLAT_ID
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error
+    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -205,4 +205,12 @@ class DeleteFlatCommand:
         self.__sqs_event_publisher = sqs_event_publisher
 
     def run(self, context: ApplicationContext):
-        ...
+        flat_id = context.get_var(name=FLAT_ID, _type=str)
+        group = context.get_var(name=GROUP, _type=Group)
+
+        if flat_id not in map(lambda x: x.id, group.flats):
+            context.error_capsules.append(FlatNotFoundError(message=f"flat {flat_id} not found"))
+            return
+
+        group.flats = list(filter(lambda x: x.id != flat_id, group.flats))
+        self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)

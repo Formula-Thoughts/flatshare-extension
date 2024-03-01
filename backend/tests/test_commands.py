@@ -573,8 +573,8 @@ class TestDeleteFlatCommand(TestCase):
         flat = AutoFixture().create(dto=Flat)
         group.flats.append(flat)
         length_of_flats_before_delete = len(group.flats)
-        context = ApplicationContext({
-            "FLAT_ID": flat.id,
+        context = ApplicationContext(variables={
+            "flat_id": flat.id,
             GROUP: group
         })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
@@ -595,7 +595,7 @@ class TestDeleteFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert flat is removed from list"):
-            self.assertEqual(captor.arg.flats, length_of_flats_before_delete - 1)
+            self.assertEqual(len(captor.arg.flats), length_of_flats_before_delete - 1)
 
         # assert
         with self.subTest(msg="assert group published matches"):
@@ -605,8 +605,8 @@ class TestDeleteFlatCommand(TestCase):
         # arrange
         group = AutoFixture().create(dto=Group)
         flat = AutoFixture().create(dto=Flat)
-        context = ApplicationContext({
-            "FLAT_ID": flat.id,
+        context = ApplicationContext(variables={
+            "flat_id": flat.id,
             GROUP: group
         })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
