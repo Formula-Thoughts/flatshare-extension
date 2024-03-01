@@ -173,7 +173,15 @@ Resources:
       Handler: src/app.lambda_handler
       Runtime: python3.10
       Events:
-        GetGroupById:
+        GetGroupInviteCodeById:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: UserAuth
+            Path: /groups/{group_id}/invite-code
+            Method: get
+            ApiId: !Ref FlatiniHttpApi
+        GetUserGroups:
           Type: HttpApi
           Properties:
             Auth:
