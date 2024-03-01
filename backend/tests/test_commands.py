@@ -445,7 +445,7 @@ class TestFetchGroupByIdCommand(TestCase):
 
         # assert
         with self.subTest(msg="group was set as response"):
-            self.assertEqual(context.response, group)
+            self.assertEqual(context.response, SingleGroupResponse(group=group))
 
 
 class TestSetFlatRequestCommand(TestCase):
