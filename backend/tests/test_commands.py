@@ -63,12 +63,12 @@ class TestValidateGroupRequestCommand(TestCase):
         # assert
         self.assertEqual(context.error_capsules, [])
 
-    @data([0], [-14])
-    def test_run_with_invalid_data(self, price):
+    @data([0, ["UK"]], [-14, ["UK"]], [54, []], [0, []])
+    def test_run_with_invalid_data(self, data):
         # arrange
-        [price_limit] = price
+        [price_limit, locations] = data
         context = ApplicationContext(variables={
-            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, locations=["UK"])
+            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, locations=locations)
         })
 
         # act
