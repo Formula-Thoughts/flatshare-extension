@@ -496,3 +496,7 @@ class TestCreateFlatCommand(TestCase):
         # assert
         with self.subTest(msg="correct number of flats are sent"):
             self.assertEqual(len(context.response.flats), 4)
+
+        # assert
+        with self.subTest(msg="correct flat params are set"):
+            self.assertEqual(len(context.response.flats[0]), Flat(url=flat.url, price=flat.price, location=flat.location))

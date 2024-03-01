@@ -16,6 +16,7 @@ def uuid4_str():
 class Flat:
     id: str = field(default_factory=uuid4_str)
     url: str = None
+    location: str = None
     price: float = None
 
 
