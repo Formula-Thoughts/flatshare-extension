@@ -18,7 +18,8 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToFlatCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError
+    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
+    current_user_already_added_to_group
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -672,3 +673,28 @@ class TestAddCurrentUserToFlatCommand(TestCase):
         # assert
         with self.subTest(msg="assert response is set"):
             self.assertEqual(context.response, SingleGroupResponse(group=group))
+
+    def test_run_when_user_is_already_in_the_group(self):
+        # arrange
+        auth_user_id = "1234"
+        group = AutoFixture().create(dto=Group)
+        group.participants.append(auth_user_id)
+        context = ApplicationContext(variables={
+            GROUP: group
+        }, auth_user_id=auth_user_id)
+        self.__sqs_event_publisher.send_sqs_message = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert sqs is never called"):
+            self.__sqs_event_publisher.send_sqs_message.assert_not_called()
+
+        # assert
+        with self.subTest(msg="assert error is added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="assert user already added error is added"):
+            self.assertEqual(type(context.error_capsules[0]), current_user_already_added_to_group)

@@ -17,6 +17,8 @@ class FlatNotFoundError(Error):
     ...
 
 
+current_user_already_added_to_group = InvalidGroupDataError(message="current user already added to group")
+
 invalid_price_error = InvalidGroupDataError(message="price has to be greater than 0")
 
 invalid_group_locations_error = InvalidGroupDataError(message="a group must have 1 or more locations")
