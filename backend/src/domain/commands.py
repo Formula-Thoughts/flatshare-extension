@@ -223,4 +223,7 @@ class AddCurrentUserToFlatCommand:
         self.__sqs_event_publisher = sqs_event_publisher
 
     def run(self, context: ApplicationContext):
-        ...
+        group = context.get_var(name=GROUP, _type=Group)
+        group.participants.append(context.auth_user_id)
+        self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
+        context.response = SingleGroupResponse(group=group)
