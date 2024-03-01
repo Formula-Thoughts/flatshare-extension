@@ -8,7 +8,8 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_FLAT_REQUEST
-from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, invalid_group_locations_error
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
+    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -185,4 +186,14 @@ class CreateFlatCommand:
 class ValidateFlatRequestCommand:
 
     def run(self, context: ApplicationContext):
-        ...
+        group = context.get_var(name=GROUP, _type=Group)
+        create_flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
+
+        if create_flat_request.price <= 0:
+            context.error_capsules.append(invalid_price_error)
+
+        if create_flat_request.price > group.price_limit:
+            context.error_capsules.append(invalid_flat_price_error)
+
+        if create_flat_request.location not in group.locations:
+            context.error_capsules.append(invalid_flat_location_error)

@@ -18,7 +18,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_locations_error
+    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -522,7 +522,7 @@ class TestValidateFlatRequestCommand(TestCase):
         group.price_limit = 4
         context = ApplicationContext(variables={
             GROUP: group,
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=5, location="Sydney")
+            CREATE_FLAT_REQUEST: CreateFlatRequest(price=3, location="Sydney")
         })
 
         # act
@@ -533,11 +533,11 @@ class TestValidateFlatRequestCommand(TestCase):
             self.assertEqual(len(context.error_capsules), 0)
 
     @data(
-        [6, "UK", 1, invalid_flat_price_error],
+        [5, "UK", 1, invalid_flat_price_error],
         [100, "UK", 1, invalid_flat_price_error],
-        [-14, "UK", 2, invalid_price_error],
-        [54, "Memphis", 1, invalid_flat_locations_error],
-        [0, "Tennessee", 3, invalid_price_error])
+        [-14, "UK", 1, invalid_price_error],
+        [3, "Memphis", 1, invalid_flat_location_error],
+        [-1, "Tennessee", 2, invalid_price_error])
     def test_run_when_invalid(self, data):
         # arrange
         [price, location, errors_count, error] = data
@@ -557,5 +557,5 @@ class TestValidateFlatRequestCommand(TestCase):
             self.assertEqual(len(context.error_capsules), errors_count)
 
         # assert
-        with self.subTest(msg="assert count is correct"):
+        with self.subTest(msg="assert error is correct"):
             self.assertEqual(context.error_capsules[0], error)
