@@ -15,8 +15,10 @@ from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand
-from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, invalid_locations_error
+    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
+    ValidateFlatRequestCommand
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
+    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_locations_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -66,7 +68,7 @@ class TestValidateGroupRequestCommand(TestCase):
     @data(
         [0, ["UK"], 1, invalid_price_error],
         [-14, ["UK"], 1, invalid_price_error],
-        [54, [], 1, invalid_locations_error],
+        [54, [], 1, invalid_group_locations_error],
         [0, [], 2, invalid_price_error])
     def test_run_with_invalid_data(self, data):
         # arrange
@@ -505,3 +507,55 @@ class TestCreateFlatCommand(TestCase):
         # assert
         with self.subTest(msg="correct flat params are set"):
             self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE, url=flat.url, price=flat.price, location=flat.location))
+
+
+@ddt
+class TestValidateFlatRequestCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateFlatRequestCommand()
+
+    def test_run_when_valid(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        group.locations = ["UK", "Sydney"]
+        group.price_limit = 4
+        context = ApplicationContext(variables={
+            GROUP: group,
+            CREATE_FLAT_REQUEST: CreateFlatRequest(price=5, location="Sydney")
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="no errors occur"):
+            self.assertEqual(len(context.error_capsules), 0)
+
+    @data(
+        [6, "UK", 1, invalid_flat_price_error],
+        [100, "UK", 1, invalid_flat_price_error],
+        [-14, "UK", 2, invalid_price_error],
+        [54, "Memphis", 1, invalid_flat_locations_error],
+        [0, "Tennessee", 3, invalid_price_error])
+    def test_run_when_invalid(self, data):
+        # arrange
+        [price, location, errors_count, error] = data
+        group = AutoFixture().create(dto=Group)
+        group.locations = ["UK", "Sydney"]
+        group.price_limit = 4
+        context = ApplicationContext(variables={
+            GROUP: group,
+            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, location=location)
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert error count is correct"):
+            self.assertEqual(len(context.error_capsules), errors_count)
+
+        # assert
+        with self.subTest(msg="assert count is correct"):
+            self.assertEqual(context.error_capsules[0], error)

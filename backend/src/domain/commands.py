@@ -8,7 +8,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_FLAT_REQUEST
-from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, invalid_locations_error
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, invalid_group_locations_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -40,7 +40,7 @@ class ValidateGroupCommand:
             context.error_capsules.append(invalid_price_error)
 
         if len(request.locations) == 0:
-            context.error_capsules.append(invalid_locations_error)
+            context.error_capsules.append(invalid_group_locations_error)
 
 
 class CreateGroupAsyncCommand:
@@ -180,3 +180,9 @@ class CreateFlatCommand:
         group.flats.append(Flat(url=flat_request.url, location=flat_request.location, price=flat_request.price))
         self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
+
+
+class ValidateFlatRequestCommand:
+
+    def run(self, context: ApplicationContext):
+        ...

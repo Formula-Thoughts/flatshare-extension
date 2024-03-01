@@ -51,6 +51,7 @@ class CreateFlatRequest:
     location: str = None
     url: str = None
 
+
 class IBlobRepo(Protocol):
     def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
         ...
@@ -116,6 +117,10 @@ class IFetchGroupByIdCommand(Command, Protocol):
 
 
 class ISetFlatRequestCommand(Command, Protocol):
+    pass
+
+
+class IValidateFlatRequestCommand(Command, Protocol):
     pass
 
 
