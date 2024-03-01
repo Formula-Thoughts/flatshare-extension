@@ -117,6 +117,8 @@ class TestCreateFlatSequenceBuilder(TestCase):
         self.__sut.build()
 
         # assert
-        self.assertEqual(self.__sut.components, [self.__get_user_group_by_id,
-                                                 self.__set_create_flat_request,
-                                                 self.__create_flat])
+        self.assertEqual(self.__sut.components, [
+            self.__set_create_flat_request,
+            self.__get_user_group_by_id,
+            self.__create_flat
+        ])
