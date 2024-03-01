@@ -4,11 +4,12 @@ from unittest.mock import Mock, MagicMock, patch, call
 from uuid import UUID
 
 from autofixture import AutoFixture
+from callee import Captor
 from ddt import ddt, data
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_FLAT_REQUEST, GROUP
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
@@ -468,6 +469,8 @@ class TestCreateFlatCommand(TestCase):
         # arrange
         group = AutoFixture().create(dto=Group)
         flat = AutoFixture().create(dto=CreateFlatRequest)
+        flats = AutoFixture().create_many(dto=Flat, ammount=3)
+        group.flats = flats
         context = ApplicationContext(variables={
             CREATE_FLAT_REQUEST: flat,
             GROUP: group
@@ -476,6 +479,7 @@ class TestCreateFlatCommand(TestCase):
 
         # act
         self.__sut.run(context=context)
+        captor = Captor()
 
         # assert
         with self.subTest(msg="sqs bus is called once"):
@@ -483,8 +487,12 @@ class TestCreateFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="sqs bus is called with valid params"):
-            self.__sqs_message_publisher.send_sqs_message.assert_called_with(message_group_id=group.id, payload=group)
+            self.__sqs_message_publisher.send_sqs_message.assert_called_with(message_group_id=group.id, payload=captor)
 
         # assert
         with self.subTest(msg="response is set to updated group"):
             self.assertEqual(context.response, group)
+
+        # assert
+        with self.subTest(msg="correct number of flats are sent"):
+            self.assertEqual(len(context.response.flats), 4)
