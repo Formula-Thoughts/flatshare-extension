@@ -465,7 +465,8 @@ class TestCreateFlatCommand(TestCase):
         self.__sqs_message_publisher: SQSEventPublisher = Mock()
         self.__sut = CreateFlatCommand(sqs_message_publisher=self.__sqs_message_publisher)
 
-    def test_run(self):
+    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
+    def test_run(self, _):
         # arrange
         group = AutoFixture().create(dto=Group)
         flat = AutoFixture().create(dto=CreateFlatRequest)
@@ -495,8 +496,8 @@ class TestCreateFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="correct number of flats are sent"):
-            self.assertEqual(len(context.response.flats), 4)
+            self.assertEqual(len(captor.arg.flats), 4)
 
         # assert
         with self.subTest(msg="correct flat params are set"):
-            self.assertEqual(len(context.response.flats[0]), Flat(url=flat.url, price=flat.price, location=flat.location))
+            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE, url=flat.url, price=flat.price, location=flat.location))
