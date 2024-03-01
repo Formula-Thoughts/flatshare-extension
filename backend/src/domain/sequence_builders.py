@@ -86,6 +86,6 @@ class CreateFlatSequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        self._add_sequence_builder(self.__get_user_group_by_id)\
-            ._add_command(self.__set_create_flat_request)\
+        self._add_command(self.__set_create_flat_request)\
+            ._add_sequence_builder(self.__get_user_group_by_id)\
             ._add_command(self.__create_flat)
