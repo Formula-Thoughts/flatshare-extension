@@ -10,7 +10,8 @@ class TestCreateGroupHandler(TestCase):
         # arrange
         sut = CreateGroupApiHandler(sequence=Mock(),
                                     command_pipeline=Mock(),
-                                    deserializer=Mock())
+                                    deserializer=Mock(),
+                                    logger=Mock())
 
         # act
         route_key = sut.route_key
@@ -26,7 +27,8 @@ class TestFetchUserGroupsApiHandler(TestCase):
         # arrange
         sut = FetchUserGroupsApiHandler(sequence=Mock(),
                                         command_pipeline=Mock(),
-                                        deserializer=Mock())
+                                        deserializer=Mock(),
+                                        logger=Mock())
 
         # act
         route_key = sut.route_key
@@ -42,7 +44,8 @@ class TestCreateFlatApiHandler(TestCase):
         # arrange
         sut = CreateFlatApiHandler(sequence=Mock(),
                                    command_pipeline=Mock(),
-                                   deserializer=Mock())
+                                   deserializer=Mock(),
+                                   logger=Mock())
 
         # act
         route_key = sut.route_key
