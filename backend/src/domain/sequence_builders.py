@@ -119,4 +119,5 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        ...
+        self._add_sequence_builder(sequence_builder=self.__get_user_group_by_id)\
+            ._add_command(command=self.__add_current_user_to_group_command)
