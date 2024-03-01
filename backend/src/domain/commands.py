@@ -2,7 +2,7 @@ import typing
 import uuid
 
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
-from formula_thoughts_web.abstractions import ApplicationContext
+from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
@@ -15,12 +15,20 @@ from src.exceptions import UserGroupsNotFoundException
 
 class SetGroupRequestCommand:
 
-    def __init__(self, object_mapper: ObjectMapper):
+    def __init__(self, object_mapper: ObjectMapper,
+                 logger: Logger):
+        self.__logger = logger
         self.__object_mapper = object_mapper
 
     def run(self, context: ApplicationContext) -> None:
+        group_request = self.__object_mapper.map_from_dict(_from=context.body,
+                                                           to=UpsertGroupRequest)
         context.set_var(UPSERT_GROUP_REQUEST, self.__object_mapper.map_from_dict(_from=context.body,
                                                                                  to=UpsertGroupRequest))
+        self.__logger.add_global_properties(properties={
+            'locations': group_request.location,
+            'price_limit': group_request.price_limit
+        })
 
 
 class ValidateGroupCommand:
@@ -66,7 +74,8 @@ class FetchUserGroupsCommand:
             context.response = ListUserGroupsResponse(groups=groups)
             context.set_var(USER_GROUPS, groups)
         except UserGroupsNotFoundException:
-            context.error_capsules.append(UserGroupsNotFoundError(message=f"user group {context.auth_user_id} not found"))
+            context.error_capsules.append(
+                UserGroupsNotFoundError(message=f"user group {context.auth_user_id} not found"))
 
 
 class ValidateIfUserBelongsToAtLeastOneGroupCommand:
@@ -93,7 +102,7 @@ class CreateUserGroupsAsyncCommand:
         user_groups = UserGroups(auth_user_id=context.auth_user_id,
                                  groups=[context.get_var(GROUP_ID, str)])
         if check_if_user_group_exists:
-            user_groups.groups =  context.get_var(name=USER_GROUPS, _type=UserGroups).groups + user_groups.groups
+            user_groups.groups = context.get_var(name=USER_GROUPS, _type=UserGroups).groups + user_groups.groups
         self.__sqs_event_publisher.send_sqs_message(message_group_id=context.auth_user_id,
                                                     payload=user_groups)
 
@@ -142,12 +151,19 @@ class FetchGroupByIdCommand:
 
 class SetFlatRequestCommand:
 
-    def __init__(self, object_mapper: ObjectMapper):
+    def __init__(self, object_mapper: ObjectMapper,
+                 logger: Logger):
+        self.__logger = logger
         self.__object_mapper = object_mapper
 
     def run(self, context: ApplicationContext):
         request = self.__object_mapper.map_from_dict(_from=context.body, to=CreateFlatRequest)
         context.set_var(CREATE_FLAT_REQUEST, request)
+        self.__logger.add_global_properties(properties={
+            "location": request.location,
+            "price": request.price,
+            "url": request.url
+        })
 
 
 class CreateFlatCommand:

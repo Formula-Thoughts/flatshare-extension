@@ -26,7 +26,7 @@ UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 class TestSetGroupRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = SetGroupRequestCommand(object_mapper=ObjectMapper())
+        self.__sut = SetGroupRequestCommand(object_mapper=ObjectMapper(), logger=Mock())
 
     def test_run(self):
         # arrange
@@ -445,7 +445,7 @@ class TestFetchGroupByIdCommand(TestCase):
 class TestSetFlatRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = SetFlatRequestCommand(object_mapper=ObjectMapper())
+        self.__sut = SetFlatRequestCommand(object_mapper=ObjectMapper(), logger=Mock())
 
     def test_run(self):
         # arrange
