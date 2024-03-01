@@ -30,10 +30,10 @@ class TestSetGroupRequestCommand(TestCase):
 
     def test_run(self):
         # arrange
-        location = "UK"
+        locations = ["UK"]
         price_limit = 14.2
         context = ApplicationContext(variables={},
-                                     body={"price_limit": price_limit, "location": location})
+                                     body={"price_limit": price_limit, "locations": locations})
 
         # act
         self.__sut.run(context)
@@ -41,7 +41,7 @@ class TestSetGroupRequestCommand(TestCase):
         # assert
         with self.subTest(msg="group request is set"):
             create_group_request = context.get_var("upsert_group_request", UpsertGroupRequest)
-            self.assertEqual(create_group_request.location, location)
+            self.assertEqual(create_group_request.locations, locations)
             self.assertEqual(create_group_request.price_limit, price_limit)
 
 
@@ -54,7 +54,7 @@ class TestValidateGroupRequestCommand(TestCase):
     def test_run_with_valid_data(self):
         # arrange
         context = ApplicationContext(variables={
-            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=14.4, location="UK")
+            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=14.4, locations=["UK"])
         })
 
         # act
@@ -68,7 +68,7 @@ class TestValidateGroupRequestCommand(TestCase):
         # arrange
         [price_limit] = price
         context = ApplicationContext(variables={
-            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, location="UK")
+            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, locations=["UK"])
         })
 
         # act
@@ -96,7 +96,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         auth_user_id = "12345"
         expected_group = Group(id=UUID_EXAMPLE,
                                price_limit=group_request.price_limit,
-                               location=group_request.location,
+                               locations=group_request.locations,
                                flats=[],
                                participants=[auth_user_id])
         context = ApplicationContext(variables={
@@ -118,7 +118,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                                                            payload=Group(
                                                                                id=UUID_EXAMPLE,
                                                                                price_limit=group_request.price_limit,
-                                                                               location=group_request.location,
+                                                                               locations=group_request.locations,
                                                                                flats=[],
                                                                                participants=[auth_user_id]
                                                                            ))

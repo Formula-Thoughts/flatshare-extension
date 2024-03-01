@@ -26,7 +26,7 @@ class SetGroupRequestCommand:
         context.set_var(UPSERT_GROUP_REQUEST, self.__object_mapper.map_from_dict(_from=context.body,
                                                                                  to=UpsertGroupRequest))
         self.__logger.add_global_properties(properties={
-            'locations': group_request.location,
+            'locations': group_request.locations,
             'price_limit': group_request.price_limit
         })
 
@@ -52,7 +52,7 @@ class CreateGroupAsyncCommand:
                       flats=[],
                       participants=[context.auth_user_id],
                       price_limit=group_request.price_limit,
-                      location=group_request.location)
+                      locations=group_request.locations)
         context.response = CreatedGroupResponse(group=group)
         context.set_var(GROUP_ID, group_id)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id, payload=group)

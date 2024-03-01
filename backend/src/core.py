@@ -36,13 +36,13 @@ class Group:
     flats: list[Flat] = field(default_factory=lambda: [])
     participants: list[GroupParticipantAuthId] = field(default_factory=lambda: [])
     price_limit: float = None
-    location: str = None
+    locations: list[str] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
 class UpsertGroupRequest:
     price_limit: float = None
-    location: str = None
+    locations: list[str] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
