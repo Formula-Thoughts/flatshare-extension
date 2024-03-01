@@ -16,7 +16,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand
-from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
+from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, invalid_locations_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -63,10 +63,14 @@ class TestValidateGroupRequestCommand(TestCase):
         # assert
         self.assertEqual(context.error_capsules, [])
 
-    @data([0, ["UK"]], [-14, ["UK"]], [54, []], [0, []])
+    @data(
+        [0, ["UK"], 1, invalid_price_error],
+        [-14, ["UK"], 1, invalid_price_error],
+        [54, [], 1, invalid_locations_error],
+        [0, [], 2, invalid_price_error])
     def test_run_with_invalid_data(self, data):
         # arrange
-        [price_limit, locations] = data
+        [price_limit, locations, errors_count, error] = data
         context = ApplicationContext(variables={
             UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, locations=locations)
         })
@@ -76,11 +80,11 @@ class TestValidateGroupRequestCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert 1 error capsule is added"):
-            self.assertEqual(len(context.error_capsules), 1)
+            self.assertEqual(len(context.error_capsules), errors_count)
 
         # assert
         with self.subTest(msg="asser price error capsule is added"):
-            self.assertEqual(context.error_capsules[0], invalid_price_error)
+            self.assertEqual(context.error_capsules[0], error)
 
 
 class TestSaveGroupAsyncOverSQSCommand(TestCase):
