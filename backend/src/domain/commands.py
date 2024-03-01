@@ -197,3 +197,12 @@ class ValidateFlatRequestCommand:
 
         if create_flat_request.location not in group.locations:
             context.error_capsules.append(invalid_flat_location_error)
+
+
+class DeleteFlatCommand:
+
+    def __init__(self, sqs_event_publisher: SQSEventPublisher):
+        self.__sqs_event_publisher = sqs_event_publisher
+
+    def run(self, context: ApplicationContext):
+        ...

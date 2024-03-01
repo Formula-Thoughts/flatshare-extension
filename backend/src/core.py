@@ -128,6 +128,10 @@ class ICreateFlatCommand(Command, Protocol):
     pass
 
 
+class IDeleteFlatCommand(Command, Protocol):
+    pass
+
+
 class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

@@ -13,6 +13,10 @@ class GroupNotFoundError(Error):
     ...
 
 
+class FlatNotFoundError(Error):
+    ...
+
+
 invalid_price_error = InvalidGroupDataError(message="price has to be greater than 0")
 
 invalid_group_locations_error = InvalidGroupDataError(message="a group must have 1 or more locations")

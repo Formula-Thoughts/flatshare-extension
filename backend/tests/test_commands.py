@@ -16,9 +16,9 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
-    ValidateFlatRequestCommand
+    ValidateFlatRequestCommand, DeleteFlatCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error
+    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -559,3 +559,69 @@ class TestValidateFlatRequestCommand(TestCase):
         # assert
         with self.subTest(msg="assert error is correct"):
             self.assertEqual(context.error_capsules[0], error)
+
+
+class TestDeleteFlatCommand(TestCase):
+
+    def setUp(self):
+        self.__sqs_event_publisher: SQSEventPublisher = Mock()
+        self.__sut = DeleteFlatCommand(sqs_event_publisher=self.__sqs_event_publisher)
+
+    def test_run(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        flat = AutoFixture().create(dto=Flat)
+        group.flats.append(flat)
+        length_of_flats_before_delete = len(group.flats)
+        context = ApplicationContext({
+            "FLAT_ID": flat.id,
+            GROUP: group
+        })
+        self.__sqs_event_publisher.send_sqs_message = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        captor = Captor()
+
+        # assert
+        with self.subTest(msg="assert sqs is called once"):
+            self.__sqs_event_publisher.send_sqs_message.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert sqs is called with correct args"):
+            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=group.id,
+                                                                           payload=captor)
+
+        # assert
+        with self.subTest(msg="assert flat is removed from list"):
+            self.assertEqual(captor.arg.flats, length_of_flats_before_delete - 1)
+
+        # assert
+        with self.subTest(msg="assert group published matches"):
+            self.assertEqual(captor.arg, group)
+
+    def test_run_when_flat_is_not_found(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        flat = AutoFixture().create(dto=Flat)
+        context = ApplicationContext({
+            "FLAT_ID": flat.id,
+            GROUP: group
+        })
+        self.__sqs_event_publisher.send_sqs_message = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert sqs is never called"):
+            self.__sqs_event_publisher.send_sqs_message.assert_not_called()
+
+        # assert
+        with self.subTest(msg="assert 1 error is added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="assert flat not found error is added"):
+            self.assertEqual(type(context.error_capsules[0]), FlatNotFoundError)
