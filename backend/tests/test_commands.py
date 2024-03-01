@@ -664,7 +664,7 @@ class TestAddCurrentUserToFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert user is added to group"):
-            self.assertEqual(len(captor.arg.flats), length_of_flats_before_delete + 1)
+            self.assertEqual(len(captor.arg.participants), length_of_flats_before_delete + 1)
 
         # assert
         with self.subTest(msg="assert group published matches"):
@@ -697,4 +697,4 @@ class TestAddCurrentUserToFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert user already added error is added"):
-            self.assertEqual(type(context.error_capsules[0]), current_user_already_added_to_group)
+            self.assertEqual(context.error_capsules[0], current_user_already_added_to_group)
