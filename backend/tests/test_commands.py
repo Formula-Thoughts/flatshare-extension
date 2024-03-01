@@ -16,7 +16,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
-    ValidateFlatRequestCommand, DeleteFlatCommand
+    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToFlatCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
@@ -629,3 +629,46 @@ class TestDeleteFlatCommand(TestCase):
         # assert
         with self.subTest(msg="assert flat not found error is added"):
             self.assertEqual(type(context.error_capsules[0]), FlatNotFoundError)
+
+
+class TestAddCurrentUserToFlatCommand(TestCase):
+
+    def setUp(self):
+        self.__sqs_event_publisher: SQSEventPublisher = Mock()
+        self.__sut = AddCurrentUserToFlatCommand(sqs_event_publisher=self.__sqs_event_publisher)
+
+    def test_run(self):
+        # arrange
+        auth_user_id = "1234"
+        group = AutoFixture().create(dto=Group)
+        length_of_flats_before_delete = len(group.participants)
+        context = ApplicationContext(variables={
+            GROUP: group
+        }, auth_user_id=auth_user_id)
+        self.__sqs_event_publisher.send_sqs_message = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        captor = Captor()
+
+        # assert
+        with self.subTest(msg="assert sqs is called once"):
+            self.__sqs_event_publisher.send_sqs_message.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert sqs is called with correct args"):
+            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=group.id,
+                                                                           payload=captor)
+
+        # assert
+        with self.subTest(msg="assert user is added to group"):
+            self.assertEqual(len(captor.arg.flats), length_of_flats_before_delete + 1)
+
+        # assert
+        with self.subTest(msg="assert group published matches"):
+            self.assertEqual(captor.arg, group)
+
+        # assert
+        with self.subTest(msg="assert response is set"):
+            self.assertEqual(context.response, SingleGroupResponse(group=group))

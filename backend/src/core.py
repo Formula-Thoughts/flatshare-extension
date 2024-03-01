@@ -152,7 +152,7 @@ class IDeleteFlatSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
-class IAddCurrentUserFlatCommand(SequenceBuilder, Protocol):
+class IAddCurrentUserToFlatCommand(SequenceBuilder, Protocol):
     pass
 
 
