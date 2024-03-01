@@ -3,7 +3,7 @@ from formula_thoughts_web.application import TopLevelSequenceRunner
 from formula_thoughts_web.web import ApiRequestHandlerBase
 
 from src.core import ICreateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreateFlatSequenceBuilder, \
-    IDeleteFlatSequenceBuilder
+    IDeleteFlatSequenceBuilder, IAddUserToGroupSequenceBuilder
 
 
 class CreateGroupApiHandler(ApiRequestHandlerBase):
@@ -52,6 +52,19 @@ class DeleteFlatApiHandler(ApiRequestHandlerBase):
                  deserializer: Deserializer,
                  logger: Logger):
         super().__init__(route_key='DELETE /groups/{group_id}/flats/{flat_id}',
+                         sequence=sequence,
+                         command_pipeline=command_pipeline,
+                         deserializer=deserializer,
+                         logger=logger)
+
+
+class AddCurrentUserToGroupApiHandler(ApiRequestHandlerBase):
+
+    def __init__(self, sequence: IAddUserToGroupSequenceBuilder,
+                 command_pipeline: TopLevelSequenceRunner,
+                 deserializer: Deserializer,
+                 logger: Logger):
+        super().__init__(route_key='POST /groups/{group_id}/users',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,
