@@ -132,7 +132,7 @@ class IDeleteFlatCommand(Command, Protocol):
     pass
 
 
-class IAddCurrentUserToFlatCommand(Command, Protocol):
+class IAddCurrentUserToGroupCommand(Command, Protocol):
     pass
 
 
@@ -153,6 +153,10 @@ class ICreateFlatSequenceBuilder(SequenceBuilder, Protocol):
 
 
 class IDeleteFlatSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class IAddUserToGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 

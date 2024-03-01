@@ -4,7 +4,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGrou
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand, IDeleteFlatCommand
+    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -107,3 +107,16 @@ class DeleteFlatSequenceBuilder(FluentSequenceBuilder):
     def build(self):
         self._add_sequence_builder(sequence_builder=self.__get_user_group_by_id)\
             ._add_command(command=self.__delete_flat)
+
+
+class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self,
+                 get_user_group_by_id: IGetUserGroupByIdSequenceBuilder,
+                 add_current_user_to_group_command: IAddCurrentUserToGroupCommand):
+        self.__add_current_user_to_group_command = add_current_user_to_group_command
+        self.__get_user_group_by_id = get_user_group_by_id
+        super().__init__()
+
+    def build(self):
+        ...

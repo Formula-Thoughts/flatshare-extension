@@ -218,7 +218,7 @@ class DeleteFlatCommand:
         context.response = SingleGroupResponse(group=group)
 
 
-class AddCurrentUserToFlatCommand:
+class AddCurrentUserToGroupCommand:
 
     def __init__(self, sqs_event_publisher: SQSEventPublisher):
         self.__sqs_event_publisher = sqs_event_publisher

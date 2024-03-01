@@ -16,7 +16,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
-    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToFlatCommand
+    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
     current_user_already_added_to_group
@@ -632,11 +632,11 @@ class TestDeleteFlatCommand(TestCase):
             self.assertEqual(type(context.error_capsules[0]), FlatNotFoundError)
 
 
-class TestAddCurrentUserToFlatCommand(TestCase):
+class TestAddCurrentUserToGroupCommand(TestCase):
 
     def setUp(self):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = AddCurrentUserToFlatCommand(sqs_event_publisher=self.__sqs_event_publisher)
+        self.__sut = AddCurrentUserToGroupCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
     def test_run(self):
         # arrange
