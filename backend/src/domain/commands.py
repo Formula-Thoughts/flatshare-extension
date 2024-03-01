@@ -150,7 +150,7 @@ class FetchGroupByIdCommand:
     def run(self, context: ApplicationContext):
         group = self.__group_repo.get(_id=context.get_var(name=GROUP_ID, _type=str))
         context.set_var(GROUP, group)
-        context.response = group
+        context.response = SingleGroupResponse(group=group)
 
 
 class SetFlatRequestCommand:
