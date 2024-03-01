@@ -601,6 +601,10 @@ class TestDeleteFlatCommand(TestCase):
         with self.subTest(msg="assert group published matches"):
             self.assertEqual(captor.arg, group)
 
+        # assert
+        with self.subTest(msg="assert response is set"):
+            self.assertEqual(context.response, SingleGroupResponse(group=group))
+
     def test_run_when_flat_is_not_found(self):
         # arrange
         group = AutoFixture().create(dto=Group)
