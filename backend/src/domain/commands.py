@@ -215,3 +215,12 @@ class DeleteFlatCommand:
         group.flats = list(filter(lambda x: x.id != flat_id, group.flats))
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
+
+
+class AddCurrentUserFlatCommand:
+
+    def __init__(self, sqs_event_publisher: SQSEventPublisher):
+        self.__sqs_event_publisher = sqs_event_publisher
+
+    def run(self, context: ApplicationContext):
+        ...

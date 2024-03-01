@@ -152,6 +152,10 @@ class IDeleteFlatSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
+class IAddCurrentUserFlatCommand(SequenceBuilder, Protocol):
+    pass
+
+
 class IUpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
