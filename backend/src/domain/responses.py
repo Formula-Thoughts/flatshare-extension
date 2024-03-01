@@ -9,5 +9,10 @@ class CreatedGroupResponse:
 
 
 @dataclass(unsafe_hash=True)
+class SingleGroupResponse:
+    group: Group = None
+
+
+@dataclass(unsafe_hash=True)
 class ListUserGroupsResponse:
     groups: list[Group] = None

@@ -17,7 +17,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError
-from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -491,7 +491,7 @@ class TestCreateFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="response is set to updated group"):
-            self.assertEqual(context.response, group)
+            self.assertEqual(context.response, SingleGroupResponse(group=group))
 
         # assert
         with self.subTest(msg="correct number of flats are sent"):
