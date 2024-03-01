@@ -5,10 +5,10 @@ from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGrou
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand
+    IValidateFlatRequestCommand, IDeleteFlatCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
-    CreateFlatSequenceBuilder
+    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder
 
 
 class TestCreateGroupAsyncSequenceBuilder(TestCase):
@@ -125,4 +125,23 @@ class TestCreateFlatSequenceBuilder(TestCase):
             self.__get_user_group_by_id,
             self.__validate_flat,
             self.__create_flat
+        ])
+
+
+class TestDeleteFlatSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__get_user_group_by_id: IGetUserGroupByIdSequenceBuilder = Mock()
+        self.__delete_flat: IDeleteFlatCommand = Mock()
+        self.__sut = DeleteFlatSequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
+                                               delete_flat=self.__delete_flat)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__get_user_group_by_id,
+            self.__delete_flat
         ])

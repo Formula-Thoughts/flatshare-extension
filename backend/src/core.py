@@ -148,6 +148,10 @@ class ICreateFlatSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
+class IDeleteFlatSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
 class IUpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
