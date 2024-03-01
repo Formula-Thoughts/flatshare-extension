@@ -4,7 +4,8 @@ from unittest.mock import Mock
 from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
-    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand
+    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
+    IValidateFlatRequestCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder
@@ -108,9 +109,11 @@ class TestCreateFlatSequenceBuilder(TestCase):
         self.__get_user_group_by_id: IGetUserGroupByIdSequenceBuilder = Mock()
         self.__set_create_flat_request: ISetFlatRequestCommand = Mock()
         self.__create_flat: ICreateFlatCommand = Mock()
+        self.__validate_flat: IValidateFlatRequestCommand = Mock()
         self.__sut = CreateFlatSequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
                                                set_create_flat_request=self.__set_create_flat_request,
-                                               create_flat=self.__create_flat)
+                                               create_flat=self.__create_flat,
+                                               validate_flat=self.__validate_flat)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -120,5 +123,6 @@ class TestCreateFlatSequenceBuilder(TestCase):
         self.assertEqual(self.__sut.components, [
             self.__set_create_flat_request,
             self.__get_user_group_by_id,
+            self.__validate_flat,
             self.__create_flat
         ])

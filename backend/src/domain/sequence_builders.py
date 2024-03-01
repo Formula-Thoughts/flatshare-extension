@@ -3,7 +3,8 @@ from formula_thoughts_web.application import FluentSequenceBuilder
 from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
-    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand
+    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
+    IValidateFlatRequestCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -79,7 +80,9 @@ class CreateFlatSequenceBuilder(FluentSequenceBuilder):
     def __init__(self,
                  get_user_group_by_id: IGetUserGroupByIdSequenceBuilder,
                  set_create_flat_request: ISetFlatRequestCommand,
-                 create_flat: ICreateFlatCommand):
+                 create_flat: ICreateFlatCommand,
+                 validate_flat: IValidateFlatRequestCommand):
+        self.__validate_flat = validate_flat
         self.__create_flat = create_flat
         self.__set_create_flat_request = set_create_flat_request
         self.__get_user_group_by_id = get_user_group_by_id
