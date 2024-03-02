@@ -116,7 +116,9 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
                  set_group_id_from_code: ISetGroupIdFromCodeCommand,
                  get_group_by_id: IFetchGroupByIdCommand,
                  validate_user_is_not_participant: IValidateUserIsNotParticipantCommand,
-                 add_current_user_to_group_command: IAddCurrentUserToGroupCommand):
+                 add_current_user_to_group_command: IAddCurrentUserToGroupCommand,
+                 create_user_groups: ICreateUserGroupsAsyncCommand):
+        self.__create_user_groups = create_user_groups
         self.__validate_user_is_not_participant = validate_user_is_not_participant
         self.__set_group_id_from_code = set_group_id_from_code
         self.__add_current_user_to_group_command = add_current_user_to_group_command

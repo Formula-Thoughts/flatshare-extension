@@ -155,10 +155,12 @@ class TestAddUserToGroupSequenceBuilder(TestCase):
         self.__get_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__add_current_user_to_group_command: IAddCurrentUserToGroupCommand = Mock()
         self.__validate_user_is_not_participant: IValidateUserIsNotParticipantCommand = Mock()
+        self.__create_user_groups: ICreateUserGroupsAsyncCommand = Mock()
         self.__sut = AddUserToGroupSequenceBuilder(get_group_by_id=self.__get_group_by_id,
                                                    add_current_user_to_group_command=self.__add_current_user_to_group_command,
                                                    set_group_id_from_code=self.__set_group_id_from_code,
-                                                   validate_user_is_not_participant=self.__validate_user_is_not_participant)
+                                                   validate_user_is_not_participant=self.__validate_user_is_not_participant,
+                                                   create_user_groups=self.__create_user_groups)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -169,7 +171,8 @@ class TestAddUserToGroupSequenceBuilder(TestCase):
             self.__set_group_id_from_code,
             self.__get_group_by_id,
             self.__validate_user_is_not_participant,
-            self.__add_current_user_to_group_command
+            self.__add_current_user_to_group_command,
+            self.__create_user_groups
         ])
 
 
