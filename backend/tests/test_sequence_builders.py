@@ -5,7 +5,7 @@ from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGrou
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand
+    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder
@@ -150,10 +150,12 @@ class TestDeleteFlatSequenceBuilder(TestCase):
 class TestAddUserToFlatSequenceBuilder(TestCase):
 
     def setUp(self):
+        self.__set_group_id_from_code: ISetGroupIdFromCodeCommand = Mock()
         self.__get_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__add_current_user_to_group_command: IAddCurrentUserToGroupCommand = Mock()
         self.__sut = AddUserToGroupSequenceBuilder(get_group_by_id=self.__get_group_by_id,
-                                                   add_current_user_to_group_command=self.__add_current_user_to_group_command)
+                                                   add_current_user_to_group_command=self.__add_current_user_to_group_command,
+                                                   set_group_id_from_code=self.__set_group_id_from_code)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -161,6 +163,7 @@ class TestAddUserToFlatSequenceBuilder(TestCase):
 
         # assert
         self.assertEqual(self.__sut.components, [
+            self.__set_group_id_from_code,
             self.__get_group_by_id,
             self.__add_current_user_to_group_command
         ])
