@@ -210,7 +210,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /groups/{group_id}/users
+            Path: /participant
             Method: post
             ApiId: !Ref FlatiniHttpApi
         DeleteFlat:
