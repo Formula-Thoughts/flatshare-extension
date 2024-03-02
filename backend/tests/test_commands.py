@@ -11,16 +11,17 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_FLAT_REQUEST, GROUP
+    CREATE_FLAT_REQUEST, GROUP, CODE
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
-    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand
+    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
+    GetCodeFromGroupIdCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error
-from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -732,3 +733,22 @@ class TestSetGroupIdFromCodeCommand(TestCase):
         # assert
         with self.subTest(msg="assert code required error is added"):
             self.assertEqual(context.error_capsules[0], code_required_error)
+
+
+class TestGetCodeFromGroupIdCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = GetCodeFromGroupIdCommand()
+
+    def test_run_when_code_provided(self):
+        # arrange
+        code = "YjlhNTg2NWItODgxYy00OTNhLWIyMzctNDRmOTZiODgyMGJm"
+        context = ApplicationContext(variables={
+            GROUP_ID: "b9a5865b-881c-493a-b237-44f96b8820bf"
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        self.assertEqual(context.response, GetGroupCodeResponse(code=code))

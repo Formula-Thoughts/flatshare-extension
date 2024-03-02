@@ -140,6 +140,10 @@ class ISetGroupIdFromCodeCommand(Command, Protocol):
     pass
 
 
+class IGetCodeFromGroupIdCommand(Command, Protocol):
+    pass
+
+
 class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

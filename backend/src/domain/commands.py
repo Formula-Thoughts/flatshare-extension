@@ -244,3 +244,9 @@ class SetGroupIdFromCodeCommand:
             context.set_var(name=GROUP_ID, value=str(group_id))
         except KeyError:
             context.error_capsules.append(code_required_error)
+
+
+class GetCodeFromGroupIdCommand:
+
+    def run(self, context: ApplicationContext):
+        ...
