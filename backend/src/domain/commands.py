@@ -256,3 +256,9 @@ class GetCodeFromGroupIdCommand:
         group_id = context.get_var(name=GROUP_ID, _type=str)
         code = base64.b64encode(group_id.encode('utf-8')).decode('utf-8')
         context.response = GetGroupCodeResponse(code=code)
+
+
+class ValidateUserIsNotParticipantCommand:
+
+    def run(self, context: ApplicationContext):
+        ...

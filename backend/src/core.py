@@ -144,6 +144,10 @@ class IGetCodeFromGroupIdCommand(Command, Protocol):
     pass
 
 
+class IValidateUserIsNotParticipantCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

@@ -17,10 +17,10 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
-    GetCodeFromGroupIdCommand
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error
+    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -770,3 +770,48 @@ class TestGetCodeFromGroupIdCommand(TestCase):
 
         # assert
         self.assertEqual(context.response, GetGroupCodeResponse(code=code))
+
+
+class TestValidateUserIsNotParticipantCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateUserIsNotParticipantCommand()
+
+    def test_run_when_user_is_not_part_of_group(self):
+        # arrange
+        auth_id = "1234"
+        group = AutoFixture().create(dto=Group)
+        context = ApplicationContext(variables={
+            GROUP: group
+        }, auth_user_id=auth_id)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="no errors added"):
+            self.assertEqual(len(context.error_capsules), 0)
+
+        # assert
+        with self.subTest(msg="assert validation var is set"):
+            self.assertEqual(context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool), False)
+
+    def test_run_when_user_is_already_part_of_group(self):
+        # arrange
+        auth_id = "1234"
+        group = AutoFixture().create(dto=Group)
+        group.participants.append(auth_id)
+        context = ApplicationContext(variables={
+            GROUP: group
+        }, auth_user_id=auth_id)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="1 error added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="1 error added"):
+            self.assertEqual(context.error_capsules[0], user_already_part_of_group_error)
