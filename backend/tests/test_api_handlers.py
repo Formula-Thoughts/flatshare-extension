@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 from src.web.handlers import CreateGroupApiHandler, FetchUserGroupsApiHandler, CreateFlatApiHandler, \
-    DeleteFlatApiHandler, AddCurrentUserToGroupApiHandler
+    DeleteFlatApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler
 
 
 class TestCreateGroupHandler(TestCase):
@@ -88,3 +88,20 @@ class TestAddCurrentUserToGroupApiHandler(TestCase):
         # assert
         with self.subTest(msg="route key matches"):
             self.assertEqual(route_key, "POST /participant")
+
+
+class TestGetCodeForGroupApiHandler(TestCase):
+
+    def test_route_key_matches_expected(self):
+        # arrange
+        sut = GetCodeForGroupApiHandler(sequence=Mock(),
+                                        command_pipeline=Mock(),
+                                        deserializer=Mock(),
+                                        logger=Mock())
+
+        # act
+        route_key = sut.route_key
+
+        # assert
+        with self.subTest(msg="route key matches"):
+            self.assertEqual(route_key, "GET /groups/{group_id}/code")
