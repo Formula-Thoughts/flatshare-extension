@@ -112,12 +112,12 @@ class DeleteFlatSequenceBuilder(FluentSequenceBuilder):
 class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self,
-                 get_user_group_by_id: IGetUserGroupByIdSequenceBuilder,
+                 get_group_by_id: IFetchGroupByIdCommand,
                  add_current_user_to_group_command: IAddCurrentUserToGroupCommand):
         self.__add_current_user_to_group_command = add_current_user_to_group_command
-        self.__get_user_group_by_id = get_user_group_by_id
+        self.__get_group_by_id = get_group_by_id
         super().__init__()
 
     def build(self):
-        self._add_sequence_builder(sequence_builder=self.__get_user_group_by_id)\
+        self._add_command(command=self.__get_group_by_id)\
             ._add_command(command=self.__add_current_user_to_group_command)

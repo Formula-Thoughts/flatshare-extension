@@ -150,9 +150,9 @@ class TestDeleteFlatSequenceBuilder(TestCase):
 class TestAddUserToFlatSequenceBuilder(TestCase):
 
     def setUp(self):
-        self.__get_user_group_by_id: IGetUserGroupByIdSequenceBuilder = Mock()
+        self.__get_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__add_current_user_to_group_command: IAddCurrentUserToGroupCommand = Mock()
-        self.__sut = AddUserToGroupSequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
+        self.__sut = AddUserToGroupSequenceBuilder(get_group_by_id=self.__get_group_by_id,
                                                    add_current_user_to_group_command=self.__add_current_user_to_group_command)
 
     def test_build_should_run_commands_in_order(self):
@@ -161,6 +161,6 @@ class TestAddUserToFlatSequenceBuilder(TestCase):
 
         # assert
         self.assertEqual(self.__sut.components, [
-            self.__get_user_group_by_id,
+            self.__get_group_by_id,
             self.__add_current_user_to_group_command
         ])
