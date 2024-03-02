@@ -36,7 +36,11 @@ class TestGroupRepo(S3TestCase):
 
 
     @mock_aws
-    @patch.dict(os.environ, {"S3_BUCKET_NAME": BUCKET}, clear=True)
+    @patch.dict(os.environ, {
+        "S3_BUCKET_NAME": BUCKET,
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
     def test_get_group_by_id(self):
         # arrange
         self._set_up_bucket()
@@ -51,7 +55,11 @@ class TestGroupRepo(S3TestCase):
         self.assertEqual(fetched_group, stored_group)
 
     @mock_aws
-    @patch.dict(os.environ, {"S3_BUCKET_NAME": BUCKET}, clear=True)
+    @patch.dict(os.environ, {
+        "S3_BUCKET_NAME": BUCKET,
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
     def test_get_group_by_id_when_not_found(self):
         # arrange
         self._set_up_bucket()
@@ -66,7 +74,11 @@ class TestUserGroupsRepo(S3TestCase):
 
 
     @mock_aws
-    @patch.dict(os.environ, {"S3_BUCKET_NAME": BUCKET}, clear=True)
+    @patch.dict(os.environ, {
+        "S3_BUCKET_NAME": BUCKET,
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
     def test_get_user_groups_by_auth_id(self):
         # arrange
         self._set_up_bucket()
@@ -81,7 +93,11 @@ class TestUserGroupsRepo(S3TestCase):
         self.assertEqual(fetched_user_groups, stored_user_groups)
 
     @mock_aws
-    @patch.dict(os.environ, {"S3_BUCKET_NAME": BUCKET}, clear=True)
+    @patch.dict(os.environ, {
+        "S3_BUCKET_NAME": BUCKET,
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
     def test_get_user_groups_by_auth_id_when_not_found(self):
         # arrange
         self._set_up_bucket()
