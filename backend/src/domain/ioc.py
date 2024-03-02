@@ -6,12 +6,13 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGrou
     IFetchUserGroupsCommand, IFetchUserGroupsSequenceBuilder, IValidateIfUserBelongsToAtLeastOneGroupCommand, \
     IValidateIfGroupBelongsToUser, IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, \
     ICreateFlatCommand, ICreateFlatSequenceBuilder, IValidateFlatRequestCommand, IDeleteFlatCommand, \
-    IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder
+    IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
+    ISetGroupIdFromCodeCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, CreateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
     FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, ValidateFlatRequestCommand, DeleteFlatCommand, \
-    AddCurrentUserToGroupCommand
+    AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder
@@ -32,6 +33,7 @@ def register_domain_dependencies(container: Container):
      .register(service=ISetFlatRequestCommand, implementation=SetFlatRequestCommand)
      .register(service=ICreateFlatCommand, implementation=CreateFlatCommand)
      .register(service=IDeleteFlatCommand, implementation=DeleteFlatCommand)
+     .register(service=ISetGroupIdFromCodeCommand, implementation=SetGroupIdFromCodeCommand)
      .register(service=IAddCurrentUserToGroupCommand, implementation=AddCurrentUserToGroupCommand)
      .register(service=IValidateFlatRequestCommand, implementation=ValidateFlatRequestCommand)
      .register(service=IValidateIfGroupBelongsToUser,
