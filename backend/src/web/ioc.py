@@ -4,7 +4,7 @@ from formula_thoughts_web.ioc import Container
 from src.domain.errors import InvalidGroupDataError, UserGroupsNotFoundError, GroupNotFoundError, FlatNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.web.handlers import CreateGroupApiHandler, FetchUserGroupsApiHandler, CreateFlatApiHandler, \
-    DeleteFlatApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler
+    DeleteFlatApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler
 
 
 def register_web_dependencies(container: Container):
@@ -14,6 +14,7 @@ def register_web_dependencies(container: Container):
      .register(service=ApiRequestHandler, implementation=DeleteFlatApiHandler)
      .register(service=ApiRequestHandler, implementation=AddCurrentUserToGroupApiHandler)
      .register(service=ApiRequestHandler, implementation=GetCodeForGroupApiHandler)
+     .register(service=ApiRequestHandler, implementation=GetUserGroupByIdApiHandler)
      .register_status_code_mappings(mappings={
          InvalidGroupDataError: 400,
          CreatedGroupResponse: 201,
