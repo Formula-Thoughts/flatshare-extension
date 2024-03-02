@@ -7,7 +7,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGrou
     IValidateIfGroupBelongsToUser, IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, \
     ICreateFlatCommand, ICreateFlatSequenceBuilder, IValidateFlatRequestCommand, IDeleteFlatCommand, \
     IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
-    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand
+    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, CreateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
@@ -15,7 +15,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, Cr
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
-    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder
+    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
 
 
 def register_domain_dependencies(container: Container):
@@ -50,4 +50,6 @@ def register_domain_dependencies(container: Container):
      .register(service=IDeleteFlatSequenceBuilder,
                implementation=DeleteFlatSequenceBuilder)
      .register(service=IAddUserToGroupSequenceBuilder,
-               implementation=AddUserToGroupSequenceBuilder))
+               implementation=AddUserToGroupSequenceBuilder)
+     .register(service=IGetCodeForGroupSequenceBuilder,
+               implementation=GetCodeForGroupSequenceBuilder))
