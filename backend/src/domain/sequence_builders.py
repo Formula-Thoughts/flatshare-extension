@@ -5,7 +5,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGrou
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
     IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
-    ISetGroupIdFromCodeCommand
+    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -125,3 +125,13 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
         self._add_command(command=self.__set_group_id_from_code)\
             ._add_command(command=self.__get_group_by_id)\
             ._add_command(command=self.__add_current_user_to_group_command)
+
+
+class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, get_code_from_group_id: IGetCodeFromGroupIdCommand):
+        super().__init__()
+        self.__get_code_from_group_id = get_code_from_group_id
+
+    def build(self):
+        pass

@@ -144,6 +144,10 @@ class IGetCodeFromGroupIdCommand(Command, Protocol):
     pass
 
 
+class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
 class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

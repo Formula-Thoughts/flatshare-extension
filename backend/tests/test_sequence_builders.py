@@ -5,10 +5,11 @@ from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGrou
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand
+    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
+    IGetCodeFromGroupIdCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
-    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder
+    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
 
 
 class TestCreateGroupAsyncSequenceBuilder(TestCase):
@@ -147,7 +148,7 @@ class TestDeleteFlatSequenceBuilder(TestCase):
         ])
 
 
-class TestAddUserToFlatSequenceBuilder(TestCase):
+class TestAddUserToGroupSequenceBuilder(TestCase):
 
     def setUp(self):
         self.__set_group_id_from_code: ISetGroupIdFromCodeCommand = Mock()
@@ -166,4 +167,20 @@ class TestAddUserToFlatSequenceBuilder(TestCase):
             self.__set_group_id_from_code,
             self.__get_group_by_id,
             self.__add_current_user_to_group_command
+        ])
+
+
+class TestGetCodeForGroupSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__get_code_from_group_id: IGetCodeFromGroupIdCommand = Mock()
+        self.__sut = GetCodeForGroupSequenceBuilder(get_code_from_group_id=self.__get_code_from_group_id)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__get_code_from_group_id
         ])
