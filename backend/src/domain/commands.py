@@ -12,7 +12,7 @@ from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error
-from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
@@ -253,4 +253,6 @@ class SetGroupIdFromCodeCommand:
 class GetCodeFromGroupIdCommand:
 
     def run(self, context: ApplicationContext):
-        ...
+        group_id = context.get_var(name=GROUP_ID, _type=str)
+        code = base64.b64encode(group_id.encode('utf-8')).decode('utf-8')
+        context.response = GetGroupCodeResponse(code=code)
