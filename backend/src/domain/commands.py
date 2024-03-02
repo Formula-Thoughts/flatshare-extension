@@ -13,7 +13,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
-from src.exceptions import UserGroupsNotFoundException
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
 class SetGroupRequestCommand:
@@ -150,9 +150,13 @@ class FetchGroupByIdCommand:
         self.__group_repo = group_repo
 
     def run(self, context: ApplicationContext):
-        group = self.__group_repo.get(_id=context.get_var(name=GROUP_ID, _type=str))
-        context.set_var(GROUP, group)
-        context.response = SingleGroupResponse(group=group)
+        group_id = context.get_var(name=GROUP_ID, _type=str)
+        try:
+            group = self.__group_repo.get(_id=group_id)
+            context.set_var(GROUP, group)
+            context.response = SingleGroupResponse(group=group)
+        except GroupNotFoundException:
+            context.error_capsules.append(GroupNotFoundError(message=f"group {group_id} not found"))
 
 
 class SetFlatRequestCommand:
