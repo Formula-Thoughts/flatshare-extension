@@ -7,12 +7,12 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGrou
     IValidateIfGroupBelongsToUser, IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, \
     ICreateFlatCommand, ICreateFlatSequenceBuilder, IValidateFlatRequestCommand, IDeleteFlatCommand, \
     IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
-    ISetGroupIdFromCodeCommand
+    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, CreateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
     FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, ValidateFlatRequestCommand, DeleteFlatCommand, \
-    AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand
+    AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder
@@ -34,6 +34,7 @@ def register_domain_dependencies(container: Container):
      .register(service=ICreateFlatCommand, implementation=CreateFlatCommand)
      .register(service=IDeleteFlatCommand, implementation=DeleteFlatCommand)
      .register(service=ISetGroupIdFromCodeCommand, implementation=SetGroupIdFromCodeCommand)
+     .register(service=IGetCodeFromGroupIdCommand, implementation=GetCodeFromGroupIdCommand)
      .register(service=IAddCurrentUserToGroupCommand, implementation=AddCurrentUserToGroupCommand)
      .register(service=IValidateFlatRequestCommand, implementation=ValidateFlatRequestCommand)
      .register(service=IValidateIfGroupBelongsToUser,
