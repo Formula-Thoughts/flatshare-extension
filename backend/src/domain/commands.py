@@ -11,7 +11,7 @@ from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS
     CREATE_FLAT_REQUEST, FLAT_ID, CODE
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error
+    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -261,4 +261,9 @@ class GetCodeFromGroupIdCommand:
 class ValidateUserIsNotParticipantCommand:
 
     def run(self, context: ApplicationContext):
-        ...
+        group = context.get_var(name=GROUP, _type=Group)
+        if context.auth_user_id in group.participants:
+            context.error_capsules.append(user_already_part_of_group_error)
+            return
+
+        context.set_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, value=False)
