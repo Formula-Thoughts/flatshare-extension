@@ -135,8 +135,10 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
 
 class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
 
-    def __init__(self, get_code_from_group_id: IGetCodeFromGroupIdCommand):
+    def __init__(self, get_group_by_id_sequence: IGetUserGroupByIdSequenceBuilder,
+                 get_code_from_group_id: IGetCodeFromGroupIdCommand):
         super().__init__()
+        self.__get_group_by_id_sequence = get_group_by_id_sequence
         self.__get_code_from_group_id = get_code_from_group_id
 
     def build(self):

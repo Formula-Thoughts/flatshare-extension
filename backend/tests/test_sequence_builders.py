@@ -180,7 +180,9 @@ class TestGetCodeForGroupSequenceBuilder(TestCase):
 
     def setUp(self):
         self.__get_code_from_group_id: IGetCodeFromGroupIdCommand = Mock()
-        self.__sut = GetCodeForGroupSequenceBuilder(get_code_from_group_id=self.__get_code_from_group_id)
+        self.__get_group_by_id_sequence: IGetUserGroupByIdSequenceBuilder = Mock()
+        self.__sut = GetCodeForGroupSequenceBuilder(get_code_from_group_id=self.__get_code_from_group_id,
+                                                    get_group_by_id_sequence=self.__get_group_by_id_sequence)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -188,5 +190,6 @@ class TestGetCodeForGroupSequenceBuilder(TestCase):
 
         # assert
         self.assertEqual(self.__sut.components, [
+            self.__get_group_by_id_sequence,
             self.__get_code_from_group_id
         ])
