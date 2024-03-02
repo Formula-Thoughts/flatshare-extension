@@ -16,10 +16,10 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
-    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand
+    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group
+    current_user_already_added_to_group, code_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
 from src.exceptions import UserGroupsNotFoundException
 
@@ -698,3 +698,37 @@ class TestAddCurrentUserToGroupCommand(TestCase):
         # assert
         with self.subTest(msg="assert user already added error is added"):
             self.assertEqual(context.error_capsules[0], current_user_already_added_to_group)
+
+
+class TestSetGroupIdFromCodeCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = SetGroupIdFromCodeCommand()
+
+    def test_run_when_code_provided(self):
+        # arrange
+        group_id = "b9a5865b-881c-493a-b237-44f96b8820bf"
+        context = ApplicationContext(variables={
+            "code": "YjlhNTg2NWItODgxYy00OTNhLWIyMzctNDRmOTZiODgyMGJm"
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        self.assertEqual(context.get_var(name=GROUP_ID, _type=str), group_id)
+
+    def test_run_when_code_not_provided(self):
+        # arrange
+        context = ApplicationContext(variables={})
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert 1 error is added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="assert code required error is added"):
+            self.assertEqual(context.error_capsules[0], code_required_error)

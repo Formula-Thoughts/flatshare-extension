@@ -26,3 +26,5 @@ invalid_group_locations_error = InvalidGroupDataError(message="a group must have
 invalid_flat_price_error = InvalidGroupDataError(message="price has to be less than the group's price limit")
 
 invalid_flat_location_error = InvalidGroupDataError(message="flat's location is not accepted by the group")
+
+code_required_error = InvalidGroupDataError(message="code parameter is required from group invite")
