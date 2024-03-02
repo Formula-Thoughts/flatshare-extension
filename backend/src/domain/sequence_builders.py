@@ -134,4 +134,4 @@ class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
         self.__get_code_from_group_id = get_code_from_group_id
 
     def build(self):
-        pass
+        self._add_command(command=self.__get_code_from_group_id)
