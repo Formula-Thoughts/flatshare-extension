@@ -64,7 +64,7 @@ class AddCurrentUserToGroupApiHandler(ApiRequestHandlerBase):
                  command_pipeline: TopLevelSequenceRunner,
                  deserializer: Deserializer,
                  logger: Logger):
-        super().__init__(route_key='POST /groups/{group_id}/users',
+        super().__init__(route_key='POST /participant',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,
