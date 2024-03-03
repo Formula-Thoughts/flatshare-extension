@@ -136,6 +136,22 @@ class IAddCurrentUserToGroupCommand(Command, Protocol):
     pass
 
 
+class ISetGroupIdFromCodeCommand(Command, Protocol):
+    pass
+
+
+class IGetCodeFromGroupIdCommand(Command, Protocol):
+    pass
+
+
+class IValidateUserIsNotParticipantCommand(Command, Protocol):
+    pass
+
+
+class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
 class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

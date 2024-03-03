@@ -5,10 +5,11 @@ from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGrou
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand
+    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
+    IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand
 from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
-    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder
+    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
 
 
 class TestCreateGroupAsyncSequenceBuilder(TestCase):
@@ -147,13 +148,19 @@ class TestDeleteFlatSequenceBuilder(TestCase):
         ])
 
 
-class TestAddUserToFlatSequenceBuilder(TestCase):
+class TestAddUserToGroupSequenceBuilder(TestCase):
 
     def setUp(self):
-        self.__get_user_group_by_id: IGetUserGroupByIdSequenceBuilder = Mock()
+        self.__set_group_id_from_code: ISetGroupIdFromCodeCommand = Mock()
+        self.__get_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__add_current_user_to_group_command: IAddCurrentUserToGroupCommand = Mock()
-        self.__sut = AddUserToGroupSequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
-                                                   add_current_user_to_group_command=self.__add_current_user_to_group_command)
+        self.__validate_user_is_not_participant: IValidateUserIsNotParticipantCommand = Mock()
+        self.__create_user_groups: ICreateUserGroupsAsyncCommand = Mock()
+        self.__sut = AddUserToGroupSequenceBuilder(get_group_by_id=self.__get_group_by_id,
+                                                   add_current_user_to_group_command=self.__add_current_user_to_group_command,
+                                                   set_group_id_from_code=self.__set_group_id_from_code,
+                                                   validate_user_is_not_participant=self.__validate_user_is_not_participant,
+                                                   create_user_groups=self.__create_user_groups)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -161,6 +168,28 @@ class TestAddUserToFlatSequenceBuilder(TestCase):
 
         # assert
         self.assertEqual(self.__sut.components, [
-            self.__get_user_group_by_id,
-            self.__add_current_user_to_group_command
+            self.__set_group_id_from_code,
+            self.__get_group_by_id,
+            self.__validate_user_is_not_participant,
+            self.__add_current_user_to_group_command,
+            self.__create_user_groups
+        ])
+
+
+class TestGetCodeForGroupSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__get_code_from_group_id: IGetCodeFromGroupIdCommand = Mock()
+        self.__get_group_by_id_sequence: IGetUserGroupByIdSequenceBuilder = Mock()
+        self.__sut = GetCodeForGroupSequenceBuilder(get_code_from_group_id=self.__get_code_from_group_id,
+                                                    get_group_by_id_sequence=self.__get_group_by_id_sequence)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__get_group_by_id_sequence,
+            self.__get_code_from_group_id
         ])

@@ -1,3 +1,4 @@
+import base64
 import typing
 import uuid
 
@@ -7,12 +8,12 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
-    CREATE_FLAT_REQUEST, FLAT_ID
+    CREATE_FLAT_REQUEST, FLAT_ID, CODE
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group
-from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
-from src.exceptions import UserGroupsNotFoundException
+    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
 class SetGroupRequestCommand:
@@ -149,9 +150,13 @@ class FetchGroupByIdCommand:
         self.__group_repo = group_repo
 
     def run(self, context: ApplicationContext):
-        group = self.__group_repo.get(_id=context.get_var(name=GROUP_ID, _type=str))
-        context.set_var(GROUP, group)
-        context.response = SingleGroupResponse(group=group)
+        group_id = context.get_var(name=GROUP_ID, _type=str)
+        try:
+            group = self.__group_repo.get(_id=group_id)
+            context.set_var(GROUP, group)
+            context.response = SingleGroupResponse(group=group)
+        except GroupNotFoundException:
+            context.error_capsules.append(GroupNotFoundError(message=f"group {group_id} not found"))
 
 
 class SetFlatRequestCommand:
@@ -232,3 +237,33 @@ class AddCurrentUserToGroupCommand:
         group.participants.append(context.auth_user_id)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
+
+
+class SetGroupIdFromCodeCommand:
+
+    def run(self, context: ApplicationContext):
+        try:
+            code = context.get_var(name=CODE, _type=str)
+            group_id = base64.b64decode(code).decode('utf-8')
+            context.set_var(name=GROUP_ID, value=str(group_id))
+        except KeyError:
+            context.error_capsules.append(code_required_error)
+
+
+class GetCodeFromGroupIdCommand:
+
+    def run(self, context: ApplicationContext):
+        group_id = context.get_var(name=GROUP_ID, _type=str)
+        code = base64.b64encode(group_id.encode('utf-8')).decode('utf-8')
+        context.response = GetGroupCodeResponse(code=code)
+
+
+class ValidateUserIsNotParticipantCommand:
+
+    def run(self, context: ApplicationContext):
+        group = context.get_var(name=GROUP, _type=Group)
+        if context.auth_user_id in group.participants:
+            context.error_capsules.append(user_already_part_of_group_error)
+            return
+
+        context.set_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, value=False)

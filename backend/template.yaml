@@ -178,7 +178,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /groups/{group_id}/invite-code
+            Path: /groups/{group_id}/code
             Method: get
             ApiId: !Ref FlatiniHttpApi
         GetUserGroups:
@@ -187,6 +187,14 @@ Resources:
             Auth:
               Authorizer: UserAuth
             Path: /groups
+            Method: get
+            ApiId: !Ref FlatiniHttpApi
+        GetUserGroupById:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: UserAuth
+            Path: /groups/{group_id}
             Method: get
             ApiId: !Ref FlatiniHttpApi
         CreateGroup:
@@ -210,7 +218,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /groups/{group_id}/users
+            Path: /participant
             Method: post
             ApiId: !Ref FlatiniHttpApi
         DeleteFlat:

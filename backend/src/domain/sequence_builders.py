@@ -4,7 +4,8 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGrou
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand
+    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
+    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand
 
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -112,12 +113,34 @@ class DeleteFlatSequenceBuilder(FluentSequenceBuilder):
 class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self,
-                 get_user_group_by_id: IGetUserGroupByIdSequenceBuilder,
-                 add_current_user_to_group_command: IAddCurrentUserToGroupCommand):
+                 set_group_id_from_code: ISetGroupIdFromCodeCommand,
+                 get_group_by_id: IFetchGroupByIdCommand,
+                 validate_user_is_not_participant: IValidateUserIsNotParticipantCommand,
+                 add_current_user_to_group_command: IAddCurrentUserToGroupCommand,
+                 create_user_groups: ICreateUserGroupsAsyncCommand):
+        self.__create_user_groups = create_user_groups
+        self.__validate_user_is_not_participant = validate_user_is_not_participant
+        self.__set_group_id_from_code = set_group_id_from_code
         self.__add_current_user_to_group_command = add_current_user_to_group_command
-        self.__get_user_group_by_id = get_user_group_by_id
+        self.__get_group_by_id = get_group_by_id
         super().__init__()
 
     def build(self):
-        self._add_sequence_builder(sequence_builder=self.__get_user_group_by_id)\
-            ._add_command(command=self.__add_current_user_to_group_command)
+        self._add_command(command=self.__set_group_id_from_code)\
+            ._add_command(command=self.__get_group_by_id)\
+            ._add_command(command=self.__validate_user_is_not_participant)\
+            ._add_command(command=self.__add_current_user_to_group_command)\
+            ._add_command(command=self.__create_user_groups)
+
+
+class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, get_group_by_id_sequence: IGetUserGroupByIdSequenceBuilder,
+                 get_code_from_group_id: IGetCodeFromGroupIdCommand):
+        super().__init__()
+        self.__get_group_by_id_sequence = get_group_by_id_sequence
+        self.__get_code_from_group_id = get_code_from_group_id
+
+    def build(self):
+        self._add_sequence_builder(sequence_builder=self.__get_group_by_id_sequence)\
+            ._add_command(command=self.__get_code_from_group_id)

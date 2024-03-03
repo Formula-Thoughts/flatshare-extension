@@ -11,17 +11,18 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_FLAT_REQUEST, GROUP
+    CREATE_FLAT_REQUEST, GROUP, CODE
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
-    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand
+    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group
-from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse
-from src.exceptions import UserGroupsNotFoundException
+    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 
@@ -448,6 +449,24 @@ class TestFetchGroupByIdCommand(TestCase):
         with self.subTest(msg="group was set as response"):
             self.assertEqual(context.response, SingleGroupResponse(group=group))
 
+    def test_run_if_group_not_found(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        group_id = "1234"
+        context = ApplicationContext(variables={GROUP_ID: group_id})
+        self.__group_repo.get = MagicMock(side_effect=GroupNotFoundException())
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="single error was added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="group was set as response"):
+            self.assertEqual(type(context.error_capsules[0]), GroupNotFoundError)
+
 
 class TestSetFlatRequestCommand(TestCase):
 
@@ -698,3 +717,101 @@ class TestAddCurrentUserToGroupCommand(TestCase):
         # assert
         with self.subTest(msg="assert user already added error is added"):
             self.assertEqual(context.error_capsules[0], current_user_already_added_to_group)
+
+
+class TestSetGroupIdFromCodeCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = SetGroupIdFromCodeCommand()
+
+    def test_run_when_code_provided(self):
+        # arrange
+        group_id = "b9a5865b-881c-493a-b237-44f96b8820bf"
+        context = ApplicationContext(variables={
+            "code": "YjlhNTg2NWItODgxYy00OTNhLWIyMzctNDRmOTZiODgyMGJm"
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        self.assertEqual(context.get_var(name=GROUP_ID, _type=str), group_id)
+
+    def test_run_when_code_not_provided(self):
+        # arrange
+        context = ApplicationContext(variables={})
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert 1 error is added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="assert code required error is added"):
+            self.assertEqual(context.error_capsules[0], code_required_error)
+
+
+class TestGetCodeFromGroupIdCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = GetCodeFromGroupIdCommand()
+
+    def test_run_when_code_provided(self):
+        # arrange
+        code = "YjlhNTg2NWItODgxYy00OTNhLWIyMzctNDRmOTZiODgyMGJm"
+        context = ApplicationContext(variables={
+            GROUP_ID: "b9a5865b-881c-493a-b237-44f96b8820bf"
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        self.assertEqual(context.response, GetGroupCodeResponse(code=code))
+
+
+class TestValidateUserIsNotParticipantCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateUserIsNotParticipantCommand()
+
+    def test_run_when_user_is_not_part_of_group(self):
+        # arrange
+        auth_id = "1234"
+        group = AutoFixture().create(dto=Group)
+        context = ApplicationContext(variables={
+            GROUP: group
+        }, auth_user_id=auth_id)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="no errors added"):
+            self.assertEqual(len(context.error_capsules), 0)
+
+        # assert
+        with self.subTest(msg="assert validation var is set"):
+            self.assertEqual(context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool), False)
+
+    def test_run_when_user_is_already_part_of_group(self):
+        # arrange
+        auth_id = "1234"
+        group = AutoFixture().create(dto=Group)
+        group.participants.append(auth_id)
+        context = ApplicationContext(variables={
+            GROUP: group
+        }, auth_user_id=auth_id)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="1 error added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="1 error added"):
+            self.assertEqual(context.error_capsules[0], user_already_part_of_group_error)
