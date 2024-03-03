@@ -4,7 +4,7 @@ import { Flats } from "./Flats";
 import { useProvider } from "./context/AppProvider";
 import { useEffect } from "react";
 import Settings from "./views/Settings";
-import Invitations from "./views/Invitations";
+import Participants from "./views/Participants";
 import Auth from "./views/Auth";
 import CreateGroup from "./views/CreateGroup";
 import { flatiniAuthWebsite } from "./utils/constants";
@@ -119,7 +119,7 @@ function App() {
           <Route path="/" element={<Flats />} />
           <Route path="/Settings" element={<Settings />} />
           <Route path="/FlatView" element={<FlatView />} />
-          <Route path="/Invitations" element={<Invitations />} />
+          <Route path="/Participants" element={<Participants />} />
         </Routes>
       ) : (
         <></>

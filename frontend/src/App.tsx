@@ -10,31 +10,6 @@ import {
 import { Hub } from "aws-amplify/utils";
 import { useEffect, useState } from "react";
 
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      loginWith: {
-        oauth: {
-          scopes: ["email", "openid", "profile"],
-          redirectSignIn: [
-            "https://localhost:3000",
-            "https://flatini.formulathoughts.com",
-          ],
-          redirectSignOut: [
-            "https://localhost:3000",
-            "https://localhost:3000/",
-            "https://flatini.formulathoughts.com",
-          ],
-          responseType: "code",
-          domain: "flatini.auth.eu-west-2.amazoncognito.com/",
-        },
-      },
-      userPoolId: "eu-west-2_U2HUbgIZK",
-      userPoolClientId: "95rl77bq6dosrgerjfkgm12f5",
-    },
-  },
-});
-
 const SocialLogin = () => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [error, setError] = useState<unknown>(null);

@@ -1,5 +1,13 @@
 import React, { createContext, useState, useContext } from "react";
-import { _getGroupById } from "../utils/resources";
+import {
+  _createGroup,
+  _getGroupById,
+  _getGroupShareCode,
+  _getUserGroup,
+} from "../utils/resources";
+import { group } from "console";
+import { getObjectByKeyPart } from "../utils/util";
+import { AxiosRequestHeaders } from "axios";
 
 interface AppContextType {
   activeUrl: any;
@@ -19,6 +27,10 @@ interface AppContextType {
   userHasGroup: any;
   setUserHasGroup: any;
   getGroup: any;
+  getGroupShareCode: any;
+  participants: any;
+  setParticipants: any;
+  createGroup: any;
 }
 
 export type Group = {
@@ -52,6 +64,7 @@ const FlatProvider = (props: Props) => {
   const [isGroupLoading, setIsGroupLoading] = useState<boolean>(true);
   const [userHasGroup, setUserHasGroup] = useState<boolean>(false);
   const [flats, setFlats] = useState<Flat[]>([]);
+  const [participants, setParticipants] = useState<string[]>([]);
   const [requirements, setRequirements] = useState<{
     price: number;
     location: string[];
@@ -89,27 +102,62 @@ const FlatProvider = (props: Props) => {
 
   // Gets authenticated user
   const getAuthenticatedUser = () =>
-    localStorage.getItem("flatini-auth") || null;
+    (localStorage.getItem("flatini-auth") as string) || null;
 
-  const getGroup = () => {
+  const getGroup = async () => {
     // Get group from the API
-    const group = {
-      flats: [],
-      participants: [],
-      priceLimit: 1000,
-      location: "Hammersmith, London",
-    };
+    // const group = {
+    //   flats: [],
+    //   participants: ["Xav", "Dom"],
+    //   priceLimit: 1000,
+    //   location: "Hammersmith, London",
+    // };
 
-    if (group) {
-      // Sets state dependencies
-      setFlats(group.flats);
-      setUserHasGroup(true);
-      setRequirements({ price: group.priceLimit, location: [group.location] });
+    try {
+      const group = await _getUserGroup(
+        getObjectByKeyPart(
+          "accessToken",
+          JSON.parse(JSON.parse(getAuthenticatedUser() as string))
+        )
+      );
+
+      if (group) {
+        // Sets state dependencies
+        setFlats(group.flats);
+        setParticipants(group.participants);
+        setUserHasGroup(true);
+        setRequirements({
+          price: group.priceLimit,
+          location: [group.location],
+        });
+        setIsGroupLoading(false);
+        return;
+      }
+    } catch (err) {
+      if ((err as AxiosRequestHeaders)?.response?.status === 404) {
+        setUserHasGroup(false);
+      }
       setIsGroupLoading(false);
-      return;
     }
-    setUserHasGroup(false);
-    setIsGroupLoading(false);
+  };
+
+  const createGroup = async () => {
+    const data = await _createGroup(
+      getObjectByKeyPart(
+        "accessToken",
+        JSON.parse(JSON.parse(getAuthenticatedUser() as string))
+      )
+    );
+
+    console.log(data);
+
+    return data;
+  };
+
+  const getGroupShareCode = async () => {
+    // should be getting group id from state
+    // return await _getGroupShareCode(group.id);
+    return "code test";
   };
 
   /**
@@ -152,6 +200,10 @@ const FlatProvider = (props: Props) => {
         userHasGroup,
         setUserHasGroup,
         getGroup,
+        getGroupShareCode,
+        participants,
+        setParticipants,
+        createGroup,
       }}
     >
       {props.children}

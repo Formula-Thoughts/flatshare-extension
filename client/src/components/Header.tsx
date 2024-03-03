@@ -25,8 +25,8 @@ const Header = () => {
         <div onClick={() => navigate("/Settings")}>
           <Text type={TextTypes.paragraph}>Settings</Text>
         </div>
-        <div onClick={() => navigate("/Invitations")}>
-          <Text type={TextTypes.paragraph}>Invitations</Text>
+        <div onClick={() => navigate("/Participants")}>
+          <Text type={TextTypes.paragraph}>Participants</Text>
         </div>
       </NavBar>
     </Wrapper>

@@ -29,8 +29,8 @@ Amplify.configure({
           domain: "flatini.auth.eu-west-2.amazoncognito.com/",
         },
       },
-      userPoolId: "eu-west-2_U2HUbgIZK",
-      userPoolClientId: "95rl77bq6dosrgerjfkgm12f5",
+      userPoolId: "eu-west-2_bnEvX4XMD",
+      userPoolClientId: "7ucjfuink7rbnmqeuapl20ccd8",
     },
   },
 });
