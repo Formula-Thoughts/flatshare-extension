@@ -26,6 +26,7 @@ class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
         self._add_command(command=self.__set_group_request)\
             ._add_command(command=self.__validate_group)\
             ._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command)\
+            ._add_command(command=self.__validate_if_group_belongs_to_user)\
             ._add_command(command=self.__save_group_async) \
 
 
