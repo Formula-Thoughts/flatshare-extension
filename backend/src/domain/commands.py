@@ -10,7 +10,7 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_FLAT_REQUEST, FLAT_ID, CODE
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
+    invalid_group_locations_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
@@ -199,10 +199,10 @@ class ValidateFlatRequestCommand:
             context.error_capsules.append(invalid_price_error)
 
         if create_flat_request.price > group.price_limit:
-            context.error_capsules.append(invalid_flat_price_error)
+            context.error_capsules.append(invalid_group_locations_error)
 
         if create_flat_request.location not in group.locations:
-            context.error_capsules.append(invalid_flat_location_error)
+            context.error_capsules.append(invalid_group_locations_error)
 
 
 class DeleteFlatCommand:

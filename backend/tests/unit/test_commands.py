@@ -19,8 +19,9 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
+    invalid_group_locations_error, FlatNotFoundError, \
+    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
+    flat_price_required_error, flat_url_required_error, flat_location_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -537,12 +538,9 @@ class TestValidateFlatRequestCommand(TestCase):
 
     def test_run_when_valid(self):
         # arrange
-        group = AutoFixture().create(dto=Group)
-        group.locations = ["UK", "Sydney"]
-        group.price_limit = 4
+        flat_request = AutoFixture().create(dto=CreateFlatRequest)
         context = ApplicationContext(variables={
-            GROUP: group,
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=3, location="Sydney")
+            CREATE_FLAT_REQUEST: flat_request
         })
 
         # act
@@ -553,20 +551,17 @@ class TestValidateFlatRequestCommand(TestCase):
             self.assertEqual(len(context.error_capsules), 0)
 
     @data(
-        [5, "UK", 1, invalid_flat_price_error],
-        [100, "UK", 1, invalid_flat_price_error],
-        [-14, "UK", 1, invalid_price_error],
-        [3, "Memphis", 1, invalid_flat_location_error],
-        [-1, "Tennessee", 2, invalid_price_error])
+        [None, "https://test.com", "UK", 1, flat_price_required_error],
+        [100.20, None, "UK", 1, flat_url_required_error],
+        [100.20, "https://test.com", None, 1, flat_location_required_error],
+        [-10, "https://test.com", "UK", 1, flat_location_required_error],
+        [None, "https://test.com", None, 2, flat_price_required_error],
+        [None, None, None, 3, flat_price_required_error])
     def test_run_when_invalid(self, data):
         # arrange
-        [price, location, errors_count, error] = data
-        group = AutoFixture().create(dto=Group)
-        group.locations = ["UK", "Sydney"]
-        group.price_limit = 4
+        [price, url, location, errors_count, error] = data
         context = ApplicationContext(variables={
-            GROUP: group,
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, location=location)
+            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, url=url, location=location)
         })
 
         # act
