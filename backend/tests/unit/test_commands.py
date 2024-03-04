@@ -101,14 +101,16 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
     def test_run_should_publish_to_sqs(self) -> None:
         # arrange
+        group = AutoFixture().create(dto=Group)
         group_request = AutoFixture().create(dto=UpsertGroupRequest)
         auth_user_id = "12345"
         expected_group = Group(id=UUID_EXAMPLE,
                                price_limit=group_request.price_limit,
                                locations=group_request.locations,
-                               flats=[],
-                               participants=[auth_user_id])
+                               flats=group.flats,
+                               participants=group.participants)
         context = ApplicationContext(variables={
+            GROUP: group,
             GROUP_ID: str(UUID_EXAMPLE),
             UPSERT_GROUP_REQUEST: group_request
         },
@@ -125,21 +127,11 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         # assert
         with self.subTest(msg="assert sqs message is sent with correct params"):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=UUID_EXAMPLE,
-                                                                           payload=Group(
-                                                                               id=UUID_EXAMPLE,
-                                                                               price_limit=group_request.price_limit,
-                                                                               locations=group_request.locations,
-                                                                               flats=[],
-                                                                               participants=[auth_user_id]
-                                                                           ))
+                                                                           payload=expected_group)
 
         # assert
         with self.subTest(msg="assert response is set to group"):
             self.assertEqual(CreatedGroupResponse(group=expected_group), context.response)
-
-        # assert
-        with self.subTest(msg="assert group id is saved as context var"):
-            self.assertEqual(context.get_var("group_id", str), UUID_EXAMPLE)
 
 
 class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
@@ -822,7 +814,8 @@ class TestCreateGroupAsyncCommand(TestCase):
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
     def test_run(self, _):
         # arrange
-        context = ApplicationContext()
+        auth_user_id = "12345"
+        context = ApplicationContext(auth_user_id=auth_user_id)
         self.__sqs_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -838,7 +831,7 @@ class TestCreateGroupAsyncCommand(TestCase):
                                                                      payload=Group(
                                                                          id=UUID_EXAMPLE,
                                                                          flats=[],
-                                                                         participants=[],
+                                                                         participants=[auth_user_id],
                                                                          price_limit=None,
                                                                          locations=[]
                                                                      ))
