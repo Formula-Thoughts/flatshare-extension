@@ -88,7 +88,7 @@ class TestAddCurrentUserToGroupApiHandler(TestCase):
 
         # assert
         with self.subTest(msg="route key matches"):
-            self.assertEqual(route_key, "POST /participant")
+            self.assertEqual(route_key, "POST /participants")
 
 
 class TestGetCodeForGroupApiHandler(TestCase):
