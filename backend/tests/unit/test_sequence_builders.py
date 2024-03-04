@@ -18,12 +18,12 @@ class TestCreateGroupAsyncSequenceBuilder(TestCase):
         self.__save: IUpdateGroupAsyncCommand = Mock()
         self.__build_request: ISetGroupRequestCommand = Mock()
         self.__validate_request: IValidateGroupCommand = Mock()
-        self.__create_user_group: ICreateUserGroupsAsyncCommand = Mock()
+        self.__validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser = Mock()
         self.__validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand = Mock()
         self.__sut = UpdateGroupSequenceBuilder(set_group_request=self.__build_request,
                                                 validate_group=self.__validate_request,
                                                 save_group_async=self.__save,
-                                                create_user_group_async=self.__create_user_group,
+                                                validate_if_group_belongs_to_user=self.__validate_if_group_belongs_to_user,
                                                 validate_if_user_belongs_to_at_least_one_group_command=self.__validate_if_user_belongs_to_at_least_one_group_command)
 
     def test_build_should_run_commands_in_order(self):
@@ -34,8 +34,8 @@ class TestCreateGroupAsyncSequenceBuilder(TestCase):
         self.assertEqual(self.__sut.components, [self.__build_request,
                                                  self.__validate_request,
                                                  self.__validate_if_user_belongs_to_at_least_one_group_command,
-                                                 self.__save,
-                                                 self.__create_user_group])
+                                                 self.__validate_if_group_belongs_to_user,
+                                                 self.__save])
 
 
 class TestUpsertGroupBackgroundSequenceBuilder(TestCase):
