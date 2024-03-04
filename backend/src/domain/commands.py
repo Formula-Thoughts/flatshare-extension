@@ -56,15 +56,14 @@ class UpdateGroupAsyncCommand:
 
     def run(self, context: ApplicationContext) -> None:
         group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
-        group_id = context.get_var(GROUP_ID, str)
-        group = Group(id=group_id,
-                      flats=[],
-                      participants=[context.auth_user_id],
+        group_from_store = context.get_var(GROUP, Group)
+        group = Group(id=group_from_store.id,
+                      flats=group_from_store.flats,
+                      participants=group_from_store.participants,
                       price_limit=group_request.price_limit,
                       locations=group_request.locations)
         context.response = CreatedGroupResponse(group=group)
-        context.set_var(GROUP_ID, group_id)
-        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id, payload=group)
+        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_from_store.id, payload=group)
 
 
 class FetchUserGroupsCommand:

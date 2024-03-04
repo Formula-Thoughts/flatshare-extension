@@ -104,14 +104,13 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         group = AutoFixture().create(dto=Group)
         group_request = AutoFixture().create(dto=UpsertGroupRequest)
         auth_user_id = "12345"
-        expected_group = Group(id=UUID_EXAMPLE,
+        expected_group = Group(id=group.id,
                                price_limit=group_request.price_limit,
                                locations=group_request.locations,
                                flats=group.flats,
                                participants=group.participants)
         context = ApplicationContext(variables={
             GROUP: group,
-            GROUP_ID: str(UUID_EXAMPLE),
             UPSERT_GROUP_REQUEST: group_request
         },
             auth_user_id=auth_user_id)
@@ -126,7 +125,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert sqs message is sent with correct params"):
-            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=UUID_EXAMPLE,
+            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=group.id,
                                                                            payload=expected_group)
 
         # assert
