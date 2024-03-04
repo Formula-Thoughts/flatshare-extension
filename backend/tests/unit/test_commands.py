@@ -108,7 +108,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                flats=[],
                                participants=[auth_user_id])
         context = ApplicationContext(variables={
-            GROUP_ID: str(UUID),
+            GROUP_ID: str(UUID_EXAMPLE),
             UPSERT_GROUP_REQUEST: group_request
         },
             auth_user_id=auth_user_id)

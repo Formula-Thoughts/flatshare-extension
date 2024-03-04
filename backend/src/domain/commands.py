@@ -54,7 +54,7 @@ class UpdateGroupAsyncCommand:
 
     def run(self, context: ApplicationContext) -> None:
         group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
-        group_id = str(uuid.uuid4())
+        group_id = context.get_var(GROUP_ID, str)
         group = Group(id=group_id,
                       flats=[],
                       participants=[context.auth_user_id],
