@@ -161,4 +161,6 @@ class CreateGroupSequenceBuilder(FluentSequenceBuilder):
         self.__validate_user_belongs_to_one_group = validate_user_belongs_to_one_group
 
     def build(self):
-        pass
+        self._add_command(command=self.__validate_user_belongs_to_one_group)\
+            ._add_command(command=self.__create_group)\
+            ._add_command(command=self.__create_user_groups)
