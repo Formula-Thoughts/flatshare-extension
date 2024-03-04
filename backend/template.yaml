@@ -226,7 +226,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /participant
+            Path: /participants
             Method: post
             ApiId: !Ref FlatiniHttpApi
         DeleteFlat:
