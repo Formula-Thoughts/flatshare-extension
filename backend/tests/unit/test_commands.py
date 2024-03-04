@@ -838,3 +838,6 @@ class TestCreateGroupAsyncCommand(TestCase):
 
         with self.subTest(msg="assert response was set to group"):
             self.assertEqual(context.response, CreatedGroupResponse(group=expected_group))
+
+        with self.subTest(msg="assert group id var was set"):
+            self.assertEqual(context.get_var(name=GROUP_ID, _type=str), UUID_EXAMPLE)
