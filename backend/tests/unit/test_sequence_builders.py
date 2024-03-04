@@ -6,10 +6,11 @@ from src.core import IValidateGroupCommand, ISetGroupRequestCommand, IUpdateGrou
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
     IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
-    IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand
+    IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
-    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
+    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
+    CreateGroupSequenceBuilder
 
 
 class TestUpdateGroupAsyncSequenceBuilder(TestCase):
@@ -195,4 +196,26 @@ class TestGetCodeForGroupSequenceBuilder(TestCase):
         self.assertEqual(self.__sut.components, [
             self.__get_group_by_id_sequence,
             self.__get_code_from_group_id
+        ])
+
+
+class TestCreateGroupSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__validate_user_belongs_to_one_group: IValidateIfUserBelongsToAtLeastOneGroupCommand = Mock()
+        self.__create_user_groups: ICreateUserGroupsAsyncCommand = Mock()
+        self.__create_group: ICreateGroupAsyncCommand = Mock()
+        self.__sut = CreateGroupSequenceBuilder(validate_user_belongs_to_one_group=self.__validate_user_belongs_to_one_group,
+                                                create_user_groups=self.__create_user_groups,
+                                                create_group=self.__create_group)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__validate_user_belongs_to_one_group,
+            self.__create_group,
+            self.__create_user_groups
         ])

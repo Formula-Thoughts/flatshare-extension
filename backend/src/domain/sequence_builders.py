@@ -5,7 +5,8 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
     IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
-    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand
+    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
+    ICreateGroupAsyncCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -147,3 +148,17 @@ class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
     def build(self):
         self._add_sequence_builder(sequence_builder=self.__get_group_by_id_sequence)\
             ._add_command(command=self.__get_code_from_group_id)
+
+
+class CreateGroupSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, validate_user_belongs_to_one_group: IValidateIfUserBelongsToAtLeastOneGroupCommand,
+                 create_user_groups: ICreateUserGroupsAsyncCommand,
+                 create_group: ICreateGroupAsyncCommand):
+        super().__init__()
+        self.__create_group = create_group
+        self.__create_user_groups = create_user_groups
+        self.__validate_user_belongs_to_one_group = validate_user_belongs_to_one_group
+
+    def build(self):
+        pass

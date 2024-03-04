@@ -160,6 +160,10 @@ class IUpdateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
+class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
 class IFetchUserGroupsSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
