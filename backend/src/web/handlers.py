@@ -4,7 +4,7 @@ from formula_thoughts_web.web import ApiRequestHandlerBase
 
 from src.core import IUpdateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreateFlatSequenceBuilder, \
     IDeleteFlatSequenceBuilder, IAddUserToGroupSequenceBuilder, IGetCodeForGroupSequenceBuilder, \
-    IGetUserGroupByIdSequenceBuilder
+    IGetUserGroupByIdSequenceBuilder, ICreateGroupSequenceBuilder
 
 
 class UpdateGroupApiHandler(ApiRequestHandlerBase):
@@ -14,6 +14,19 @@ class UpdateGroupApiHandler(ApiRequestHandlerBase):
                  deserializer: Deserializer,
                  logger: Logger):
         super().__init__(route_key='PUT /groups/{group_id}',
+                         sequence=sequence,
+                         command_pipeline=command_pipeline,
+                         deserializer=deserializer,
+                         logger=logger)
+
+
+class CreateGroupApiHandler(ApiRequestHandlerBase):
+
+    def __init__(self, sequence: ICreateGroupSequenceBuilder,
+                 command_pipeline: TopLevelSequenceRunner,
+                 deserializer: Deserializer,
+                 logger: Logger):
+        super().__init__(route_key='POST /groups',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,
