@@ -8,7 +8,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     ICreateFlatCommand, ICreateFlatSequenceBuilder, IValidateFlatRequestCommand, IDeleteFlatCommand, \
     IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
-    IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand
+    IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
@@ -17,7 +17,8 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, Up
     ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
-    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
+    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
+    CreateGroupSequenceBuilder
 
 
 def register_domain_dependencies(container: Container):
@@ -56,4 +57,6 @@ def register_domain_dependencies(container: Container):
      .register(service=IAddUserToGroupSequenceBuilder,
                implementation=AddUserToGroupSequenceBuilder)
      .register(service=IGetCodeForGroupSequenceBuilder,
-               implementation=GetCodeForGroupSequenceBuilder))
+               implementation=GetCodeForGroupSequenceBuilder)
+     .register(service=ICreateGroupSequenceBuilder,
+               implementation=CreateGroupSequenceBuilder))
