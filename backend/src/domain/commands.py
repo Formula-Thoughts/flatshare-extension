@@ -283,4 +283,5 @@ class CreateGroupAsyncCommand:
                       flats=[],
                       participants=[context.auth_user_id])
         context.response = CreatedGroupResponse(group=group)
+        context.set_var(name=GROUP_ID, value=group_id)
         self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)

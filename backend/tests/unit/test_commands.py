@@ -814,7 +814,7 @@ class TestCreateGroupAsyncCommand(TestCase):
     def test_run(self, _):
         # arrange
         auth_user_id = "12345"
-        context = ApplicationContext(auth_user_id=auth_user_id)
+        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
         self.__sqs_publisher.send_sqs_message = MagicMock()
         expected_group = Group(
                              id=UUID_EXAMPLE,
