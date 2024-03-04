@@ -130,7 +130,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert response is set to group"):
-            self.assertEqual(CreatedGroupResponse(group=expected_group), context.response)
+            self.assertEqual(SingleGroupResponse(group=expected_group), context.response)
 
 
 class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):

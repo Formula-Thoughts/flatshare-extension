@@ -62,7 +62,7 @@ class UpdateGroupAsyncCommand:
                       participants=group_from_store.participants,
                       price_limit=group_request.price_limit,
                       locations=group_request.locations)
-        context.response = CreatedGroupResponse(group=group)
+        context.response = SingleGroupResponse(group=group)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group_from_store.id, payload=group)
 
 
