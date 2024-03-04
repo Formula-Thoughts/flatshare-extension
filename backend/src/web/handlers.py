@@ -7,13 +7,13 @@ from src.core import IUpdateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilde
     IGetUserGroupByIdSequenceBuilder
 
 
-class CreateGroupApiHandler(ApiRequestHandlerBase):
+class UpdateGroupApiHandler(ApiRequestHandlerBase):
 
     def __init__(self, sequence: IUpdateGroupSequenceBuilder,
                  command_pipeline: TopLevelSequenceRunner,
                  deserializer: Deserializer,
                  logger: Logger):
-        super().__init__(route_key='POST /groups',
+        super().__init__(route_key='PUT /groups/{group_id}',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,

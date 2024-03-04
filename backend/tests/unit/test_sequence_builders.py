@@ -12,7 +12,7 @@ from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroup
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
 
 
-class TestCreateGroupAsyncSequenceBuilder(TestCase):
+class TestUpdateGroupAsyncSequenceBuilder(TestCase):
 
     def setUp(self):
         self.__save: IUpdateGroupAsyncCommand = Mock()
