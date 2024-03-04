@@ -554,7 +554,7 @@ class TestValidateFlatRequestCommand(TestCase):
         [None, "https://test.com", "UK", 1, flat_price_required_error],
         [100.20, None, "UK", 1, flat_url_required_error],
         [100.20, "https://test.com", None, 1, flat_location_required_error],
-        [-10, "https://test.com", "UK", 1, flat_location_required_error],
+        [-10, "https://test.com", "UK", 1, invalid_price_error],
         [None, "https://test.com", None, 2, flat_price_required_error],
         [None, None, None, 3, flat_price_required_error])
     def test_run_when_invalid(self, data):
