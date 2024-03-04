@@ -1,13 +1,13 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from src.core import IValidateGroupCommand, ISetGroupRequestCommand, ICreateGroupAsyncCommand, \
+from src.core import IValidateGroupCommand, ISetGroupRequestCommand, IUpdateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
     IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
     IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand
-from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
+from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
 
@@ -15,12 +15,12 @@ from src.domain.sequence_builders import CreateGroupSequenceBuilder, UpsertGroup
 class TestCreateGroupAsyncSequenceBuilder(TestCase):
 
     def setUp(self):
-        self.__save: ICreateGroupAsyncCommand = Mock()
+        self.__save: IUpdateGroupAsyncCommand = Mock()
         self.__build_request: ISetGroupRequestCommand = Mock()
         self.__validate_request: IValidateGroupCommand = Mock()
         self.__create_user_group: ICreateUserGroupsAsyncCommand = Mock()
         self.__validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand = Mock()
-        self.__sut = CreateGroupSequenceBuilder(set_group_request=self.__build_request,
+        self.__sut = UpdateGroupSequenceBuilder(set_group_request=self.__build_request,
                                                 validate_group=self.__validate_request,
                                                 save_group_async=self.__save,
                                                 create_user_group_async=self.__create_user_group,

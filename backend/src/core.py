@@ -84,7 +84,7 @@ class IValidateGroupCommand(Command, Protocol):
     pass
 
 
-class ICreateGroupAsyncCommand(Command, Protocol):
+class IUpdateGroupAsyncCommand(Command, Protocol):
     pass
 
 
@@ -152,7 +152,7 @@ class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
-class ICreateGroupSequenceBuilder(SequenceBuilder, Protocol):
+class IUpdateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 

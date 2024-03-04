@@ -2,14 +2,14 @@ from formula_thoughts_web.abstractions import Deserializer, Logger
 from formula_thoughts_web.application import TopLevelSequenceRunner
 from formula_thoughts_web.web import ApiRequestHandlerBase
 
-from src.core import ICreateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreateFlatSequenceBuilder, \
+from src.core import IUpdateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreateFlatSequenceBuilder, \
     IDeleteFlatSequenceBuilder, IAddUserToGroupSequenceBuilder, IGetCodeForGroupSequenceBuilder, \
     IGetUserGroupByIdSequenceBuilder
 
 
 class CreateGroupApiHandler(ApiRequestHandlerBase):
 
-    def __init__(self, sequence: ICreateGroupSequenceBuilder,
+    def __init__(self, sequence: IUpdateGroupSequenceBuilder,
                  command_pipeline: TopLevelSequenceRunner,
                  deserializer: Deserializer,
                  logger: Logger):

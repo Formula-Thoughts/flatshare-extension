@@ -47,7 +47,7 @@ class ValidateGroupCommand:
             context.error_capsules.append(invalid_group_locations_error)
 
 
-class CreateGroupAsyncCommand:
+class UpdateGroupAsyncCommand:
 
     def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
         self.__sqs_event_publisher = sqs_event_publisher

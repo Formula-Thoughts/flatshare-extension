@@ -13,7 +13,7 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_FLAT_REQUEST, GROUP, CODE
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
-    CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
+    UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
@@ -96,10 +96,9 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
     def setUp(self):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = CreateGroupAsyncCommand(sqs_event_publisher=self.__sqs_event_publisher)
+        self.__sut = UpdateGroupAsyncCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
-    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
-    def test_run_should_publish_to_sqs(self, _) -> None:
+    def test_run_should_publish_to_sqs(self) -> None:
         # arrange
         group_request = AutoFixture().create(dto=UpsertGroupRequest)
         auth_user_id = "12345"
@@ -109,6 +108,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
                                flats=[],
                                participants=[auth_user_id])
         context = ApplicationContext(variables={
+            GROUP_ID: str(UUID),
             UPSERT_GROUP_REQUEST: group_request
         },
             auth_user_id=auth_user_id)
