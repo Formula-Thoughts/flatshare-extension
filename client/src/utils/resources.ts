@@ -6,8 +6,23 @@ export const _getGroupById = async (id: string) => {
   return res.data;
 };
 
-export const _createGroup = async () => {
-  const res = (await axios.post(`/groups`)) as AxiosResponse;
+export const _getUserGroup = async (token: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = (await axios.get(`/groups`, config)) as AxiosResponse;
+  return res.data;
+};
+
+export const _createGroup = async (token: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = (await axios.post(`/groups`, {}, config)) as AxiosResponse;
   return res.data;
 };
 
@@ -33,5 +48,10 @@ export const _deleteFlat = async (groupCode: string, flatId: string) => {
   const res = (await axios.delete(
     `/groups/${groupCode}/flats/${flatId}`
   )) as AxiosResponse;
+  return res.data;
+};
+
+export const _getGroupShareCode = async (id: string) => {
+  const res = (await axios.get(`/groups/${id}/code`)) as AxiosResponse;
   return res.data;
 };
