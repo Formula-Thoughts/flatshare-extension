@@ -12,7 +12,7 @@ from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_location_required_error
+    flat_price_required_error, flat_url_required_error, flat_location_required_error, group_price_limt_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -40,7 +40,9 @@ class ValidateGroupCommand:
     def run(self, context: ApplicationContext) -> None:
         request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
 
-        if request.price_limit <= 0:
+        if request.price_limit is None:
+            context.error_capsules.append(group_price_limt_required_error)
+        elif request.price_limit <= 0:
             context.error_capsules.append(invalid_price_error)
 
         if len(request.locations) == 0:
