@@ -205,7 +205,7 @@ Resources:
             Path: /groups
             Method: post
             ApiId: !Ref FlatiniHttpApi
-        CreateGroup:
+        UpdateGroup:
           Type: HttpApi
           Properties:
             Auth:
