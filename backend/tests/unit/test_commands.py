@@ -819,11 +819,26 @@ class TestCreateGroupAsyncCommand(TestCase):
         self.__sqs_publisher: SQSEventPublisher = Mock()
         self.__sut = CreateGroupAsyncCommand(sqs_publisher=self.__sqs_publisher)
 
-    def test_run(self):
+    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
+    def test_run(self, _):
         # arrange
         context = ApplicationContext()
+        self.__sqs_publisher.send_sqs_message = MagicMock()
 
         # act
         self.__sut.run(context=context)
 
         # assert
+        with self.subTest(msg="assert upsert group event was published once"):
+            self.__sqs_publisher.send_sqs_message.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert upsert group event was published with correct params"):
+            self.__sqs_publisher.send_sqs_message.assert_called_with(message_group_id=UUID_EXAMPLE,
+                                                                     payload=Group(
+                                                                         id=UUID_EXAMPLE,
+                                                                         flats=[],
+                                                                         participants=[],
+                                                                         price_limit=None,
+                                                                         locations=[]
+                                                                     ))
