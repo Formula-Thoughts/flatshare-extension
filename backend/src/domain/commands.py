@@ -269,3 +269,12 @@ class ValidateUserIsNotParticipantCommand:
             return
 
         context.set_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, value=False)
+
+
+class CreateGroupAsyncCommand:
+
+    def __init__(self, sqs_publisher: SQSEventPublisher):
+        self.__sqs_publisher = sqs_publisher
+
+    def run(self, context: ApplicationContext):
+        ...

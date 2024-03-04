@@ -88,6 +88,10 @@ class IUpdateGroupAsyncCommand(Command, Protocol):
     pass
 
 
+class ICreateGroupAsyncCommand(Command, Protocol):
+    pass
+
+
 class ICreateUserGroupsAsyncCommand(Command, Protocol):
     pass
 

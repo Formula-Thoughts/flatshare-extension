@@ -17,11 +17,11 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
-    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_location_required_error
+    flat_price_required_error, flat_url_required_error, flat_location_required_error, group_price_limt_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -72,6 +72,7 @@ class TestValidateGroupRequestCommand(TestCase):
         [0, ["UK"], 1, invalid_price_error],
         [-14, ["UK"], 1, invalid_price_error],
         [54, [], 1, invalid_group_locations_error],
+        [None, ["UK"], 1, group_price_limt_required_error],
         [0, [], 2, invalid_price_error])
     def test_run_with_invalid_data(self, data):
         # arrange
@@ -810,3 +811,19 @@ class TestValidateUserIsNotParticipantCommand(TestCase):
         # assert
         with self.subTest(msg="1 error added"):
             self.assertEqual(context.error_capsules[0], user_already_part_of_group_error)
+
+
+class TestCreateGroupAsyncCommand(TestCase):
+
+    def setUp(self):
+        self.__sqs_publisher: SQSEventPublisher = Mock()
+        self.__sut = CreateGroupAsyncCommand(sqs_publisher=self.__sqs_publisher)
+
+    def test_run(self):
+        # arrange
+        context = ApplicationContext()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert

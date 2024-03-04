@@ -29,6 +29,8 @@ flat_url_required_error = InvalidGroupDataError(message="url field is a required
 
 flat_location_required_error = InvalidGroupDataError(message="location field is a required attribute")
 
+group_price_limt_required_error = InvalidGroupDataError(message="priceLimit field is a required attribute")
+
 code_required_error = InvalidGroupDataError(message="code parameter is required from group invite")
 
 user_already_part_of_group_error = InvalidGroupDataError(message="user is already added to group")
