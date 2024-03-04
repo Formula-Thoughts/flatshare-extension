@@ -281,9 +281,6 @@ class CreateGroupAsyncCommand:
         group_id = str(uuid.uuid4())
         group = Group(id=group_id,
                       flats=[],
-                      participants=[context.auth_user_id],
-                      price_limit=group_request.price_limit,
-                      locations=group_request.locations)
+                      participants=[context.auth_user_id])
         context.response = CreatedGroupResponse(group=group)
-        context.set_var(GROUP_ID, group_id)
-        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id, payload=group)
+        self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)

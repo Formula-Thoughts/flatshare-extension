@@ -816,6 +816,13 @@ class TestCreateGroupAsyncCommand(TestCase):
         auth_user_id = "12345"
         context = ApplicationContext(auth_user_id=auth_user_id)
         self.__sqs_publisher.send_sqs_message = MagicMock()
+        expected_group = Group(
+                             id=UUID_EXAMPLE,
+                             flats=[],
+                             participants=[auth_user_id],
+                             price_limit=None,
+                             locations=[]
+                         )
 
         # act
         self.__sut.run(context=context)
@@ -827,10 +834,7 @@ class TestCreateGroupAsyncCommand(TestCase):
         # assert
         with self.subTest(msg="assert upsert group event was published with correct params"):
             self.__sqs_publisher.send_sqs_message.assert_called_with(message_group_id=UUID_EXAMPLE,
-                                                                     payload=Group(
-                                                                         id=UUID_EXAMPLE,
-                                                                         flats=[],
-                                                                         participants=[auth_user_id],
-                                                                         price_limit=None,
-                                                                         locations=[]
-                                                                     ))
+                                                                     payload=expected_group)
+
+        with self.subTest(msg="assert response was set to group"):
+            self.assertEqual(context.response, CreatedGroupResponse(group=expected_group))
