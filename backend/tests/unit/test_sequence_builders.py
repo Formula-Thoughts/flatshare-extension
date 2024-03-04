@@ -20,11 +20,13 @@ class TestUpdateGroupAsyncSequenceBuilder(TestCase):
         self.__validate_request: IValidateGroupCommand = Mock()
         self.__validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser = Mock()
         self.__validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand = Mock()
+        self.__fetch_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__sut = UpdateGroupSequenceBuilder(set_group_request=self.__build_request,
                                                 validate_group=self.__validate_request,
                                                 save_group_async=self.__save,
                                                 validate_if_group_belongs_to_user=self.__validate_if_group_belongs_to_user,
-                                                validate_if_user_belongs_to_at_least_one_group_command=self.__validate_if_user_belongs_to_at_least_one_group_command)
+                                                validate_if_user_belongs_to_at_least_one_group_command=self.__validate_if_user_belongs_to_at_least_one_group_command,
+                                                fetch_group_by_id=self.__fetch_group_by_id)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -35,6 +37,7 @@ class TestUpdateGroupAsyncSequenceBuilder(TestCase):
                                                  self.__validate_request,
                                                  self.__validate_if_user_belongs_to_at_least_one_group_command,
                                                  self.__validate_if_group_belongs_to_user,
+                                                 self.__fetch_group_by_id,
                                                  self.__save])
 
 

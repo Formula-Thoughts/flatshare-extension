@@ -14,7 +14,9 @@ class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
                  validate_group: IValidateGroupCommand,
                  validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
                  validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser,
+                 fetch_group_by_id: IFetchGroupByIdCommand,
                  save_group_async: IUpdateGroupAsyncCommand):
+        self.__fetch_group_by_id = fetch_group_by_id
         self.__validate_if_group_belongs_to_user = validate_if_group_belongs_to_user
         self.__validate_if_user_belongs_to_at_least_one_group_command = validate_if_user_belongs_to_at_least_one_group_command
         self.__save_group_async = save_group_async
