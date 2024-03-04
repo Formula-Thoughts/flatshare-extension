@@ -8,13 +8,13 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     ICreateFlatCommand, ICreateFlatSequenceBuilder, IValidateFlatRequestCommand, IDeleteFlatCommand, \
     IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
-    IValidateUserIsNotParticipantCommand
+    IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
     FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, ValidateFlatRequestCommand, DeleteFlatCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
-    ValidateUserIsNotParticipantCommand
+    ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder
@@ -24,6 +24,7 @@ def register_domain_dependencies(container: Container):
     (container.register(service=ISetGroupRequestCommand, implementation=SetGroupRequestCommand)
      .register(service=IValidateGroupCommand, implementation=ValidateGroupCommand)
      .register(service=IUpdateGroupAsyncCommand, implementation=UpdateGroupAsyncCommand)
+     .register(service=ICreateGroupAsyncCommand, implementation=CreateGroupAsyncCommand)
      .register(service=ICreateUserGroupsAsyncCommand, implementation=CreateUserGroupsAsyncCommand)
      .register(service=IUpsertGroupBackgroundCommand, implementation=UpsertGroupBackgroundCommand)
      .register(service=IFetchUserGroupsCommand, implementation=FetchUserGroupsCommand)
