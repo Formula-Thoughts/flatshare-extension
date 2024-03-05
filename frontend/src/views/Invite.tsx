@@ -1,15 +1,11 @@
-import {
-  AuthUser,
-  getCurrentUser,
-  signInWithRedirect,
-} from "@aws-amplify/auth";
-import { Hub } from "aws-amplify/utils";
 import axios, { AxiosResponse } from "axios";
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Invite = (props: any) => {
   const [code, setCode] = useState(props.code || "");
+
+  const [userAlreadyInGroupError, setUserAlreadyInGroupError] = useState(false);
+  const [userHasJoinedGroup, setUserHasJoinedGroup] = useState(false);
 
   const joinGroupFromInvite = async () => {
     // Gets access token from storage - I don't like this but it's good for now
@@ -37,13 +33,21 @@ const Invite = (props: any) => {
       },
     };
 
-    const res = (await axios.post(
-      `/participants?code=${code}`,
-      {},
-      config
-    )) as AxiosResponse;
-    // return res.data;
-    console.log("res", res);
+    try {
+      const res = (await axios.post(
+        `https://pmer135n4j.execute-api.eu-west-2.amazonaws.com/participants?code=${code}`,
+        {},
+        config
+      )) as AxiosResponse;
+
+      if (res.status === 200) {
+        setUserHasJoinedGroup(true);
+      }
+    } catch (err) {
+      if ((err as any)?.response?.status === 400) {
+        setUserAlreadyInGroupError(true);
+      }
+    }
   };
 
   return (
@@ -51,13 +55,21 @@ const Invite = (props: any) => {
       <p>{JSON.stringify(props.user)}</p>
       <p>{code}</p>
       <h2>Invite Page</h2>
-      <input
-        onChange={(e) => setCode(e.target.value)}
-        defaultValue={props.code || ""}
-      />
-      <button onClick={async () => await joinGroupFromInvite()}>
-        Click here to join group
-      </button>
+      <div>
+        <input
+          onChange={(e) => setCode(e.target.value)}
+          defaultValue={props.code || ""}
+        />
+        <button onClick={async () => await joinGroupFromInvite()}>
+          Click here to join group
+        </button>
+      </div>
+      {userAlreadyInGroupError ? (
+        <p>sorry, the user is already in this group</p>
+      ) : null}
+      {userHasJoinedGroup ? (
+        <p>You've joined the group. Open or reload your Flatini extension.</p>
+      ) : null}
     </div>
   );
 };

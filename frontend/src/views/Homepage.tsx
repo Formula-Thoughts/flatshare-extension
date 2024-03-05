@@ -1,15 +1,7 @@
-import {
-  AuthUser,
-  getCurrentUser,
-  signInWithRedirect,
-  signOut,
-} from "@aws-amplify/auth";
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { signInWithRedirect, signOut } from "@aws-amplify/auth";
+import { Link } from "react-router-dom";
 
 const Homepage = (props: any) => {
-  const navigate = useNavigate();
-
   return (
     <div>
       <h2>Home Page</h2>
