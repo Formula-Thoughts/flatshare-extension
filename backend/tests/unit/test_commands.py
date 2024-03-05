@@ -13,14 +13,15 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_FLAT_REQUEST, GROUP, CODE
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
-    CreateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
+    UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
-    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
+    invalid_group_locations_error, FlatNotFoundError, \
+    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
+    flat_price_required_error, flat_url_required_error, flat_location_required_error, group_price_limt_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -71,6 +72,7 @@ class TestValidateGroupRequestCommand(TestCase):
         [0, ["UK"], 1, invalid_price_error],
         [-14, ["UK"], 1, invalid_price_error],
         [54, [], 1, invalid_group_locations_error],
+        [None, ["UK"], 1, group_price_limt_required_error],
         [0, [], 2, invalid_price_error])
     def test_run_with_invalid_data(self, data):
         # arrange
@@ -95,19 +97,20 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
     def setUp(self):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = CreateGroupAsyncCommand(sqs_event_publisher=self.__sqs_event_publisher)
+        self.__sut = UpdateGroupAsyncCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
-    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
-    def test_run_should_publish_to_sqs(self, _) -> None:
+    def test_run_should_publish_to_sqs(self) -> None:
         # arrange
+        group = AutoFixture().create(dto=Group)
         group_request = AutoFixture().create(dto=UpsertGroupRequest)
         auth_user_id = "12345"
-        expected_group = Group(id=UUID_EXAMPLE,
+        expected_group = Group(id=group.id,
                                price_limit=group_request.price_limit,
                                locations=group_request.locations,
-                               flats=[],
-                               participants=[auth_user_id])
+                               flats=group.flats,
+                               participants=group.participants)
         context = ApplicationContext(variables={
+            GROUP: group,
             UPSERT_GROUP_REQUEST: group_request
         },
             auth_user_id=auth_user_id)
@@ -122,22 +125,12 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert sqs message is sent with correct params"):
-            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=UUID_EXAMPLE,
-                                                                           payload=Group(
-                                                                               id=UUID_EXAMPLE,
-                                                                               price_limit=group_request.price_limit,
-                                                                               locations=group_request.locations,
-                                                                               flats=[],
-                                                                               participants=[auth_user_id]
-                                                                           ))
+            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=group.id,
+                                                                           payload=expected_group)
 
         # assert
         with self.subTest(msg="assert response is set to group"):
-            self.assertEqual(CreatedGroupResponse(group=expected_group), context.response)
-
-        # assert
-        with self.subTest(msg="assert group id is saved as context var"):
-            self.assertEqual(context.get_var("group_id", str), UUID_EXAMPLE)
+            self.assertEqual(SingleGroupResponse(group=expected_group), context.response)
 
 
 class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
@@ -537,12 +530,9 @@ class TestValidateFlatRequestCommand(TestCase):
 
     def test_run_when_valid(self):
         # arrange
-        group = AutoFixture().create(dto=Group)
-        group.locations = ["UK", "Sydney"]
-        group.price_limit = 4
+        flat_request = AutoFixture().create(dto=CreateFlatRequest)
         context = ApplicationContext(variables={
-            GROUP: group,
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=3, location="Sydney")
+            CREATE_FLAT_REQUEST: flat_request
         })
 
         # act
@@ -553,20 +543,17 @@ class TestValidateFlatRequestCommand(TestCase):
             self.assertEqual(len(context.error_capsules), 0)
 
     @data(
-        [5, "UK", 1, invalid_flat_price_error],
-        [100, "UK", 1, invalid_flat_price_error],
-        [-14, "UK", 1, invalid_price_error],
-        [3, "Memphis", 1, invalid_flat_location_error],
-        [-1, "Tennessee", 2, invalid_price_error])
+        [None, "https://test.com", "UK", 1, flat_price_required_error],
+        [100.20, None, "UK", 1, flat_url_required_error],
+        [100.20, "https://test.com", None, 1, flat_location_required_error],
+        [-10, "https://test.com", "UK", 1, invalid_price_error],
+        [None, "https://test.com", None, 2, flat_price_required_error],
+        [None, None, None, 3, flat_price_required_error])
     def test_run_when_invalid(self, data):
         # arrange
-        [price, location, errors_count, error] = data
-        group = AutoFixture().create(dto=Group)
-        group.locations = ["UK", "Sydney"]
-        group.price_limit = 4
+        [price, url, location, errors_count, error] = data
         context = ApplicationContext(variables={
-            GROUP: group,
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, location=location)
+            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, url=url, location=location)
         })
 
         # act
@@ -815,3 +802,42 @@ class TestValidateUserIsNotParticipantCommand(TestCase):
         # assert
         with self.subTest(msg="1 error added"):
             self.assertEqual(context.error_capsules[0], user_already_part_of_group_error)
+
+
+class TestCreateGroupAsyncCommand(TestCase):
+
+    def setUp(self):
+        self.__sqs_publisher: SQSEventPublisher = Mock()
+        self.__sut = CreateGroupAsyncCommand(sqs_publisher=self.__sqs_publisher)
+
+    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
+    def test_run(self, _):
+        # arrange
+        auth_user_id = "12345"
+        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
+        self.__sqs_publisher.send_sqs_message = MagicMock()
+        expected_group = Group(
+                             id=UUID_EXAMPLE,
+                             flats=[],
+                             participants=[auth_user_id],
+                             price_limit=None,
+                             locations=[]
+                         )
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert upsert group event was published once"):
+            self.__sqs_publisher.send_sqs_message.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert upsert group event was published with correct params"):
+            self.__sqs_publisher.send_sqs_message.assert_called_with(message_group_id=UUID_EXAMPLE,
+                                                                     payload=expected_group)
+
+        with self.subTest(msg="assert response was set to group"):
+            self.assertEqual(context.response, CreatedGroupResponse(group=expected_group))
+
+        with self.subTest(msg="assert group id var was set"):
+            self.assertEqual(context.get_var(name=GROUP_ID, _type=str), UUID_EXAMPLE)

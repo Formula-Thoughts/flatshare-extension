@@ -10,8 +10,9 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_FLAT_REQUEST, FLAT_ID, CODE
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, invalid_flat_price_error, invalid_flat_location_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error
+    invalid_group_locations_error, FlatNotFoundError, \
+    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
+    flat_price_required_error, flat_url_required_error, flat_location_required_error, group_price_limt_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -39,29 +40,30 @@ class ValidateGroupCommand:
     def run(self, context: ApplicationContext) -> None:
         request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
 
-        if request.price_limit <= 0:
+        if request.price_limit is None:
+            context.error_capsules.append(group_price_limt_required_error)
+        elif request.price_limit <= 0:
             context.error_capsules.append(invalid_price_error)
 
         if len(request.locations) == 0:
             context.error_capsules.append(invalid_group_locations_error)
 
 
-class CreateGroupAsyncCommand:
+class UpdateGroupAsyncCommand:
 
     def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
         self.__sqs_event_publisher = sqs_event_publisher
 
     def run(self, context: ApplicationContext) -> None:
         group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
-        group_id = str(uuid.uuid4())
-        group = Group(id=group_id,
-                      flats=[],
-                      participants=[context.auth_user_id],
+        group_from_store = context.get_var(GROUP, Group)
+        group = Group(id=group_from_store.id,
+                      flats=group_from_store.flats,
+                      participants=group_from_store.participants,
                       price_limit=group_request.price_limit,
                       locations=group_request.locations)
-        context.response = CreatedGroupResponse(group=group)
-        context.set_var(GROUP_ID, group_id)
-        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_id, payload=group)
+        context.response = SingleGroupResponse(group=group)
+        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_from_store.id, payload=group)
 
 
 class FetchUserGroupsCommand:
@@ -192,17 +194,18 @@ class CreateFlatCommand:
 class ValidateFlatRequestCommand:
 
     def run(self, context: ApplicationContext):
-        group = context.get_var(name=GROUP, _type=Group)
         create_flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
 
-        if create_flat_request.price <= 0:
+        if create_flat_request.price is None:
+            context.error_capsules.append(flat_price_required_error)
+        elif create_flat_request.price <= 0:
             context.error_capsules.append(invalid_price_error)
 
-        if create_flat_request.price > group.price_limit:
-            context.error_capsules.append(invalid_flat_price_error)
+        if create_flat_request.url is None:
+            context.error_capsules.append(flat_url_required_error)
 
-        if create_flat_request.location not in group.locations:
-            context.error_capsules.append(invalid_flat_location_error)
+        if create_flat_request.location is None:
+            context.error_capsules.append(flat_location_required_error)
 
 
 class DeleteFlatCommand:
@@ -267,3 +270,18 @@ class ValidateUserIsNotParticipantCommand:
             return
 
         context.set_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, value=False)
+
+
+class CreateGroupAsyncCommand:
+
+    def __init__(self, sqs_publisher: SQSEventPublisher):
+        self.__sqs_publisher = sqs_publisher
+
+    def run(self, context: ApplicationContext):
+        group_id = str(uuid.uuid4())
+        group = Group(id=group_id,
+                      flats=[],
+                      participants=[context.auth_user_id])
+        context.response = CreatedGroupResponse(group=group)
+        context.set_var(name=GROUP_ID, value=group_id)
+        self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)

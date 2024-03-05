@@ -1,22 +1,25 @@
 from formula_thoughts_web.application import FluentSequenceBuilder
 
-from src.core import ISetGroupRequestCommand, IValidateGroupCommand, ICreateGroupAsyncCommand, \
+from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
     IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
-    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand
+    ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
+    ICreateGroupAsyncCommand
 
 
-class CreateGroupSequenceBuilder(FluentSequenceBuilder):
+class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self, set_group_request: ISetGroupRequestCommand,
                  validate_group: IValidateGroupCommand,
                  validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
-                 save_group_async: ICreateGroupAsyncCommand,
-                 create_user_group_async: ICreateUserGroupsAsyncCommand):
+                 validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser,
+                 fetch_group_by_id: IFetchGroupByIdCommand,
+                 save_group_async: IUpdateGroupAsyncCommand):
+        self.__fetch_group_by_id = fetch_group_by_id
+        self.__validate_if_group_belongs_to_user = validate_if_group_belongs_to_user
         self.__validate_if_user_belongs_to_at_least_one_group_command = validate_if_user_belongs_to_at_least_one_group_command
-        self.__create_user_group_async = create_user_group_async
         self.__save_group_async = save_group_async
         self.__validate_group = validate_group
         self.__set_group_request = set_group_request
@@ -26,8 +29,9 @@ class CreateGroupSequenceBuilder(FluentSequenceBuilder):
         self._add_command(command=self.__set_group_request)\
             ._add_command(command=self.__validate_group)\
             ._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command)\
-            ._add_command(command=self.__save_group_async) \
-            ._add_command(command=self.__create_user_group_async)
+            ._add_command(command=self.__validate_if_group_belongs_to_user)\
+            ._add_command(command=self.__fetch_group_by_id)\
+            ._add_command(command=self.__save_group_async)
 
 
 class UpsertGroupBackgroundSequenceBuilder(FluentSequenceBuilder):
@@ -144,3 +148,19 @@ class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
     def build(self):
         self._add_sequence_builder(sequence_builder=self.__get_group_by_id_sequence)\
             ._add_command(command=self.__get_code_from_group_id)
+
+
+class CreateGroupSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, validate_user_belongs_to_one_group: IValidateIfUserBelongsToAtLeastOneGroupCommand,
+                 create_user_groups: ICreateUserGroupsAsyncCommand,
+                 create_group: ICreateGroupAsyncCommand):
+        super().__init__()
+        self.__create_group = create_group
+        self.__create_user_groups = create_user_groups
+        self.__validate_user_belongs_to_one_group = validate_user_belongs_to_one_group
+
+    def build(self):
+        self._add_command(command=self.__validate_user_belongs_to_one_group)\
+            ._add_command(command=self.__create_group)\
+            ._add_command(command=self.__create_user_groups)

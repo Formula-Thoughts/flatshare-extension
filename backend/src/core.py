@@ -84,6 +84,10 @@ class IValidateGroupCommand(Command, Protocol):
     pass
 
 
+class IUpdateGroupAsyncCommand(Command, Protocol):
+    pass
+
+
 class ICreateGroupAsyncCommand(Command, Protocol):
     pass
 
@@ -149,6 +153,10 @@ class IValidateUserIsNotParticipantCommand(Command, Protocol):
 
 
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class IUpdateGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
