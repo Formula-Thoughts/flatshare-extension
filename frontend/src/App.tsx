@@ -14,6 +14,11 @@ import Homepage from "./views/Homepage";
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const location = useLocation();
+
+  const searchParams = new URLSearchParams(location.search);
+  const codeFromParam = searchParams.get("code");
+  const [inviteCode, setInviteCode] = useState(codeFromParam || "");
 
   const getUser = async (): Promise<void> => {
     try {
@@ -26,7 +31,8 @@ export default function App() {
 
   useEffect(() => {
     getUser();
-  });
+    console.log("code", inviteCode);
+  }, []);
 
   if (!user) {
     return (
@@ -39,7 +45,10 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Homepage user={user} />} />
-      <Route path="/invite" element={<Invite user={user} />} />
+      <Route
+        path="/invite"
+        element={<Invite code={inviteCode} user={user} />}
+      />
       <Route path="/signout" element={<p>sign out</p>} />
     </Routes>
   );

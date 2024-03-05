@@ -9,11 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Invite = (props: any) => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const codeFromParam = searchParams.get("code");
-
-  const [code, setCode] = useState(codeFromParam || "");
+  const [code, setCode] = useState(props.code || "");
 
   const joinGroupFromInvite = async () => {
     // Gets access token from storage - I don't like this but it's good for now
@@ -57,7 +53,7 @@ const Invite = (props: any) => {
       <h2>Invite Page</h2>
       <input
         onChange={(e) => setCode(e.target.value)}
-        defaultValue={codeFromParam || ""}
+        defaultValue={props.code || ""}
       />
       <button onClick={async () => await joinGroupFromInvite()}>
         Click here to join group
