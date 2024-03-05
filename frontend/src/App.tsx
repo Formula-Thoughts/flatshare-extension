@@ -1,92 +1,46 @@
-import { Amplify } from "aws-amplify";
+import "./App.css";
 
-import "@aws-amplify/ui-react/styles.css";
 import {
-  AuthUser,
-  getCurrentUser,
-  signInWithRedirect,
-  signOut,
-} from "aws-amplify/auth";
-import { Hub } from "aws-amplify/utils";
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+
+import { AuthUser, getCurrentUser, signInWithRedirect } from "aws-amplify/auth";
 import { useEffect, useState } from "react";
+import Invite from "./views/Invite";
+import Homepage from "./views/Homepage";
 
-const SocialLogin = () => {
+export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [error, setError] = useState<unknown>(null);
-  const [customState, setCustomState] = useState<string | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = Hub.listen("auth", ({ payload }) => {
-      switch (payload.event) {
-        case "signInWithRedirect":
-          getUser();
-          break;
-        case "signInWithRedirect_failure":
-          setError("An error has occurred during the OAuth flow.");
-          break;
-        case "customOAuthState":
-          setCustomState(payload.data); // this is the customState provided on signInWithRedirect function
-          break;
-      }
-    });
-
-    getUser();
-
-    return unsubscribe;
-  }, [user]);
 
   const getUser = async (): Promise<void> => {
     try {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
     } catch (error) {
-      console.error(error);
       console.log("Not signed in");
     }
   };
-  error && console.error("error", { error });
-  return (
-    <div
-      style={{
-        marginTop: 25,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <button
-        style={{ width: 200 }}
-        onClick={() =>
-          signInWithRedirect({
-            customState:
-              "some state that was past during sign in, eg redirect url",
-          })
-        }
-      >
-        Sign In with Hosted UI
-      </button>
-      or
-      <button
-        style={{ width: 200 }}
-        onClick={() =>
-          signInWithRedirect({
-            provider: "Google",
-            customState:
-              "some state that was past during sign in, eg redirect url",
-          })
-        }
-      >
-        Sign In with Google
-      </button>
-      {user && <button onClick={() => signOut()}>Sign Out</button>}
-      <div style={{ marginTop: 25 }}>
-        Authenticated User: {user ? user.username : "anonymous"}
-      </div>
-      <div>Custom State: {customState}</div>
-    </div>
-  );
-};
 
-export default function App() {
-  return <SocialLogin />;
+  useEffect(() => {
+    getUser();
+  });
+
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/*" element={<Homepage user={user} />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<Homepage user={user} />} />
+      <Route path="/invite" element={<Invite user={user} />} />
+      <Route path="/signout" element={<p>sign out</p>} />
+    </Routes>
+  );
 }

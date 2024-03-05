@@ -16,9 +16,15 @@ const Participants = () => {
   const copyToClipboard = async () => {
     if (shareCode) {
       if ("clipboard" in navigator) {
-        await navigator.clipboard.writeText(shareCode);
+        await navigator.clipboard.writeText(
+          `https://localhost:3000/invite?code=${shareCode}`
+        );
       } else {
-        document.execCommand("copy", true, shareCode);
+        document.execCommand(
+          "copy",
+          true,
+          `https://localhost:3000/invite?code=${shareCode}`
+        );
       }
     }
   };
@@ -46,7 +52,8 @@ const Participants = () => {
             {shareCode ? (
               <div>
                 <FaClipboard />
-                Your code has been copied to clipboard: {shareCode}
+                Copied to clipboard:
+                {`https://localhost:3000/invite?code=${shareCode}`}
               </div>
             ) : null}
           </div>

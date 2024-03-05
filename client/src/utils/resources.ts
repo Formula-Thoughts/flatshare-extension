@@ -51,7 +51,12 @@ export const _deleteFlat = async (groupCode: string, flatId: string) => {
   return res.data;
 };
 
-export const _getGroupShareCode = async (id: string) => {
-  const res = (await axios.get(`/groups/${id}/code`)) as AxiosResponse;
+export const _getGroupShareCode = async (token: string, id: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = (await axios.get(`/groups/${id}/code`, config)) as AxiosResponse;
   return res.data;
 };
