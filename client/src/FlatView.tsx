@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import SaveDataButton from "./SaveDataButton";
 import { Flat, useProvider } from "./context/AppProvider";
-import { _addFlat, _deleteFlat } from "./utils/resources";
 import {
   getFlatDataFromOpenRent,
   getFlatDataFromRightmove,

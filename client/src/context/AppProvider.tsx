@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext } from "react";
 import {
+  _addFlat,
   _createGroup,
   _getGroupById,
   _getGroupShareCode,
@@ -31,6 +32,7 @@ interface AppContextType {
   participants: any;
   setParticipants: any;
   createGroup: any;
+  addFlat: any;
 }
 
 export type Group = {
@@ -147,12 +149,7 @@ const FlatProvider = (props: Props) => {
 
   const createGroup = async () => {
     try {
-      const data = await _createGroup(
-        getObjectByKeyPart(
-          "accessToken",
-          JSON.parse(JSON.parse(getAuthenticatedUser() as string))
-        )
-      );
+      const data = await _createGroup(getAccessToken());
 
       if (data && data.group) {
         // Sets state dependencies
@@ -182,6 +179,16 @@ const FlatProvider = (props: Props) => {
   /**
    * Flats
    */
+
+  const addFlat = async (url: string, price: number, location: string) => {
+    return await _addFlat(
+      getAccessToken(),
+      groupId as string,
+      url,
+      price,
+      location
+    );
+  };
 
   const removeFlat = (url: string) => {
     setFlats((prevFlats) => prevFlats.filter((flat) => flat.url !== url));
@@ -223,6 +230,7 @@ const FlatProvider = (props: Props) => {
         participants,
         setParticipants,
         createGroup,
+        addFlat,
       }}
     >
       {props.children}

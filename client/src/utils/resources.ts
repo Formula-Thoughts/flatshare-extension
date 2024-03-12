@@ -27,19 +27,25 @@ export const _createGroup = async (token: string) => {
 };
 
 export const _addFlat = async (
+  token: string,
   groupCode: string,
   url: string,
-  price: string,
-  title: string
+  price: string | number,
+  location: string
 ) => {
-  const body = {
-    url,
-    price,
-    title,
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: {
+      url,
+      price,
+      location,
+    },
   };
   const res = (await axios.post(
     `/groups/${groupCode}/flats`,
-    body
+    config
   )) as AxiosResponse;
   return res.data;
 };
