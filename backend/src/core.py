@@ -26,6 +26,7 @@ GroupId = str
 
 @dataclass(unsafe_hash=True)
 class UserGroups:
+    fullname: str = None
     auth_user_id: GroupParticipantAuthId = None
     groups: list[GroupId] = field(default_factory=lambda: [])
 
