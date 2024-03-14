@@ -519,7 +519,7 @@ class TestCreateFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="correct flat params are set"):
-            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE, url=flat.url, price=flat.price, location=flat.location))
+            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE, url=flat.url, price=flat.price, title=flat.title))
 
 
 @ddt
@@ -553,7 +553,7 @@ class TestValidateFlatRequestCommand(TestCase):
         # arrange
         [price, url, location, errors_count, error] = data
         context = ApplicationContext(variables={
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, url=url, location=location)
+            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, url=url, title=location)
         })
 
         # act

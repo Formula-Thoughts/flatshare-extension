@@ -172,7 +172,7 @@ class SetFlatRequestCommand:
         request = self.__object_mapper.map_from_dict(_from=context.body, to=CreateFlatRequest)
         context.set_var(CREATE_FLAT_REQUEST, request)
         self.__logger.add_global_properties(properties={
-            "location": request.location,
+            "location": request.title,
             "price": request.price,
             "url": request.url
         })
@@ -186,7 +186,7 @@ class CreateFlatCommand:
     def run(self, context: ApplicationContext):
         group = context.get_var(name=GROUP, _type=Group)
         flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
-        group.flats.append(Flat(url=flat_request.url, location=flat_request.location, price=flat_request.price))
+        group.flats.append(Flat(url=flat_request.url, title=flat_request.title, price=flat_request.price))
         self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
@@ -204,7 +204,7 @@ class ValidateFlatRequestCommand:
         if create_flat_request.url is None:
             context.error_capsules.append(flat_url_required_error)
 
-        if create_flat_request.location is None:
+        if create_flat_request.title is None:
             context.error_capsules.append(flat_location_required_error)
 
 

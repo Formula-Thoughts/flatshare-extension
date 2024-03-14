@@ -16,7 +16,7 @@ def uuid4_str():
 class Flat:
     id: str = field(default_factory=uuid4_str)
     url: str = None
-    location: str = None
+    title: str = None
     price: float = None
 
 
@@ -48,7 +48,7 @@ class UpsertGroupRequest:
 @dataclass(unsafe_hash=True)
 class CreateFlatRequest:
     price: float = None
-    location: str = None
+    title: str = None
     url: str = None
 
 
