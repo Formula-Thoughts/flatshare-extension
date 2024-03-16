@@ -13,7 +13,7 @@ from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_FLAT_REQUEST, GROUP, CODE
+    CREATE_FLAT_REQUEST, GROUP, CODE, FULLNAME_CLAIM
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
@@ -146,10 +146,15 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         # arrange
         group_id = str(uuid.uuid4())
         auth_user_id = "12345"
+        name = "test_user"
         expected_user_group = UserGroups(auth_user_id=auth_user_id,
-                                         groups=[group_id])
-        context = ApplicationContext(variables={GROUP_ID: group_id, USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False},
-                                     auth_user_id=auth_user_id)
+                                         groups=[group_id],
+                                         name=name)
+        context = ApplicationContext(variables={
+            GROUP_ID: group_id,
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False,
+            FULLNAME_CLAIM: name
+        }, auth_user_id=auth_user_id)
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -185,7 +190,8 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         with self.subTest(msg="assert sqs message is sent with correct params"):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
                                                                            payload=UserGroups(auth_user_id=auth_user_id,
-                                                                                              groups=expected_user_groups))
+                                                                                              groups=expected_user_groups,
+                                                                                              name=user_groups.name))
 
 
 class TestUpsertGroupBackgroundCommand(TestCase):
