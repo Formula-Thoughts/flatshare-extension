@@ -11,7 +11,7 @@ from src.core import IValidateGroupCommand, ISetGroupRequestCommand, IUpdateGrou
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
-    CreateGroupSequenceBuilder
+    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder
 
 
 class TestUpdateGroupAsyncSequenceBuilder(TestCase):
@@ -222,4 +222,23 @@ class TestCreateGroupSequenceBuilder(TestCase):
             self.__fetch_auth_claims_if_user_has_no_group,
             self.__create_group,
             self.__create_user_groups
+        ])
+
+
+class TestFetchUserGroupIfExistsSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__validate_user_belongs_to_one_group: IValidateIfUserBelongsToAtLeastOneGroupCommand = Mock()
+        self.__fetch_auth_claims_if_user_has_no_group: IFetchAuthUserClaimsIfUserDoesNotExistCommand = Mock()
+        self.__sut = FetchUserGroupIfExistsSequenceBuilder(validate_user_belongs_to_at_least_one_group=self.__validate_user_belongs_to_one_group,
+                                                fetch_auth_claims_if_user_has_no_group=self.__fetch_auth_claims_if_user_has_no_group)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__validate_user_belongs_to_one_group,
+            self.__fetch_auth_claims_if_user_has_no_group
         ])

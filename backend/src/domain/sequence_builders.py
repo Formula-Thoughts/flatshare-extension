@@ -167,3 +167,15 @@ class CreateGroupSequenceBuilder(FluentSequenceBuilder):
             ._add_command(command=self.__fetch_auth_claims_if_user_has_no_group) \
             ._add_command(command=self.__create_group)\
             ._add_command(command=self.__create_user_groups)
+
+
+class FetchUserGroupIfExistsSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, validate_user_belongs_to_at_least_one_group: IValidateIfUserBelongsToAtLeastOneGroupCommand,
+                 fetch_auth_claims_if_user_has_no_group: IFetchAuthUserClaimsIfUserDoesNotExistCommand):
+        super().__init__()
+        self.__fetch_auth_claims_if_user_has_no_group = fetch_auth_claims_if_user_has_no_group
+        self.__validate_user_belongs_to_at_least_one_group = validate_user_belongs_to_at_least_one_group
+
+    def build(self):
+        ...

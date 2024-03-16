@@ -196,3 +196,7 @@ class IUpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
 
 class IUpsertUserGroupsBackgroundSequenceBuilder(SequenceBuilder, Protocol):
     pass
+
+
+class IFetchUserGroupIfExistsSequenceBuilder(SequenceBuilder, Protocol):
+    pass
