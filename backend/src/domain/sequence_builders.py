@@ -178,4 +178,5 @@ class FetchUserGroupIfExistsSequenceBuilder(FluentSequenceBuilder):
         self.__validate_user_belongs_to_at_least_one_group = validate_user_belongs_to_at_least_one_group
 
     def build(self):
-        ...
+        self._add_command(command=self.__validate_user_belongs_to_at_least_one_group)\
+            ._add_command(command=self.__fetch_auth_claims_if_user_has_no_group)
