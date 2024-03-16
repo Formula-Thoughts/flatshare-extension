@@ -220,6 +220,6 @@ class TestCreateGroupSequenceBuilder(TestCase):
         self.assertEqual(self.__sut.components, [
             self.__validate_user_belongs_to_one_group,
             self.__fetch_auth_claims_if_user_has_no_group,
-            self.__create_user_groups,
-            self.__create_group
+            self.__create_group,
+            self.__create_user_groups
         ])

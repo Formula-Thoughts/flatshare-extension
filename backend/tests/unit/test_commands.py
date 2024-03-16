@@ -912,8 +912,10 @@ class TestFetchAuthUserClaimsCommand(TestCase):
     @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
     def test_run_should_not_fetch_if_user_groups_already_exists(self):
         # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
         context = ApplicationContext(variables={
-            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True,
+            USER_GROUPS: user_groups
         })
         self.__cognito_wrapper.admin_get_user = MagicMock()
 
@@ -921,4 +923,9 @@ class TestFetchAuthUserClaimsCommand(TestCase):
         self.__sut.run(context=context)
 
         # assert
-        self.__cognito_wrapper.admin_get_user.assert_not_called()
+        with self.subTest(msg="cognito is not called"):
+            self.__cognito_wrapper.admin_get_user.assert_not_called()
+
+        # assert
+        with self.subTest(msg="assert full name was set as var"):
+            self.assertEqual(context.get_var(FULLNAME_CLAIM, str), user_groups.name)
