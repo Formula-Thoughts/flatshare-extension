@@ -44,3 +44,15 @@ class S3ClientWrapper:
                       key: S3Key) -> None:
         self.__s3_client.delete_object(Bucket=bucket,
                                        Key=key)
+
+
+class CognitoClientWrapper:
+
+    def __init__(self, client: BaseClient):
+        self.__cognito_client = client
+
+    def admin_get_user(self,
+                       user_pool_id: S3BucketName,
+                       username: S3Key) -> dict:
+        return self.__cognito_client.admin_get_user(UserPoolId=user_pool_id,
+                                                    Username=username)
