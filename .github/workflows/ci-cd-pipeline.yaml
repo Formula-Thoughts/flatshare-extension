@@ -2,9 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: [main, prod-ready]
 jobs:
   set-env:
     runs-on: ubuntu-latest
