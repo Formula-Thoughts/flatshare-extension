@@ -273,7 +273,8 @@ class ValidateUserIsNotParticipantCommand:
 
     def run(self, context: ApplicationContext):
         group = context.get_var(name=GROUP, _type=Group)
-        if context.auth_user_id in group.participants:
+        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
+        if fullname in group.participants:
             context.error_capsules.append(user_already_part_of_group_error)
             return
 
