@@ -665,12 +665,12 @@ class TestAddCurrentUserToGroupCommand(TestCase):
 
     def test_run(self):
         # arrange
-        user_groups = AutoFixture().create(dto=UserGroups)
+        fullname = "full name"
         group = AutoFixture().create(dto=Group)
         length_of_flats_before_delete = len(group.participants)
         context = ApplicationContext(variables={
             GROUP: group,
-            USER_GROUPS: user_groups
+            FULLNAME_CLAIM: fullname
         })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
@@ -694,7 +694,7 @@ class TestAddCurrentUserToGroupCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert correct user is added to group"):
-            self.assertEqual(captor.arg.participants[-1], user_groups.name)
+            self.assertEqual(captor.arg.participants[-1], fullname)
 
         # assert
         with self.subTest(msg="assert group published matches"):
@@ -706,12 +706,12 @@ class TestAddCurrentUserToGroupCommand(TestCase):
 
     def test_run_when_user_is_already_in_the_group(self):
         # arrange
-        user_groups = AutoFixture().create(dto=UserGroups)
+        fullname = "full name"
         group = AutoFixture().create(dto=Group)
-        group.participants.append(user_groups.name)
+        group.participants.append(fullname)
         context = ApplicationContext(variables={
             GROUP: group,
-            USER_GROUPS: user_groups
+            FULLNAME_CLAIM: fullname
         })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
