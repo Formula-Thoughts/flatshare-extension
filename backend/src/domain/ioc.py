@@ -9,7 +9,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
     IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder, \
-    IFetchAuthUserClaimsIfUserDoesNotExistCommand
+    IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
@@ -19,7 +19,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, Up
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
-    CreateGroupSequenceBuilder
+    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder
 
 
 def register_domain_dependencies(container: Container):
@@ -61,4 +61,6 @@ def register_domain_dependencies(container: Container):
      .register(service=IGetCodeForGroupSequenceBuilder,
                implementation=GetCodeForGroupSequenceBuilder)
      .register(service=ICreateGroupSequenceBuilder,
-               implementation=CreateGroupSequenceBuilder))
+               implementation=CreateGroupSequenceBuilder)
+     .register(service=IFetchUserGroupIfExistsSequenceBuilder,
+               implementation=FetchUserGroupIfExistsSequenceBuilder))
