@@ -1,4 +1,5 @@
 import base64
+import os
 import typing
 import uuid
 
@@ -9,7 +10,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
-    CREATE_FLAT_REQUEST, FLAT_ID, CODE
+    CREATE_FLAT_REQUEST, FLAT_ID, CODE, FULLNAME_CLAIM
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
@@ -294,4 +295,7 @@ class FetchAuthUserClaimsCommand:
         self.__cognito_wrapper = cognito_wrapper
 
     def run(self, context: ApplicationContext):
-        ...
+        user = self.__cognito_wrapper.admin_get_user(user_pool_id=os.environ["USER_POOL_ID"],
+                                                     username=context.auth_user_id)
+
+        context.set_var(name=FULLNAME_CLAIM, value=list(filter(lambda x: x['Name'] == "name", user['UserAttributes']))[0]['Value'])

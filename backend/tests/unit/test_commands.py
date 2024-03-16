@@ -852,7 +852,7 @@ class TestFetchAuthUserClaimsCommand(TestCase):
         self.__cognito_wrapper: CognitoClientWrapper = Mock()
         self.__sut = FetchAuthUserClaimsCommand(cognito_wrapper=self.__cognito_wrapper)
 
-    @patch.dict(os.environ, {"S3_BUCKET_NAME": USER_POOL})
+    @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
     def test_run_should_fetch_name_and_set_it(self):
 
         # arrange
@@ -881,4 +881,4 @@ class TestFetchAuthUserClaimsCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert full name was set as var"):
-            self.assertEqual(context.get_var("FULLNAME_CLAIM", str), name)
+            self.assertEqual(context.get_var("fullname_claim", str), name)
