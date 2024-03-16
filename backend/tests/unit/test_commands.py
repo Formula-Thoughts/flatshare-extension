@@ -169,6 +169,10 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
                                                                            payload=expected_user_group)
 
+        # assert
+        with self.subTest(msg="assert user groups var is set"):
+            self.assertEqual(context.get_var(name=USER_GROUPS, _type=UserGroups), expected_user_group)
+
     def test_run_should_modify_existing_user_groups_if_user_already_has_group(self) -> None:
         # arrange
         group_id = str(uuid.uuid4())
