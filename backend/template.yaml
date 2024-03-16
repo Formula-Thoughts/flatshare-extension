@@ -276,7 +276,19 @@ Resources:
   MyQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: "flatini-queue.fifo"
+      QueueName: !Join
+        - "-"
+        - - "flatini-queue"
+          - !Select
+            - 0
+            - !Split
+              - "-"
+              - !Select
+                - 2
+                - !Split
+                  - "/"
+                  - !Ref "AWS::StackId"
+          - ".fifo"
       VisibilityTimeout: 50
       FifoQueue: true
 
