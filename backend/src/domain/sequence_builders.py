@@ -164,5 +164,6 @@ class CreateGroupSequenceBuilder(FluentSequenceBuilder):
 
     def build(self):
         self._add_command(command=self.__validate_user_belongs_to_one_group)\
+            ._add_command(command=self.__fetch_auth_claims_if_user_has_no_group)\
             ._add_command(command=self.__create_group)\
             ._add_command(command=self.__create_user_groups)
