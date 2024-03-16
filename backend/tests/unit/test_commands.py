@@ -828,13 +828,15 @@ class TestCreateGroupAsyncCommand(TestCase):
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
     def test_run(self, _):
         # arrange
-        auth_user_id = "12345"
-        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
+        user_groups = AutoFixture().create(dto=UserGroups)
+        context = ApplicationContext(variables={
+            USER_GROUPS: user_groups
+        })
         self.__sqs_publisher.send_sqs_message = MagicMock()
         expected_group = Group(
                              id=UUID_EXAMPLE,
                              flats=[],
-                             participants=[auth_user_id],
+                             participants=[user_groups.name],
                              price_limit=None,
                              locations=[]
                          )
