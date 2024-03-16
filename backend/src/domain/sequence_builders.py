@@ -161,7 +161,8 @@ class CreateGroupSequenceBuilder(FluentSequenceBuilder):
         self.__create_user_groups = create_user_groups
 
     def build(self):
-        self._add_command(command=self.__create_group)\
+        self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists)\
+            ._add_command(command=self.__create_group)\
             ._add_command(command=self.__create_user_groups)
 
 
