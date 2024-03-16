@@ -27,7 +27,7 @@ flat_price_required_error = InvalidGroupDataError(message="price field is a requ
 
 flat_url_required_error = InvalidGroupDataError(message="url field is a required attribute")
 
-flat_location_required_error = InvalidGroupDataError(message="location field is a required attribute")
+flat_title_required_error = InvalidGroupDataError(message="title field is a required attribute")
 
 group_price_limt_required_error = InvalidGroupDataError(message="priceLimit field is a required attribute")
 

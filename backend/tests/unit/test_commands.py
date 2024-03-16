@@ -23,7 +23,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_location_required_error, group_price_limt_required_error
+    flat_price_required_error, flat_url_required_error, flat_title_required_error, group_price_limt_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -564,7 +564,7 @@ class TestValidateFlatRequestCommand(TestCase):
     @data(
         [None, "https://test.com", "UK", 1, flat_price_required_error],
         [100.20, None, "UK", 1, flat_url_required_error],
-        [100.20, "https://test.com", None, 1, flat_location_required_error],
+        [100.20, "https://test.com", None, 1, flat_title_required_error],
         [-10, "https://test.com", "UK", 1, invalid_price_error],
         [None, "https://test.com", None, 2, flat_price_required_error],
         [None, None, None, 3, flat_price_required_error])
