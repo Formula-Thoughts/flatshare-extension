@@ -18,6 +18,7 @@ class Flat:
     url: str = None
     title: str = None
     price: float = None
+    added_by: str = None
 
 
 GroupParticipantAuthId = str

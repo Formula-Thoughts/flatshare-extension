@@ -497,12 +497,14 @@ class TestCreateFlatCommand(TestCase):
     def test_run(self, _):
         # arrange
         group = AutoFixture().create(dto=Group)
+        user_groups = AutoFixture().create(dto=UserGroups)
         flat = AutoFixture().create(dto=CreateFlatRequest)
         flats = AutoFixture().create_many(dto=Flat, ammount=3)
         group.flats = flats
         context = ApplicationContext(variables={
             CREATE_FLAT_REQUEST: flat,
-            GROUP: group
+            GROUP: group,
+            USER_GROUPS: user_groups
         })
         self.__sqs_message_publisher.send_sqs_message = MagicMock()
 
@@ -528,7 +530,11 @@ class TestCreateFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="correct flat params are set"):
-            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE, url=flat.url, price=flat.price, title=flat.title))
+            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE,
+                                                        url=flat.url,
+                                                        price=flat.price,
+                                                        title=flat.title,
+                                                        added_by=user_groups.name))
 
 
 @ddt
