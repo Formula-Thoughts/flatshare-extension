@@ -665,12 +665,13 @@ class TestAddCurrentUserToGroupCommand(TestCase):
 
     def test_run(self):
         # arrange
-        auth_user_id = "1234"
+        user_groups = AutoFixture().create(dto=UserGroups)
         group = AutoFixture().create(dto=Group)
         length_of_flats_before_delete = len(group.participants)
         context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_user_id)
+            GROUP: group,
+            USER_GROUPS: user_groups
+        })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -688,8 +689,12 @@ class TestAddCurrentUserToGroupCommand(TestCase):
                                                                            payload=captor)
 
         # assert
-        with self.subTest(msg="assert user is added to group"):
+        with self.subTest(msg="assert user is append to group"):
             self.assertEqual(len(captor.arg.participants), length_of_flats_before_delete + 1)
+
+        # assert
+        with self.subTest(msg="assert correct user is added to group"):
+            self.assertEqual(captor.arg.participants[-1], user_groups.name)
 
         # assert
         with self.subTest(msg="assert group published matches"):
