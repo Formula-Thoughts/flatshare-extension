@@ -308,6 +308,8 @@ class FetchAuthUserClaimsIfUserDoesNotExistCommand:
     def run(self, context: ApplicationContext):
         is_user_part_of_at_least_one_group = context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=str)
         if is_user_part_of_at_least_one_group:
+            context.set_var(name=FULLNAME_CLAIM,
+                            value=context.get_var(name=USER_GROUPS, _type=UserGroups).name)
             return
 
         user = self.__cognito_wrapper.admin_get_user(user_pool_id=os.environ["USER_POOL_ID"],
