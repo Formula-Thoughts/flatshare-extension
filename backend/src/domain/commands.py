@@ -191,8 +191,12 @@ class CreateFlatCommand:
 
     def run(self, context: ApplicationContext):
         group = context.get_var(name=GROUP, _type=Group)
+        user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
         flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
-        group.flats.append(Flat(url=flat_request.url, title=flat_request.title, price=flat_request.price))
+        group.flats.append(Flat(url=flat_request.url,
+                                title=flat_request.title,
+                                price=flat_request.price,
+                                added_by=user_groups.name))
         self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
