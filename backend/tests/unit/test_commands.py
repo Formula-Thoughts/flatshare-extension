@@ -10,20 +10,22 @@ from ddt import ddt, data
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
+
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_FLAT_REQUEST, GROUP, CODE, FULLNAME_CLAIM
+    CREATE_FLAT_REQUEST, GROUP, FULLNAME_CLAIM
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
-    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, \
+    FetchAuthUserClaimsIfUserDoesNotExistCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_title_required_error, group_price_limt_required_error
+    FlatNotFoundError, \
+    code_required_error, user_already_part_of_group_error, \
+    flat_price_required_error, flat_url_required_error, flat_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -59,10 +61,16 @@ class TestValidateGroupRequestCommand(TestCase):
     def setUp(self):
         self.__sut = ValidateGroupCommand()
 
-    def test_run_with_valid_data(self):
+    @data(
+        [None, ["UK"]],
+        [None, []],
+        [14, ["UK"]])
+    def test_run_with_valid_data(self, data):
+        # arrange
+        [price_limit, locations] = data
         # arrange
         context = ApplicationContext(variables={
-            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=14.4, locations=["UK"])
+            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, locations=locations)
         })
 
         # act
@@ -74,9 +82,7 @@ class TestValidateGroupRequestCommand(TestCase):
     @data(
         [0, ["UK"], 1, invalid_price_error],
         [-14, ["UK"], 1, invalid_price_error],
-        [54, [], 1, invalid_group_locations_error],
-        [None, ["UK"], 1, group_price_limt_required_error],
-        [0, [], 2, invalid_price_error])
+        [0, [], 1, invalid_price_error])
     def test_run_with_invalid_data(self, data):
         # arrange
         [price_limit, locations, errors_count, error] = data
