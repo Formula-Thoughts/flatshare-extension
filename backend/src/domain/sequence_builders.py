@@ -6,7 +6,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
     IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
-    ICreateGroupAsyncCommand, IFetchAuthUserClaimsIfUserDoesNotExistCommand
+    ICreateGroupAsyncCommand, IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -152,20 +152,16 @@ class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
 
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
 
-    def __init__(self, validate_user_belongs_to_one_group: IValidateIfUserBelongsToAtLeastOneGroupCommand,
-                 fetch_auth_claims_if_user_has_no_group: IFetchAuthUserClaimsIfUserDoesNotExistCommand,
+    def __init__(self, fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder,
                  create_user_groups: ICreateUserGroupsAsyncCommand,
                  create_group: ICreateGroupAsyncCommand):
         super().__init__()
-        self.__fetch_auth_claims_if_user_has_no_group = fetch_auth_claims_if_user_has_no_group
+        self.__fetch_user_group_if_exists = fetch_user_group_if_exists
         self.__create_group = create_group
         self.__create_user_groups = create_user_groups
-        self.__validate_user_belongs_to_one_group = validate_user_belongs_to_one_group
 
     def build(self):
-        self._add_command(command=self.__validate_user_belongs_to_one_group)\
-            ._add_command(command=self.__fetch_auth_claims_if_user_has_no_group) \
-            ._add_command(command=self.__create_group)\
+        self._add_command(command=self.__create_group)\
             ._add_command(command=self.__create_user_groups)
 
 
