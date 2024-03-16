@@ -4,10 +4,12 @@ on:
   push:
     branches: [main, prod-ready]
 jobs:
+  # Determines the environment to deploy the backend to
   set-env:
     runs-on: ubuntu-latest
     outputs:
       env: ${{ steps.setvars.outputs.env }}
+    # Deploys to staging/prod environment depending on branch name
     steps:
       - name: determine env
         run: |
