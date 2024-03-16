@@ -765,11 +765,12 @@ class TestValidateUserIsNotParticipantCommand(TestCase):
 
     def test_run_when_user_is_not_part_of_group(self):
         # arrange
-        auth_id = "1234"
+        fullname = "fullname"
         group = AutoFixture().create(dto=Group)
         context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_id)
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
 
         # act
         self.__sut.run(context=context)
@@ -780,12 +781,13 @@ class TestValidateUserIsNotParticipantCommand(TestCase):
 
     def test_run_when_user_is_already_part_of_group(self):
         # arrange
-        auth_id = "1234"
+        fullname = "fullname"
         group = AutoFixture().create(dto=Group)
-        group.participants.append(auth_id)
+        group.participants.append(fullname)
         context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_id)
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
 
         # act
         self.__sut.run(context=context)
