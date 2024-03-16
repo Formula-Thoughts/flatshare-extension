@@ -21,14 +21,14 @@ class Flat:
     added_by: str = None
 
 
-GroupParticipantAuthId = str
+GroupParticipantName = str
 GroupId = str
 
 
 @dataclass(unsafe_hash=True)
 class UserGroups:
     name: str = None
-    auth_user_id: GroupParticipantAuthId = None
+    auth_user_id: GroupParticipantName = None
     groups: list[GroupId] = field(default_factory=lambda: [])
 
 
@@ -36,7 +36,7 @@ class UserGroups:
 class Group:
     id: str = field(default_factory=uuid4_str)
     flats: list[Flat] = field(default_factory=lambda: [])
-    participants: list[GroupParticipantAuthId] = field(default_factory=lambda: [])
+    participants: list[GroupParticipantName] = field(default_factory=lambda: [])
     price_limit: float = None
     locations: list[str] = field(default_factory=lambda: [])
 
