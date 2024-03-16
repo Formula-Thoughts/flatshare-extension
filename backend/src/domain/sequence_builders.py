@@ -132,7 +132,8 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        self._add_command(command=self.__set_group_id_from_code)\
+        self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists)\
+            ._add_command(command=self.__set_group_id_from_code)\
             ._add_command(command=self.__get_group_by_id)\
             ._add_command(command=self.__validate_user_is_not_participant)\
             ._add_command(command=self.__add_current_user_to_group_command)\
