@@ -245,10 +245,6 @@ class AddCurrentUserToGroupCommand:
     def run(self, context: ApplicationContext):
         fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
         group = context.get_var(name=GROUP, _type=Group)
-        if fullname in group.participants:
-            context.error_capsules.append(current_user_already_added_to_group)
-            return
-
         group.participants.append(fullname)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
