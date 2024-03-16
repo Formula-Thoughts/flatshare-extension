@@ -1,6 +1,10 @@
 import boto3
 from botocore.client import BaseClient
 
+CognitoUserPoolId = str
+
+Username = str
+
 S3Key = str
 
 S3Object = str
@@ -52,7 +56,7 @@ class CognitoClientWrapper:
         self.__cognito_client = client
 
     def admin_get_user(self,
-                       user_pool_id: S3BucketName,
-                       username: S3Key) -> dict:
+                       user_pool_id: CognitoUserPoolId,
+                       username: Username) -> dict:
         return self.__cognito_client.admin_get_user(UserPoolId=user_pool_id,
                                                     Username=username)

@@ -1,3 +1,4 @@
+import os
 import uuid
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch, call
@@ -10,6 +11,7 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
+from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_FLAT_REQUEST, GROUP, CODE
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
@@ -17,7 +19,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
-    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
@@ -26,6 +28,7 @@ from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, S
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
+USER_POOL = "test_user_pool"
 
 
 class TestSetGroupRequestCommand(TestCase):
@@ -841,3 +844,41 @@ class TestCreateGroupAsyncCommand(TestCase):
 
         with self.subTest(msg="assert group id var was set"):
             self.assertEqual(context.get_var(name=GROUP_ID, _type=str), UUID_EXAMPLE)
+
+
+class TestFetchAuthUserClaimsCommand(TestCase):
+
+    def setUp(self):
+        self.__cognito_wrapper: CognitoClientWrapper = Mock()
+        self.__sut = FetchAuthUserClaimsCommand(cognito_wrapper=self.__cognito_wrapper)
+
+    @patch.dict(os.environ, {"S3_BUCKET_NAME": USER_POOL})
+    def test_run_should_fetch_name_and_set_it(self):
+
+        # arrange
+        name = "test user"
+        auth_user_id = "1234"
+        context = ApplicationContext(variables={}, auth_user_id=auth_user_id)
+        self.__cognito_wrapper.admin_get_user = MagicMock(return_value={
+            'UserAttributes': [
+                {
+                    'Name': 'name',
+                    'Value': name
+                },
+            ]
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert cognito was called once"):
+            self.__cognito_wrapper.admin_get_user.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert cogntio was called with correct params"):
+            self.__cognito_wrapper.admin_get_user.assert_called_with(user_pool_id=USER_POOL, username=auth_user_id)
+
+        # assert
+        with self.subTest(msg="assert full name was set as var"):
+            self.assertEqual(context.get_var("FULLNAME_CLAIM", str), name)
