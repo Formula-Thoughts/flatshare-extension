@@ -133,8 +133,8 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
         self._add_command(command=self.__set_group_id_from_code)\
             ._add_command(command=self.__get_group_by_id)\
             ._add_command(command=self.__validate_user_is_not_participant)\
-            ._add_command(command=self.__add_current_user_to_group_command)\
-            ._add_command(command=self.__create_user_groups)
+            ._add_command(command=self.__create_user_groups) \
+            ._add_command(command=self.__add_current_user_to_group_command)
 
 
 class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
