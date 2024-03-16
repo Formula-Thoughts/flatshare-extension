@@ -119,6 +119,14 @@ Resources:
                 Action:
                   - sqs:*
                 Resource: arn:aws:sqs:*:*:*
+        - PolicyName: FlatiniAppRoleCognitoPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminGetUser
+                Resource: !Subarn:aws:cognito-idp:*:*:userpool/${FlatiniUserPool.UserPoolId}
         - PolicyName: FlatiniAppRoleDbPolicy
           PolicyDocument:
             Version: "2012-10-17"
