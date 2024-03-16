@@ -8,13 +8,14 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     ICreateFlatCommand, ICreateFlatSequenceBuilder, IValidateFlatRequestCommand, IDeleteFlatCommand, \
     IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
-    IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder
+    IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder, \
+    IFetchAuthUserClaimsCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
     FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, ValidateFlatRequestCommand, DeleteFlatCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
-    ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
+    ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
@@ -41,6 +42,7 @@ def register_domain_dependencies(container: Container):
      .register(service=IGetCodeFromGroupIdCommand, implementation=GetCodeFromGroupIdCommand)
      .register(service=IAddCurrentUserToGroupCommand, implementation=AddCurrentUserToGroupCommand)
      .register(service=IValidateFlatRequestCommand, implementation=ValidateFlatRequestCommand)
+     .register(service=IFetchAuthUserClaimsCommand, implementation=FetchAuthUserClaimsCommand)
      .register(service=IValidateUserIsNotParticipantCommand, implementation=ValidateUserIsNotParticipantCommand)
      .register(service=IValidateIfGroupBelongsToUser,
                implementation=ValidateIfGroupBelongsToUser)
