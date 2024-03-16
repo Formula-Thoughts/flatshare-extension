@@ -243,12 +243,13 @@ class AddCurrentUserToGroupCommand:
         self.__sqs_event_publisher = sqs_event_publisher
 
     def run(self, context: ApplicationContext):
+        user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
         group = context.get_var(name=GROUP, _type=Group)
-        if context.auth_user_id in group.participants:
+        if user_groups.name in group.participants:
             context.error_capsules.append(current_user_already_added_to_group)
             return
 
-        group.participants.append(context.auth_user_id)
+        group.participants.append(user_groups.name)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 

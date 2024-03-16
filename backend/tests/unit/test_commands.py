@@ -706,12 +706,13 @@ class TestAddCurrentUserToGroupCommand(TestCase):
 
     def test_run_when_user_is_already_in_the_group(self):
         # arrange
-        auth_user_id = "1234"
+        user_groups = AutoFixture().create(dto=UserGroups)
         group = AutoFixture().create(dto=Group)
-        group.participants.append(auth_user_id)
+        group.participants.append(user_groups.name)
         context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_user_id)
+            GROUP: group,
+            USER_GROUPS: user_groups
+        })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
