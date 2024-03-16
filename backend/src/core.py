@@ -113,7 +113,7 @@ class IValidateIfGroupBelongsToUser(Command, Protocol):
     pass
 
 
-class IFetchAuthUserClaimsCommand(Command, Protocol):
+class IFetchAuthUserClaimsIfUserDoesNotExistCommand(Command, Protocol):
     pass
 
 

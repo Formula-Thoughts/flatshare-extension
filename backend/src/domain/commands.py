@@ -289,7 +289,7 @@ class CreateGroupAsyncCommand:
         self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)
 
 
-class FetchAuthUserClaimsCommand:
+class FetchAuthUserClaimsIfUserDoesNotExistCommand:
 
     def __init__(self, cognito_wrapper: CognitoClientWrapper):
         self.__cognito_wrapper = cognito_wrapper

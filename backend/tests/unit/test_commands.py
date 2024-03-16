@@ -19,7 +19,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
-    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsCommand
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     invalid_group_locations_error, FlatNotFoundError, \
     current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
@@ -850,7 +850,7 @@ class TestFetchAuthUserClaimsCommand(TestCase):
 
     def setUp(self):
         self.__cognito_wrapper: CognitoClientWrapper = Mock()
-        self.__sut = FetchAuthUserClaimsCommand(cognito_wrapper=self.__cognito_wrapper)
+        self.__sut = FetchAuthUserClaimsIfUserDoesNotExistCommand(cognito_wrapper=self.__cognito_wrapper)
 
     @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
     def test_run_should_fetch_name_and_set_it(self):
@@ -858,7 +858,9 @@ class TestFetchAuthUserClaimsCommand(TestCase):
         # arrange
         name = "test user"
         auth_user_id = "1234"
-        context = ApplicationContext(variables={}, auth_user_id=auth_user_id)
+        context = ApplicationContext(variables={
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False
+        }, auth_user_id=auth_user_id)
         self.__cognito_wrapper.admin_get_user = MagicMock(return_value={
             'UserAttributes': [
                 {
@@ -882,3 +884,17 @@ class TestFetchAuthUserClaimsCommand(TestCase):
         # assert
         with self.subTest(msg="assert full name was set as var"):
             self.assertEqual(context.get_var("fullname_claim", str), name)
+
+    @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
+    def test_run_should_not_fetch_if_user_groups_already_exists(self):
+        # arrange
+        context = ApplicationContext(variables={
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True
+        })
+        self.__cognito_wrapper.admin_get_user = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        self.__cognito_wrapper.admin_get_user.assert_not_called()
