@@ -42,12 +42,10 @@ class ValidateGroupCommand:
         request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
 
         if request.price_limit is None:
-            context.error_capsules.append(group_price_limt_required_error)
-        elif request.price_limit <= 0:
-            context.error_capsules.append(invalid_price_error)
+            return
 
-        if len(request.locations) == 0:
-            context.error_capsules.append(invalid_group_locations_error)
+        if request.price_limit <= 0:
+            context.error_capsules.append(invalid_price_error)
 
 
 class UpdateGroupAsyncCommand:
