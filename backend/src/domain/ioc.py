@@ -8,17 +8,18 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     ICreateFlatCommand, ICreateFlatSequenceBuilder, IValidateFlatRequestCommand, IDeleteFlatCommand, \
     IDeleteFlatSequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
-    IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder
+    IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder, \
+    IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
     FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, ValidateFlatRequestCommand, DeleteFlatCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
-    ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
+    ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
-    CreateGroupSequenceBuilder
+    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder
 
 
 def register_domain_dependencies(container: Container):
@@ -41,6 +42,7 @@ def register_domain_dependencies(container: Container):
      .register(service=IGetCodeFromGroupIdCommand, implementation=GetCodeFromGroupIdCommand)
      .register(service=IAddCurrentUserToGroupCommand, implementation=AddCurrentUserToGroupCommand)
      .register(service=IValidateFlatRequestCommand, implementation=ValidateFlatRequestCommand)
+     .register(service=IFetchAuthUserClaimsIfUserDoesNotExistCommand, implementation=FetchAuthUserClaimsIfUserDoesNotExistCommand)
      .register(service=IValidateUserIsNotParticipantCommand, implementation=ValidateUserIsNotParticipantCommand)
      .register(service=IValidateIfGroupBelongsToUser,
                implementation=ValidateIfGroupBelongsToUser)
@@ -59,4 +61,6 @@ def register_domain_dependencies(container: Container):
      .register(service=IGetCodeForGroupSequenceBuilder,
                implementation=GetCodeForGroupSequenceBuilder)
      .register(service=ICreateGroupSequenceBuilder,
-               implementation=CreateGroupSequenceBuilder))
+               implementation=CreateGroupSequenceBuilder)
+     .register(service=IFetchUserGroupIfExistsSequenceBuilder,
+               implementation=FetchUserGroupIfExistsSequenceBuilder))

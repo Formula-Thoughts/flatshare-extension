@@ -16,17 +16,19 @@ def uuid4_str():
 class Flat:
     id: str = field(default_factory=uuid4_str)
     url: str = None
-    location: str = None
+    title: str = None
     price: float = None
+    added_by: str = None
 
 
-GroupParticipantAuthId = str
+GroupParticipantName = str
 GroupId = str
 
 
 @dataclass(unsafe_hash=True)
 class UserGroups:
-    auth_user_id: GroupParticipantAuthId = None
+    name: str = None
+    auth_user_id: GroupParticipantName = None
     groups: list[GroupId] = field(default_factory=lambda: [])
 
 
@@ -34,7 +36,7 @@ class UserGroups:
 class Group:
     id: str = field(default_factory=uuid4_str)
     flats: list[Flat] = field(default_factory=lambda: [])
-    participants: list[GroupParticipantAuthId] = field(default_factory=lambda: [])
+    participants: list[GroupParticipantName] = field(default_factory=lambda: [])
     price_limit: float = None
     locations: list[str] = field(default_factory=lambda: [])
 
@@ -48,7 +50,7 @@ class UpsertGroupRequest:
 @dataclass(unsafe_hash=True)
 class CreateFlatRequest:
     price: float = None
-    location: str = None
+    title: str = None
     url: str = None
 
 
@@ -109,6 +111,10 @@ class IValidateIfUserBelongsToAtLeastOneGroupCommand(Command, Protocol):
 
 
 class IValidateIfGroupBelongsToUser(Command, Protocol):
+    pass
+
+
+class IFetchAuthUserClaimsIfUserDoesNotExistCommand(Command, Protocol):
     pass
 
 
@@ -189,4 +195,8 @@ class IUpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
 
 
 class IUpsertUserGroupsBackgroundSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class IFetchUserGroupIfExistsSequenceBuilder(SequenceBuilder, Protocol):
     pass

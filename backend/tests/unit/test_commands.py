@@ -1,3 +1,4 @@
+import os
 import uuid
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch, call
@@ -9,23 +10,27 @@ from ddt import ddt, data
 from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
+
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
+from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_FLAT_REQUEST, GROUP, CODE
+    CREATE_FLAT_REQUEST, GROUP, FULLNAME_CLAIM
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
     ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
-    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand
+    GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, \
+    FetchAuthUserClaimsIfUserDoesNotExistCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_location_required_error, group_price_limt_required_error
+    FlatNotFoundError, \
+    code_required_error, user_already_part_of_group_error, \
+    flat_price_required_error, flat_url_required_error, flat_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
+USER_POOL = "test_user_pool"
 
 
 class TestSetGroupRequestCommand(TestCase):
@@ -56,10 +61,16 @@ class TestValidateGroupRequestCommand(TestCase):
     def setUp(self):
         self.__sut = ValidateGroupCommand()
 
-    def test_run_with_valid_data(self):
+    @data(
+        [None, ["UK"]],
+        [None, []],
+        [14, ["UK"]])
+    def test_run_with_valid_data(self, data):
+        # arrange
+        [price_limit, locations] = data
         # arrange
         context = ApplicationContext(variables={
-            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=14.4, locations=["UK"])
+            UPSERT_GROUP_REQUEST: UpsertGroupRequest(price_limit=price_limit, locations=locations)
         })
 
         # act
@@ -71,9 +82,7 @@ class TestValidateGroupRequestCommand(TestCase):
     @data(
         [0, ["UK"], 1, invalid_price_error],
         [-14, ["UK"], 1, invalid_price_error],
-        [54, [], 1, invalid_group_locations_error],
-        [None, ["UK"], 1, group_price_limt_required_error],
-        [0, [], 2, invalid_price_error])
+        [0, [], 1, invalid_price_error])
     def test_run_with_invalid_data(self, data):
         # arrange
         [price_limit, locations, errors_count, error] = data
@@ -143,10 +152,15 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         # arrange
         group_id = str(uuid.uuid4())
         auth_user_id = "12345"
+        name = "test_user"
         expected_user_group = UserGroups(auth_user_id=auth_user_id,
-                                         groups=[group_id])
-        context = ApplicationContext(variables={GROUP_ID: group_id, USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False},
-                                     auth_user_id=auth_user_id)
+                                         groups=[group_id],
+                                         name=name)
+        context = ApplicationContext(variables={
+            GROUP_ID: group_id,
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False,
+            FULLNAME_CLAIM: name
+        }, auth_user_id=auth_user_id)
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -160,6 +174,10 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         with self.subTest(msg="assert sqs message is sent with correct params"):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
                                                                            payload=expected_user_group)
+
+        # assert
+        with self.subTest(msg="assert user groups var is set"):
+            self.assertEqual(context.get_var(name=USER_GROUPS, _type=UserGroups), expected_user_group)
 
     def test_run_should_modify_existing_user_groups_if_user_already_has_group(self) -> None:
         # arrange
@@ -182,7 +200,8 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         with self.subTest(msg="assert sqs message is sent with correct params"):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
                                                                            payload=UserGroups(auth_user_id=auth_user_id,
-                                                                                              groups=expected_user_groups))
+                                                                                              groups=expected_user_groups,
+                                                                                              name=user_groups.name))
 
 
 class TestUpsertGroupBackgroundCommand(TestCase):
@@ -488,12 +507,14 @@ class TestCreateFlatCommand(TestCase):
     def test_run(self, _):
         # arrange
         group = AutoFixture().create(dto=Group)
+        user_groups = AutoFixture().create(dto=UserGroups)
         flat = AutoFixture().create(dto=CreateFlatRequest)
         flats = AutoFixture().create_many(dto=Flat, ammount=3)
         group.flats = flats
         context = ApplicationContext(variables={
             CREATE_FLAT_REQUEST: flat,
-            GROUP: group
+            GROUP: group,
+            USER_GROUPS: user_groups
         })
         self.__sqs_message_publisher.send_sqs_message = MagicMock()
 
@@ -519,7 +540,11 @@ class TestCreateFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="correct flat params are set"):
-            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE, url=flat.url, price=flat.price, location=flat.location))
+            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE,
+                                                        url=flat.url,
+                                                        price=flat.price,
+                                                        title=flat.title,
+                                                        added_by=user_groups.name))
 
 
 @ddt
@@ -545,7 +570,7 @@ class TestValidateFlatRequestCommand(TestCase):
     @data(
         [None, "https://test.com", "UK", 1, flat_price_required_error],
         [100.20, None, "UK", 1, flat_url_required_error],
-        [100.20, "https://test.com", None, 1, flat_location_required_error],
+        [100.20, "https://test.com", None, 1, flat_title_required_error],
         [-10, "https://test.com", "UK", 1, invalid_price_error],
         [None, "https://test.com", None, 2, flat_price_required_error],
         [None, None, None, 3, flat_price_required_error])
@@ -553,7 +578,7 @@ class TestValidateFlatRequestCommand(TestCase):
         # arrange
         [price, url, location, errors_count, error] = data
         context = ApplicationContext(variables={
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, url=url, location=location)
+            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, url=url, title=location)
         })
 
         # act
@@ -646,12 +671,13 @@ class TestAddCurrentUserToGroupCommand(TestCase):
 
     def test_run(self):
         # arrange
-        auth_user_id = "1234"
+        fullname = "full name"
         group = AutoFixture().create(dto=Group)
         length_of_flats_before_delete = len(group.participants)
         context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_user_id)
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -669,8 +695,12 @@ class TestAddCurrentUserToGroupCommand(TestCase):
                                                                            payload=captor)
 
         # assert
-        with self.subTest(msg="assert user is added to group"):
+        with self.subTest(msg="assert user is append to group"):
             self.assertEqual(len(captor.arg.participants), length_of_flats_before_delete + 1)
+
+        # assert
+        with self.subTest(msg="assert correct user is added to group"):
+            self.assertEqual(captor.arg.participants[-1], fullname)
 
         # assert
         with self.subTest(msg="assert group published matches"):
@@ -679,31 +709,6 @@ class TestAddCurrentUserToGroupCommand(TestCase):
         # assert
         with self.subTest(msg="assert response is set"):
             self.assertEqual(context.response, SingleGroupResponse(group=group))
-
-    def test_run_when_user_is_already_in_the_group(self):
-        # arrange
-        auth_user_id = "1234"
-        group = AutoFixture().create(dto=Group)
-        group.participants.append(auth_user_id)
-        context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_user_id)
-        self.__sqs_event_publisher.send_sqs_message = MagicMock()
-
-        # act
-        self.__sut.run(context=context)
-
-        # assert
-        with self.subTest(msg="assert sqs is never called"):
-            self.__sqs_event_publisher.send_sqs_message.assert_not_called()
-
-        # assert
-        with self.subTest(msg="assert error is added"):
-            self.assertEqual(len(context.error_capsules), 1)
-
-        # assert
-        with self.subTest(msg="assert user already added error is added"):
-            self.assertEqual(context.error_capsules[0], current_user_already_added_to_group)
 
 
 class TestSetGroupIdFromCodeCommand(TestCase):
@@ -766,11 +771,12 @@ class TestValidateUserIsNotParticipantCommand(TestCase):
 
     def test_run_when_user_is_not_part_of_group(self):
         # arrange
-        auth_id = "1234"
+        fullname = "fullname"
         group = AutoFixture().create(dto=Group)
         context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_id)
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
 
         # act
         self.__sut.run(context=context)
@@ -779,18 +785,15 @@ class TestValidateUserIsNotParticipantCommand(TestCase):
         with self.subTest(msg="no errors added"):
             self.assertEqual(len(context.error_capsules), 0)
 
-        # assert
-        with self.subTest(msg="assert validation var is set"):
-            self.assertEqual(context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool), False)
-
     def test_run_when_user_is_already_part_of_group(self):
         # arrange
-        auth_id = "1234"
+        fullname = "fullname"
         group = AutoFixture().create(dto=Group)
-        group.participants.append(auth_id)
+        group.participants.append(fullname)
         context = ApplicationContext(variables={
-            GROUP: group
-        }, auth_user_id=auth_id)
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
 
         # act
         self.__sut.run(context=context)
@@ -813,13 +816,15 @@ class TestCreateGroupAsyncCommand(TestCase):
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
     def test_run(self, _):
         # arrange
-        auth_user_id = "12345"
-        context = ApplicationContext(auth_user_id=auth_user_id, variables={})
+        fullname = "full name"
+        context = ApplicationContext(variables={
+            FULLNAME_CLAIM: fullname
+        })
         self.__sqs_publisher.send_sqs_message = MagicMock()
         expected_group = Group(
                              id=UUID_EXAMPLE,
                              flats=[],
-                             participants=[auth_user_id],
+                             participants=[fullname],
                              price_limit=None,
                              locations=[]
                          )
@@ -841,3 +846,64 @@ class TestCreateGroupAsyncCommand(TestCase):
 
         with self.subTest(msg="assert group id var was set"):
             self.assertEqual(context.get_var(name=GROUP_ID, _type=str), UUID_EXAMPLE)
+
+
+class TestFetchAuthUserClaimsCommand(TestCase):
+
+    def setUp(self):
+        self.__cognito_wrapper: CognitoClientWrapper = Mock()
+        self.__sut = FetchAuthUserClaimsIfUserDoesNotExistCommand(cognito_wrapper=self.__cognito_wrapper)
+
+    @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
+    def test_run_should_fetch_name_and_set_it(self):
+
+        # arrange
+        name = "test user"
+        auth_user_id = "1234"
+        context = ApplicationContext(variables={
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False
+        }, auth_user_id=auth_user_id)
+        self.__cognito_wrapper.admin_get_user = MagicMock(return_value={
+            'UserAttributes': [
+                {
+                    'Name': 'name',
+                    'Value': name
+                },
+            ]
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert cognito was called once"):
+            self.__cognito_wrapper.admin_get_user.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert cogntio was called with correct params"):
+            self.__cognito_wrapper.admin_get_user.assert_called_with(user_pool_id=USER_POOL, username=auth_user_id)
+
+        # assert
+        with self.subTest(msg="assert full name was set as var"):
+            self.assertEqual(context.get_var("fullname_claim", str), name)
+
+    @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
+    def test_run_should_not_fetch_if_user_groups_already_exists(self):
+        # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
+        context = ApplicationContext(variables={
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True,
+            USER_GROUPS: user_groups
+        })
+        self.__cognito_wrapper.admin_get_user = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="cognito is not called"):
+            self.__cognito_wrapper.admin_get_user.assert_not_called()
+
+        # assert
+        with self.subTest(msg="assert full name was set as var"):
+            self.assertEqual(context.get_var(FULLNAME_CLAIM, str), user_groups.name)

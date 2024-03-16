@@ -119,6 +119,14 @@ Resources:
                 Action:
                   - sqs:*
                 Resource: arn:aws:sqs:*:*:*
+        - PolicyName: FlatiniAppRoleCognitoPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminGetUser
+                Resource: !Sub arn:aws:cognito-idp:*:*:userpool/${FlatiniUserPool.UserPoolId}
         - PolicyName: FlatiniAppRoleDbPolicy
           PolicyDocument:
             Version: "2012-10-17"
@@ -167,6 +175,7 @@ Resources:
         Variables:
           QUEUE_NAME: !GetAtt MyQueue.QueueName
           S3_BUCKET_NAME: !Ref Database
+          USER_POOL_ID: !GetAtt FlatiniUserPool.UserPoolId
 
       MemorySize: 1024
       CodeUri: ./

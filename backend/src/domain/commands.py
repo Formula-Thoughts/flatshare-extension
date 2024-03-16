@@ -1,18 +1,19 @@
 import base64
-import typing
+import os
 import uuid
 
-from formula_thoughts_web.events import SQSEventPublisher, EVENT
 from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
+from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
+from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
-    CREATE_FLAT_REQUEST, FLAT_ID, CODE
+    CREATE_FLAT_REQUEST, FLAT_ID, CODE, FULLNAME_CLAIM
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    invalid_group_locations_error, FlatNotFoundError, \
-    current_user_already_added_to_group, code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_location_required_error, group_price_limt_required_error
+    FlatNotFoundError, \
+    code_required_error, user_already_part_of_group_error, \
+    flat_price_required_error, flat_url_required_error, flat_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -41,12 +42,10 @@ class ValidateGroupCommand:
         request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
 
         if request.price_limit is None:
-            context.error_capsules.append(group_price_limt_required_error)
-        elif request.price_limit <= 0:
-            context.error_capsules.append(invalid_price_error)
+            return
 
-        if len(request.locations) == 0:
-            context.error_capsules.append(invalid_group_locations_error)
+        if request.price_limit <= 0:
+            context.error_capsules.append(invalid_price_error)
 
 
 class UpdateGroupAsyncCommand:
@@ -110,7 +109,12 @@ class CreateUserGroupsAsyncCommand:
         user_groups = UserGroups(auth_user_id=context.auth_user_id,
                                  groups=[context.get_var(GROUP_ID, str)])
         if check_if_user_group_exists:
-            user_groups.groups = context.get_var(name=USER_GROUPS, _type=UserGroups).groups + user_groups.groups
+            current_user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
+            user_groups.groups = current_user_groups.groups + user_groups.groups
+            user_groups.name = current_user_groups.name
+        else:
+            user_groups.name = context.get_var(name=FULLNAME_CLAIM, _type=str)
+            context.set_var(name=USER_GROUPS, value=user_groups)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=context.auth_user_id,
                                                     payload=user_groups)
 
@@ -172,7 +176,7 @@ class SetFlatRequestCommand:
         request = self.__object_mapper.map_from_dict(_from=context.body, to=CreateFlatRequest)
         context.set_var(CREATE_FLAT_REQUEST, request)
         self.__logger.add_global_properties(properties={
-            "location": request.location,
+            "location": request.title,
             "price": request.price,
             "url": request.url
         })
@@ -185,8 +189,12 @@ class CreateFlatCommand:
 
     def run(self, context: ApplicationContext):
         group = context.get_var(name=GROUP, _type=Group)
+        user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
         flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
-        group.flats.append(Flat(url=flat_request.url, location=flat_request.location, price=flat_request.price))
+        group.flats.append(Flat(url=flat_request.url,
+                                title=flat_request.title,
+                                price=flat_request.price,
+                                added_by=user_groups.name))
         self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
@@ -204,8 +212,8 @@ class ValidateFlatRequestCommand:
         if create_flat_request.url is None:
             context.error_capsules.append(flat_url_required_error)
 
-        if create_flat_request.location is None:
-            context.error_capsules.append(flat_location_required_error)
+        if create_flat_request.title is None:
+            context.error_capsules.append(flat_title_required_error)
 
 
 class DeleteFlatCommand:
@@ -232,12 +240,9 @@ class AddCurrentUserToGroupCommand:
         self.__sqs_event_publisher = sqs_event_publisher
 
     def run(self, context: ApplicationContext):
+        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
         group = context.get_var(name=GROUP, _type=Group)
-        if context.auth_user_id in group.participants:
-            context.error_capsules.append(current_user_already_added_to_group)
-            return
-
-        group.participants.append(context.auth_user_id)
+        group.participants.append(fullname)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
@@ -265,11 +270,10 @@ class ValidateUserIsNotParticipantCommand:
 
     def run(self, context: ApplicationContext):
         group = context.get_var(name=GROUP, _type=Group)
-        if context.auth_user_id in group.participants:
+        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
+        if fullname in group.participants:
             context.error_capsules.append(user_already_part_of_group_error)
             return
-
-        context.set_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, value=False)
 
 
 class CreateGroupAsyncCommand:
@@ -279,9 +283,28 @@ class CreateGroupAsyncCommand:
 
     def run(self, context: ApplicationContext):
         group_id = str(uuid.uuid4())
+        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
         group = Group(id=group_id,
                       flats=[],
-                      participants=[context.auth_user_id])
+                      participants=[fullname])
         context.response = CreatedGroupResponse(group=group)
         context.set_var(name=GROUP_ID, value=group_id)
         self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)
+
+
+class FetchAuthUserClaimsIfUserDoesNotExistCommand:
+
+    def __init__(self, cognito_wrapper: CognitoClientWrapper):
+        self.__cognito_wrapper = cognito_wrapper
+
+    def run(self, context: ApplicationContext):
+        is_user_part_of_at_least_one_group = context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=str)
+        if is_user_part_of_at_least_one_group:
+            context.set_var(name=FULLNAME_CLAIM,
+                            value=context.get_var(name=USER_GROUPS, _type=UserGroups).name)
+            return
+
+        user = self.__cognito_wrapper.admin_get_user(user_pool_id=os.environ["USER_POOL_ID"],
+                                                     username=context.auth_user_id)
+
+        context.set_var(name=FULLNAME_CLAIM, value=list(filter(lambda x: x['Name'] == "name", user['UserAttributes']))[0]['Value'])
