@@ -804,10 +804,6 @@ class TestValidateUserIsNotParticipantCommand(TestCase):
         with self.subTest(msg="no errors added"):
             self.assertEqual(len(context.error_capsules), 0)
 
-        # assert
-        with self.subTest(msg="assert validation var is set"):
-            self.assertEqual(context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool), False)
-
     def test_run_when_user_is_already_part_of_group(self):
         # arrange
         auth_id = "1234"

@@ -281,8 +281,6 @@ class ValidateUserIsNotParticipantCommand:
             context.error_capsules.append(user_already_part_of_group_error)
             return
 
-        context.set_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, value=False)
-
 
 class CreateGroupAsyncCommand:
 
