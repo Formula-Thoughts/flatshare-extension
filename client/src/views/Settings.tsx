@@ -34,11 +34,11 @@ const Settings = () => {
               type="text"
               name="location"
               placeholder="Location"
-              value={requirements.location.join(", ")}
+              value={requirements.locations.join(", ")}
               onChange={(value) =>
                 setRequirements({
                   ...requirements,
-                  location: value.split(",").map((s) => s.trim()),
+                  locations: value.split(",").map((s) => s.trim()),
                 })
               }
             />

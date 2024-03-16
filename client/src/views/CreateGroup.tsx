@@ -9,7 +9,7 @@ const CreateGroup = () => {
     <div>
       CreateGroup
       <div>
-        <Button onClick={createGroup} label="Add to the list anyway" />
+        <Button onClick={createGroup} label="Create group" />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext } from "react";
 import {
+  _addFlat,
   _createGroup,
   _getGroupById,
   _getGroupShareCode,
@@ -31,6 +32,7 @@ interface AppContextType {
   participants: any;
   setParticipants: any;
   createGroup: any;
+  addFlat: any;
 }
 
 export type Group = {
@@ -61,16 +63,24 @@ const FlatProvider = (props: Props) => {
       }
     | {}
   >({});
+  // Renders dashboard screens
   const [isGroupLoading, setIsGroupLoading] = useState<boolean>(true);
+
+  // If user doesn't have group, it will show Create Group screen
   const [userHasGroup, setUserHasGroup] = useState<boolean>(false);
+
+  // Group dependencies
+  const [groupId, setGroupId] = useState<string | null>(null);
   const [flats, setFlats] = useState<Flat[]>([]);
   const [participants, setParticipants] = useState<string[]>([]);
   const [requirements, setRequirements] = useState<{
     price: number;
-    location: string[];
+    locations: string[];
+    participants: string[];
   }>({
     price: 3000,
-    location: ["W1H", "E1W"],
+    locations: ["W1H", "E1W"],
+    participants: [],
   });
 
   /**
@@ -104,31 +114,27 @@ const FlatProvider = (props: Props) => {
   const getAuthenticatedUser = () =>
     (localStorage.getItem("flatini-auth") as string) || null;
 
-  const getGroup = async () => {
-    // Get group from the API
-    // const group = {
-    //   flats: [],
-    //   participants: ["Xav", "Dom"],
-    //   priceLimit: 1000,
-    //   location: "Hammersmith, London",
-    // };
+  const getAccessToken = (): string =>
+    getObjectByKeyPart(
+      "accessToken",
+      JSON.parse(JSON.parse(getAuthenticatedUser() as string))
+    );
 
+  const getGroup = async () => {
     try {
-      const group = await _getUserGroup(
-        getObjectByKeyPart(
-          "accessToken",
-          JSON.parse(JSON.parse(getAuthenticatedUser() as string))
-        )
-      );
+      const group = await _getUserGroup(getAccessToken());
 
       if (group) {
-        // Sets state dependencies
-        setFlats(group.flats);
-        setParticipants(group.participants);
         setUserHasGroup(true);
+        setGroupId(group?.groups[0].id);
+
+        // Sets group dependencies
+        setFlats(group?.groups[0].flats);
+        setParticipants(group?.groups[0].participants);
         setRequirements({
-          price: group.priceLimit,
-          location: [group.location],
+          price: group?.groups[0].priceLimit,
+          locations: group?.groups[0].locations,
+          participants: group?.groups[0].participants,
         });
         setIsGroupLoading(false);
         return;
@@ -142,27 +148,47 @@ const FlatProvider = (props: Props) => {
   };
 
   const createGroup = async () => {
-    const data = await _createGroup(
-      getObjectByKeyPart(
-        "accessToken",
-        JSON.parse(JSON.parse(getAuthenticatedUser() as string))
-      )
-    );
+    try {
+      const data = await _createGroup(getAccessToken());
 
-    console.log(data);
+      if (data && data.group) {
+        // Sets state dependencies
+        setFlats(data.group.flats);
+        setParticipants(data.group.flats);
+        setUserHasGroup(true);
+        setRequirements({
+          price: data.group.priceLimit,
+          locations: data.group.locations,
+          participants: data.group.participants,
+        });
+        setIsGroupLoading(false);
+        return;
+      }
 
-    return data;
+      console.log(data);
+
+      return data;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const getGroupShareCode = async () => {
-    // should be getting group id from state
-    // return await _getGroupShareCode(group.id);
-    return "code test";
-  };
+  const getGroupShareCode = async () =>
+    (await _getGroupShareCode(getAccessToken(), groupId as string)).code;
 
   /**
    * Flats
    */
+
+  const addFlat = async (url: string, price: number, location: string) => {
+    return await _addFlat(
+      getAccessToken(),
+      groupId as string,
+      url,
+      price,
+      location
+    );
+  };
 
   const removeFlat = (url: string) => {
     setFlats((prevFlats) => prevFlats.filter((flat) => flat.url !== url));
@@ -176,7 +202,7 @@ const FlatProvider = (props: Props) => {
       return arr.some((substring) => str.includes(substring));
     }
     return {
-      location: includesAnySubstring(requirements.location, location),
+      location: includesAnySubstring(requirements.locations, location),
       price: requirements.price >= price,
     };
   };
@@ -204,6 +230,7 @@ const FlatProvider = (props: Props) => {
         participants,
         setParticipants,
         createGroup,
+        addFlat,
       }}
     >
       {props.children}

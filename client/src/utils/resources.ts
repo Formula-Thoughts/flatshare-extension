@@ -27,19 +27,25 @@ export const _createGroup = async (token: string) => {
 };
 
 export const _addFlat = async (
+  token: string,
   groupCode: string,
   url: string,
-  price: string,
-  title: string
+  price: string | number,
+  location: string
 ) => {
-  const body = {
-    url,
-    price,
-    title,
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: {
+      url,
+      price,
+      location,
+    },
   };
   const res = (await axios.post(
     `/groups/${groupCode}/flats`,
-    body
+    config
   )) as AxiosResponse;
   return res.data;
 };
@@ -51,7 +57,12 @@ export const _deleteFlat = async (groupCode: string, flatId: string) => {
   return res.data;
 };
 
-export const _getGroupShareCode = async (id: string) => {
-  const res = (await axios.get(`/groups/${id}/code`)) as AxiosResponse;
+export const _getGroupShareCode = async (token: string, id: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = (await axios.get(`/groups/${id}/code`, config)) as AxiosResponse;
   return res.data;
 };
