@@ -7,6 +7,7 @@ from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
+from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_FLAT_REQUEST, FLAT_ID, CODE
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
@@ -285,3 +286,12 @@ class CreateGroupAsyncCommand:
         context.response = CreatedGroupResponse(group=group)
         context.set_var(name=GROUP_ID, value=group_id)
         self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)
+
+
+class FetchAuthUserClaimsCommand:
+
+    def __init__(self, cognito_wrapper: CognitoClientWrapper):
+        self.__cognito_wrapper = cognito_wrapper
+
+    def run(self, context: ApplicationContext):
+        ...

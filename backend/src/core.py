@@ -26,7 +26,7 @@ GroupId = str
 
 @dataclass(unsafe_hash=True)
 class UserGroups:
-    fullname: str = None
+    name: str = None
     auth_user_id: GroupParticipantAuthId = None
     groups: list[GroupId] = field(default_factory=lambda: [])
 
@@ -110,6 +110,10 @@ class IValidateIfUserBelongsToAtLeastOneGroupCommand(Command, Protocol):
 
 
 class IValidateIfGroupBelongsToUser(Command, Protocol):
+    pass
+
+
+class IFetchAuthUserClaimsCommand(Command, Protocol):
     pass
 
 
