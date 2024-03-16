@@ -26,25 +26,47 @@ export const _createGroup = async (token: string) => {
   return res.data;
 };
 
-export const _addFlat = async (
+export const _updateGroup = async (
   token: string,
-  groupCode: string,
-  url: string,
-  price: string | number,
-  location: string
+  groupId: string,
+  priceLimit: number,
+  locations: string[]
 ) => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    body: {
-      url,
-      price,
-      location,
+  };
+  const res = (await axios.put(
+    `/groups/${groupId}`,
+    {
+      price_limit: Number(priceLimit),
+      locations: locations,
+    },
+    config
+  )) as AxiosResponse;
+  return res.data;
+};
+
+export const _addFlat = async (
+  token: string,
+  groupCode: string,
+  url: string,
+  price: string | number,
+  title: string
+) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
   };
   const res = (await axios.post(
     `/groups/${groupCode}/flats`,
+    {
+      url,
+      price,
+      title,
+    },
     config
   )) as AxiosResponse;
   return res.data;

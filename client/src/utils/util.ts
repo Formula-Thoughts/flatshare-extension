@@ -11,3 +11,11 @@ export function getObjectByKeyPart(keyPart: string, obj: any): any {
 
   return null;
 }
+
+export function extractNumberFromString(str: string): number {
+  // Remove currency symbol and comma
+  const numberStr = str.replace(/[^0-9.-]+/g, "");
+  // Parse the string as a number
+  const number = parseFloat(numberStr);
+  return number;
+}

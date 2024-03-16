@@ -14,6 +14,7 @@ const Input = styled.input`
 
 interface CustomInputProps {
   value?: string;
+  defaultValue?: string;
   onChange?: (value: string) => void;
   type?: string;
   name: string;
@@ -26,6 +27,7 @@ interface CustomInputProps {
 const InputText: React.FC<CustomInputProps> = ({
   placeholder,
   value,
+  defaultValue,
   onChange,
   type,
   name,
@@ -47,6 +49,7 @@ const InputText: React.FC<CustomInputProps> = ({
       name={name}
       placeholder={placeholder}
       value={value}
+      defaultValue={defaultValue}
       style={style}
       onChange={handleInputChange}
     />

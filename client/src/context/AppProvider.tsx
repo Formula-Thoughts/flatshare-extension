@@ -5,9 +5,10 @@ import {
   _getGroupById,
   _getGroupShareCode,
   _getUserGroup,
+  _updateGroup,
 } from "../utils/resources";
 import { group } from "console";
-import { getObjectByKeyPart } from "../utils/util";
+import { extractNumberFromString, getObjectByKeyPart } from "../utils/util";
 import { AxiosRequestHeaders } from "axios";
 
 interface AppContextType {
@@ -15,6 +16,7 @@ interface AppContextType {
   setActiveUrl: any;
   requirements: any;
   setRequirements: any;
+  updateRequirements: any;
   flats: Flat[]; // Assuming flats is an array of strings, replace with your actual data type
   setFlats: React.Dispatch<React.SetStateAction<Flat[]>>;
   removeFlat: (id: string) => void; // Define the removeFlat function
@@ -114,19 +116,31 @@ const FlatProvider = (props: Props) => {
   const getAuthenticatedUser = () =>
     (localStorage.getItem("flatini-auth") as string) || null;
 
-  const getAccessToken = (): string =>
-    getObjectByKeyPart(
+  const getAccessToken = (): string => {
+    console.log(
+      getObjectByKeyPart(
+        "accessToken",
+        JSON.parse(JSON.parse(getAuthenticatedUser() as string))
+      )
+    );
+    return getObjectByKeyPart(
       "accessToken",
       JSON.parse(JSON.parse(getAuthenticatedUser() as string))
     );
+  };
 
   const getGroup = async () => {
     try {
       const group = await _getUserGroup(getAccessToken());
 
+      console.log("group", group);
+
       if (group) {
+        console.log("check", group);
         setUserHasGroup(true);
         setGroupId(group?.groups[0].id);
+
+        console.log("test group", group);
 
         // Sets group dependencies
         setFlats(group?.groups[0].flats);
@@ -141,10 +155,30 @@ const FlatProvider = (props: Props) => {
       }
     } catch (err) {
       if ((err as AxiosRequestHeaders)?.response?.status === 404) {
+        console.log("err", err);
         setUserHasGroup(false);
       }
       setIsGroupLoading(false);
     }
+  };
+
+  const updateRequirements = async (
+    newPriceLimit: number = requirements.price,
+    newLocations: string[] = requirements.locations
+  ) => {
+    try {
+      await _updateGroup(
+        getAccessToken(),
+        groupId as string,
+        newPriceLimit,
+        newLocations
+      );
+      setRequirements({
+        price: newPriceLimit ?? requirements.price,
+        locations: newLocations ?? requirements.locations,
+        participants: requirements.participants,
+      });
+    } catch (err) {}
   };
 
   const createGroup = async () => {
@@ -180,14 +214,23 @@ const FlatProvider = (props: Props) => {
    * Flats
    */
 
-  const addFlat = async (url: string, price: number, location: string) => {
-    return await _addFlat(
+  const addFlat = async (url: string, price: string, title: string) => {
+    console.log("get", price);
+    await _addFlat(
       getAccessToken(),
       groupId as string,
       url,
-      price,
-      location
+      extractNumberFromString(price),
+      title
     );
+
+    const addNewFlat: Flat = {
+      id: (flats.length + 1).toString(),
+      title: title,
+      url: url,
+      price: price,
+    };
+    setFlats([...flats, addNewFlat]);
   };
 
   const removeFlat = (url: string) => {
@@ -216,6 +259,7 @@ const FlatProvider = (props: Props) => {
         setFlats,
         requirements,
         setRequirements,
+        updateRequirements,
         checkIfPropertyMeetsRequirements,
         removeFlat,
         // Auth

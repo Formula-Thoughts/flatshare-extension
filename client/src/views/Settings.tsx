@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import MainLayout from "../layouts/MainLayout";
 import InputText from "../flatini-library/components/InputText";
 import styled from "styled-components";
 import { useProvider } from "../context/AppProvider";
+import Button from "../flatini-library/components/Button";
 
 const Wrapper = styled.div`
   display: flex;
@@ -10,21 +11,32 @@ const Wrapper = styled.div`
 `;
 
 const Settings = () => {
-  const { requirements, setRequirements } = useProvider();
+  const { updateRequirements, requirements } = useProvider();
+
+  const [localRequirements, setLocalRequirements] = useState<{
+    price: null | string;
+    locations: string[];
+  }>(
+    requirements ?? {
+      price: null,
+      locations: [],
+    }
+  );
   return (
     <MainLayout>
       <Wrapper>
         <div>Settings</div>
-        <form>
+        <form onSubmit={(e) => e.preventDefault()}>
           <div>
             <label style={{ display: "block" }}>Price</label>
             <InputText
               type="text"
               name="price"
               placeholder="Price"
-              value={requirements.price}
+              value={localRequirements.price as string}
+              defaultValue={localRequirements.price as string}
               onChange={(value) =>
-                setRequirements({ ...requirements, price: value })
+                setLocalRequirements({ ...localRequirements, price: value })
               }
             />
           </div>
@@ -34,24 +46,25 @@ const Settings = () => {
               type="text"
               name="location"
               placeholder="Location"
-              value={requirements.locations.join(", ")}
+              value={localRequirements.locations.join(", ")}
+              defaultValue={localRequirements.locations.join(", ")}
               onChange={(value) =>
-                setRequirements({
-                  ...requirements,
+                setLocalRequirements({
+                  ...localRequirements,
                   locations: value.split(",").map((s) => s.trim()),
                 })
               }
             />
           </div>
-          {/* <InputText
-            type="text"
-            name="location"
-            placeholder="Price"
-            value={requirements.price}
-            onChange={(value) =>
-              setRequirements({ ...requirements, price: value })
+          <Button
+            onClick={async () =>
+              await updateRequirements(
+                localRequirements.price,
+                localRequirements.locations
+              )
             }
-          /> */}
+            label="Save settings"
+          />
         </form>
       </Wrapper>
     </MainLayout>

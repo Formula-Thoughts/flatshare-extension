@@ -54,7 +54,7 @@ const InfoWrapper = styled.div`
 const FlatView = () => {
   const {
     flats,
-    setFlats,
+    addFlat,
     activeUrl,
     checkIfPropertyMeetsRequirements,
     requirements,
@@ -76,17 +76,6 @@ const FlatView = () => {
         return setIsFlatDuplicated(false);
       }
     });
-  };
-
-  const addFlat = async (title: string, url: string, price: string) => {
-    const newFlat: Flat = {
-      id: (flats.length + 1).toString(),
-      title: title,
-      url: url,
-      price: price,
-    };
-    setFlats([...flats, newFlat]);
-    setIsFlatDuplicated(true);
   };
 
   const removeFlatFromList = () => {
@@ -235,24 +224,26 @@ const FlatView = () => {
             )
           ).some((value) => value === false) ? (
           <Button
-            onClick={() =>
-              addFlat(
-                activeFlatData.title,
+            onClick={async () => {
+              await addFlat(
                 activeFlatData.url,
-                activeFlatData.price
-              )
-            }
+                activeFlatData.price,
+                activeFlatData.title
+              );
+              setIsFlatDuplicated(true);
+            }}
             label="Add to the list anyway"
           />
         ) : (
           <Button
-            onClick={() =>
-              addFlat(
-                activeFlatData.title,
+            onClick={async () => {
+              await addFlat(
                 activeFlatData.url,
-                activeFlatData.price
-              )
-            }
+                activeFlatData.price,
+                activeFlatData.title
+              );
+              setIsFlatDuplicated(true);
+            }}
             label="Add to the list"
           />
         )}
