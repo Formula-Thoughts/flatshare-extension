@@ -176,8 +176,8 @@ class TestAddUserToGroupSequenceBuilder(TestCase):
             self.__set_group_id_from_code,
             self.__get_group_by_id,
             self.__validate_user_is_not_participant,
-            self.__create_user_groups,
-            self.__add_current_user_to_group_command
+            self.__add_current_user_to_group_command,
+            self.__create_user_groups
         ])
 
 
