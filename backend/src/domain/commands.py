@@ -112,7 +112,11 @@ class CreateUserGroupsAsyncCommand:
         user_groups = UserGroups(auth_user_id=context.auth_user_id,
                                  groups=[context.get_var(GROUP_ID, str)])
         if check_if_user_group_exists:
-            user_groups.groups = context.get_var(name=USER_GROUPS, _type=UserGroups).groups + user_groups.groups
+            current_user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
+            user_groups.groups = current_user_groups.groups + user_groups.groups
+            user_groups.name = current_user_groups.name
+        else:
+            user_groups.name = context.get_var(name=FULLNAME_CLAIM, _type=str)
         self.__sqs_event_publisher.send_sqs_message(message_group_id=context.auth_user_id,
                                                     payload=user_groups)
 
