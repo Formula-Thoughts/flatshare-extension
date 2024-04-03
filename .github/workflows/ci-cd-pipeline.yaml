@@ -2,10 +2,24 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: [main, prod-ready]
 jobs:
+  # Determines the environment to deploy the backend to
+  set-env:
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.setvars.outputs.env }}
+    # Deploys to staging/prod environment depending on branch name
+    steps:
+      - name: determine env
+        run: |
+          if [[ "${{github.base_ref}}" == "main" || "${{github.ref}}" == "refs/heads/main" ]]; then
+            echo "::set-output name=env::staging"
+          fi
+          
+          if [[ "${{github.base_ref}}" == "prod-ready" || "${{github.ref}}" == "refs/heads/prod-ready" ]]; then
+            echo "::set-output name=env::prod"
+          fi
   # Change detection for filtering jobs
   changes:
     runs-on: ubuntu-latest
@@ -78,4 +92,4 @@ jobs:
       - name: build and deploy to aws
         run: |
           cd backend && sh clean_build.sh
-          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-prod --s3-bucket flatini-api-prod-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
+          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{needs.init.outputs.env}} --s3-bucket flatini-api-${{needs.init.outputs.env}}-s3 --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
