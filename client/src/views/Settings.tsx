@@ -4,6 +4,7 @@ import InputText from "../flatini-library/components/InputText";
 import styled from "styled-components";
 import { useProvider } from "../context/AppProvider";
 import Button from "../flatini-library/components/Button";
+import Text, { TextTypes } from "../flatini-library/components/Text";
 
 const Wrapper = styled.div`
   display: flex;
@@ -25,9 +26,9 @@ const Settings = () => {
   return (
     <MainLayout>
       <Wrapper>
-        <div>Settings</div>
+        <Text type={TextTypes.small}>Settings</Text>
         <form onSubmit={(e) => e.preventDefault()}>
-          <div>
+          <div style={{ marginTop: "1rem" }}>
             <label style={{ display: "block" }}>Price</label>
             <InputText
               type="text"
@@ -40,7 +41,7 @@ const Settings = () => {
               }
             />
           </div>
-          <div>
+          <div style={{ marginTop: "1rem" }}>
             <label style={{ display: "block" }}>Location</label>
             <InputText
               type="text"
@@ -57,6 +58,7 @@ const Settings = () => {
             />
           </div>
           <Button
+            style={{ marginTop: "1rem" }}
             onClick={async () =>
               await updateRequirements(
                 localRequirements.price,

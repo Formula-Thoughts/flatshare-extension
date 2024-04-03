@@ -6,6 +6,8 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { Amplify } from "aws-amplify";
 import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
+import theme from "./flatini-library/theme";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -38,11 +40,13 @@ Amplify.configure({
 
 root.render(
   <React.StrictMode>
-    <Authenticator.Provider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Authenticator.Provider>
+    <ThemeProvider theme={theme}>
+      <Authenticator.Provider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Authenticator.Provider>
+    </ThemeProvider>
   </React.StrictMode>
 );
 

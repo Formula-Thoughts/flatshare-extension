@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext } from "react";
 import {
   _addFlat,
   _createGroup,
+  _deleteFlat,
   _getGroupById,
   _getGroupShareCode,
   _getUserGroup,
@@ -19,7 +20,7 @@ interface AppContextType {
   updateRequirements: any;
   flats: Flat[]; // Assuming flats is an array of strings, replace with your actual data type
   setFlats: React.Dispatch<React.SetStateAction<Flat[]>>;
-  removeFlat: (id: string) => void; // Define the removeFlat function
+  removeFlat: any; // Define the removeFlat function
   checkIfPropertyMeetsRequirements: (
     price: number,
     location: string
@@ -49,6 +50,7 @@ export type Flat = {
   title: string;
   url: string;
   price: string;
+  addedBy?: string;
 };
 
 export type Props = {
@@ -233,8 +235,18 @@ const FlatProvider = (props: Props) => {
     setFlats([...flats, addNewFlat]);
   };
 
-  const removeFlat = (url: string) => {
-    setFlats((prevFlats) => prevFlats.filter((flat) => flat.url !== url));
+  const removeFlat = async (flatUrl: string) => {
+    const findFlat = flats.find((flat) => flat.url === flatUrl);
+    if (findFlat) {
+      await _deleteFlat(
+        getAccessToken(),
+        groupId as string,
+        findFlat?.id as string
+      );
+      setFlats((prevFlats) =>
+        prevFlats.filter((flat) => flat.id !== findFlat?.id)
+      );
+    }
   };
 
   const checkIfPropertyMeetsRequirements = (

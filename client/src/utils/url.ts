@@ -117,7 +117,7 @@ export const getFlatDataFromSpareroom = (
 ) => {
   const saveData = async () => {
     const flatData = await getDomElementsFromActiveTab(tabId, [
-      { target: ".feature__heading", eq: 0 },
+      { target: ".room-list__price", eq: 0 },
       { target: "h1", eq: 0 },
     ]);
     const price = flatData && flatData[0].data;

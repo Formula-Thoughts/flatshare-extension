@@ -4,6 +4,8 @@ import MainLayout from "../layouts/MainLayout";
 import Button from "../flatini-library/components/Button";
 import { useProvider } from "../context/AppProvider";
 import { FaClipboard } from "react-icons/fa";
+import Text, { TextTypes } from "../flatini-library/components/Text";
+import { flatiniAuthWebsite } from "../utils/constants";
 
 const Wrapper = styled.div``;
 
@@ -17,13 +19,13 @@ const Participants = () => {
     if (shareCode) {
       if ("clipboard" in navigator) {
         await navigator.clipboard.writeText(
-          `https://localhost:3000/invite?code=${shareCode}`
+          `${flatiniAuthWebsite}invite?groupCode=${shareCode}`
         );
       } else {
         document.execCommand(
           "copy",
           true,
-          `https://localhost:3000/invite?code=${shareCode}`
+          `${flatiniAuthWebsite}invite?groupCode=${shareCode}`
         );
       }
     }
@@ -36,9 +38,14 @@ const Participants = () => {
   return (
     <MainLayout>
       <Wrapper>
-        <ul>
+        <Text type={TextTypes.small}>Participants</Text>
+        <ul style={{ marginBottom: "1rem" }}>
           {participants?.map((participant: string) => {
-            return <li>{participant}</li>;
+            return (
+              <li>
+                <Text type={TextTypes.paragraph}>{participant}</Text>
+              </li>
+            );
           })}
         </ul>
         <AddMembers>
@@ -47,13 +54,12 @@ const Participants = () => {
               onClick={async () => {
                 setShareCode(await getGroupShareCode());
               }}
-              label="Generate share link"
+              label="Share code to invite"
             />
             {shareCode ? (
-              <div>
+              <div style={{ marginTop: "1rem" }}>
                 <FaClipboard />
-                Copied to clipboard:
-                {`https://localhost:3000/invite?code=${shareCode}`}
+                Code copied to clipboard!
               </div>
             ) : null}
           </div>

@@ -11,6 +11,10 @@ const Wrapper = styled.div`
 const NavBar = styled.div`
   display: flex;
   gap: 2rem;
+
+  div {
+    cursor: pointer;
+  }
 `;
 
 const Header = () => {

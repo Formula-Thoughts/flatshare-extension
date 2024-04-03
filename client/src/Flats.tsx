@@ -13,7 +13,9 @@ const FlatCard = styled.div`
   position: relative;
 `;
 
-const FlatCardBody = styled.div``;
+const FlatCardBody = styled.div`
+  cursor: pointer;
+`;
 
 export const Flats = () => {
   const { flats } = useProvider();
@@ -21,7 +23,7 @@ export const Flats = () => {
   return (
     <MainLayout>
       <div className="App">
-        {flats?.length === 0 && <div>No flat2 found</div>}
+        {flats?.length === 0 && <div>No flats found</div>}
         {flats?.map((item) => {
           return (
             <FlatCard
@@ -35,11 +37,13 @@ export const Flats = () => {
                   style={{ fontSize: "1.4rem" }}
                   icon={faHouseChimney}
                 />
-                <FlatCardBody>
+                <FlatCardBody style={{ marginBottom: "1rem" }}>
                   <Text type={TextTypes.title}>{item.title}</Text>
                   <div>
-                    <Text type={TextTypes.small}>{item.price}</Text>
-                    <Text type={TextTypes.small}>Added by</Text>
+                    <Text type={TextTypes.small}>
+                      Added by {item.addedBy} |{" "}
+                    </Text>
+                    <Text type={TextTypes.small}>£{item.price}</Text>
                   </div>
                 </FlatCardBody>
               </div>

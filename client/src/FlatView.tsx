@@ -121,7 +121,7 @@ const FlatView = () => {
           });
         }
       );
-    } else {
+    } else if (activeUrl.propertyProvider === "rightmove") {
       getFlatDataFromRightmove(
         activeUrl.tabId,
         activeUrl.contents,

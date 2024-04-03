@@ -64,7 +64,12 @@ function App() {
     ) {
       navigate("/FlatView");
     } else if (url?.includes(flatiniAuthWebsite)) {
+      console.log("check", state.getAuthenticatedUser());
       state.authenticateUser();
+      // if (!state.getAuthenticatedUser()) {
+      //   state.authenticateUser();
+      // }
+      navigate("/");
     } else {
       navigate("/");
     }

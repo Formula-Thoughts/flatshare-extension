@@ -6,6 +6,13 @@ const Wrapper = styled.div`
   position: fixed;
   height: 100%;
   width: 100%;
+  overflow: scroll;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Content = styled.div`

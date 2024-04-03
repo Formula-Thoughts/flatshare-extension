@@ -72,9 +72,19 @@ export const _addFlat = async (
   return res.data;
 };
 
-export const _deleteFlat = async (groupCode: string, flatId: string) => {
+export const _deleteFlat = async (
+  token: string,
+  groupId: string,
+  flatId: string
+) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
   const res = (await axios.delete(
-    `/groups/${groupCode}/flats/${flatId}`
+    `/groups/${groupId}/flats/${flatId}`,
+    config
   )) as AxiosResponse;
   return res.data;
 };
