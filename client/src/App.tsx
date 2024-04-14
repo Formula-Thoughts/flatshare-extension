@@ -133,7 +133,6 @@ function App() {
 
   return (
     <>
-      <p>userAuthToken {state.userAuthToken}</p>
       {state.activeUrl ? (
         <Routes>
           <Route path="/" element={<Flats />} />
