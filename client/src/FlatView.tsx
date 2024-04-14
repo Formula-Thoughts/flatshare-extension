@@ -126,7 +126,6 @@ const FlatView = () => {
         activeUrl.tabId,
         activeUrl.contents,
         (title, url, price) => {
-          console.log("GET FROM RIGHTMOVE", { title, url, price });
           setActiveFlatData({
             price,
             title,

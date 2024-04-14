@@ -8,6 +8,7 @@ import Participants from "./views/Participants";
 import Auth from "./views/Auth";
 import CreateGroup from "./views/CreateGroup";
 import { flatiniAuthWebsite } from "./utils/constants";
+import Loading from "./views/Loading";
 
 function App() {
   const navigate = useNavigate();
@@ -64,7 +65,6 @@ function App() {
     ) {
       navigate("/FlatView");
     } else if (url?.includes(flatiniAuthWebsite)) {
-      console.log("check", state.getAuthenticatedUser());
       state.authenticateUser();
       // if (!state.getAuthenticatedUser()) {
       //   state.authenticateUser();
@@ -93,10 +93,23 @@ function App() {
 
   useEffect(() => {
     addChromeEvents();
-    state.getGroup();
-  }, []);
 
-  if (!state.getAuthenticatedUser()) {
+    if (state.userAuthToken) {
+      state.getGroup();
+    } else {
+      const existingLocalStorage = localStorage.getItem("flatini-auth");
+
+      if (existingLocalStorage) {
+        state.setUserAuthToken(existingLocalStorage);
+      } else {
+        state.authenticateUser();
+      }
+    }
+
+    // state.getGroup();
+  }, [state.userAuthToken]);
+
+  if (!state.userAuthToken) {
     return (
       <Routes>
         <Route path="/" element={<Auth />} />
@@ -105,22 +118,24 @@ function App() {
   }
 
   if (state.isGroupLoading) {
-    return <p>loading...</p>;
+    return <Loading />;
   }
 
   if (!state.userHasGroup) {
     return (
-      <Routes>
-        <Route path="/" element={<CreateGroup />} />
-      </Routes>
+      <>
+        <Routes>
+          <Route path="/" element={<CreateGroup />} />
+        </Routes>
+      </>
     );
   }
 
   return (
     <>
+      <p>userAuthToken {state.userAuthToken}</p>
       {state.activeUrl ? (
         <Routes>
-          {/* <Route path="/" element={<Landing />} /> */}
           <Route path="/" element={<Flats />} />
           <Route path="/Settings" element={<Settings />} />
           <Route path="/FlatView" element={<FlatView />} />
