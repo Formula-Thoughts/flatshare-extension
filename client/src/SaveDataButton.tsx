@@ -18,10 +18,7 @@ function SaveDataButton({ onClickAction }: SaveDataButtonProps) {
         const url = tab?.url || "";
         const title = tab?.title || "";
 
-        console.log("Data saved:", { url, title });
-
         const activeTab = tabs[0];
-        console.log(activeTab);
         // Send a message to the content script of the active tab
         chrome.tabs.sendMessage(
           activeTab.id || 0,

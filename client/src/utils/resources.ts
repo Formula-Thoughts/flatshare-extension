@@ -13,6 +13,7 @@ export const _getUserGroup = async (token: string) => {
     },
   };
   const res = (await axios.get(`/groups`, config)) as AxiosResponse;
+  console.log("res", res);
   return res.data;
 };
 

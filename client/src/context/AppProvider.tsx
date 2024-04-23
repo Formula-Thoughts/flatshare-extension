@@ -26,7 +26,8 @@ interface AppContextType {
     location: string
   ) => { location: boolean; price: boolean };
   authenticateUser: any;
-  getAuthenticatedUser: any;
+  userAuthToken: any;
+  setUserAuthToken: any;
   isGroupLoading: boolean;
   userHasGroup: any;
   setUserHasGroup: any;
@@ -67,6 +68,8 @@ const FlatProvider = (props: Props) => {
       }
     | {}
   >({});
+
+  const [userAuthToken, setUserAuthToken] = useState<string | null>(null);
   // Renders dashboard screens
   const [isGroupLoading, setIsGroupLoading] = useState<boolean>(true);
 
@@ -98,69 +101,50 @@ const FlatProvider = (props: Props) => {
         const authDetails = await chrome.scripting.executeScript({
           target: { tabId: tabs[0].id as number },
           func: () => {
-            return JSON.stringify(localStorage);
+            return localStorage.getItem("flatini-auth-token");
           },
         });
-        if ((authDetails as any)[0].result !== "{}") {
-          localStorage.setItem(
-            "flatini-auth",
-            JSON.stringify((authDetails as any)[0].result)
-          );
+        if ((authDetails as any)[0].result !== "undefined") {
+          localStorage.setItem("flatini-auth", (authDetails as any)[0].result);
+          setUserAuthToken((authDetails as any)[0].result);
         } else {
           localStorage.removeItem("flatini-auth");
+          setUserAuthToken(null);
         }
       }
       getAuthenticationDetails();
     });
   };
 
-  // Gets authenticated user
-  const getAuthenticatedUser = () =>
-    (localStorage.getItem("flatini-auth") as string) || null;
-
-  const getAccessToken = (): string => {
-    console.log(
-      getObjectByKeyPart(
-        "accessToken",
-        JSON.parse(JSON.parse(getAuthenticatedUser() as string))
-      )
-    );
-    return getObjectByKeyPart(
-      "accessToken",
-      JSON.parse(JSON.parse(getAuthenticatedUser() as string))
-    );
-  };
-
   const getGroup = async () => {
-    try {
-      const group = await _getUserGroup(getAccessToken());
+    //const token = localStorage.getItem("flatini-auth") as string;
 
-      console.log("group", group);
+    if (userAuthToken) {
+      try {
+        const group = await _getUserGroup(userAuthToken as string);
 
-      if (group) {
-        console.log("check", group);
-        setUserHasGroup(true);
-        setGroupId(group?.groups[0].id);
+        if (group) {
+          setUserHasGroup(true);
+          setGroupId(group?.groups[0].id);
 
-        console.log("test group", group);
-
-        // Sets group dependencies
-        setFlats(group?.groups[0].flats);
-        setParticipants(group?.groups[0].participants);
-        setRequirements({
-          price: group?.groups[0].priceLimit,
-          locations: group?.groups[0].locations,
-          participants: group?.groups[0].participants,
-        });
+          // Sets group dependencies
+          setFlats(group?.groups[0].flats);
+          setParticipants(group?.groups[0].participants);
+          setRequirements({
+            price: group?.groups[0].priceLimit,
+            locations: group?.groups[0].locations,
+            participants: group?.groups[0].participants,
+          });
+          setIsGroupLoading(false);
+          return;
+        }
+      } catch (err) {
+        if ((err as AxiosRequestHeaders)?.response?.status === 404) {
+          console.log("err", err);
+          setUserHasGroup(false);
+        }
         setIsGroupLoading(false);
-        return;
       }
-    } catch (err) {
-      if ((err as AxiosRequestHeaders)?.response?.status === 404) {
-        console.log("err", err);
-        setUserHasGroup(false);
-      }
-      setIsGroupLoading(false);
     }
   };
 
@@ -170,7 +154,7 @@ const FlatProvider = (props: Props) => {
   ) => {
     try {
       await _updateGroup(
-        getAccessToken(),
+        userAuthToken as string,
         groupId as string,
         newPriceLimit,
         newLocations
@@ -185,7 +169,7 @@ const FlatProvider = (props: Props) => {
 
   const createGroup = async () => {
     try {
-      const data = await _createGroup(getAccessToken());
+      const data = await _createGroup(userAuthToken as string);
 
       if (data && data.group) {
         // Sets state dependencies
@@ -201,8 +185,6 @@ const FlatProvider = (props: Props) => {
         return;
       }
 
-      console.log(data);
-
       return data;
     } catch (err) {
       console.log(err);
@@ -210,16 +192,15 @@ const FlatProvider = (props: Props) => {
   };
 
   const getGroupShareCode = async () =>
-    (await _getGroupShareCode(getAccessToken(), groupId as string)).code;
+    (await _getGroupShareCode(userAuthToken as string, groupId as string)).code;
 
   /**
    * Flats
    */
 
   const addFlat = async (url: string, price: string, title: string) => {
-    console.log("get", price);
     await _addFlat(
-      getAccessToken(),
+      userAuthToken as string,
       groupId as string,
       url,
       extractNumberFromString(price),
@@ -239,7 +220,7 @@ const FlatProvider = (props: Props) => {
     const findFlat = flats.find((flat) => flat.url === flatUrl);
     if (findFlat) {
       await _deleteFlat(
-        getAccessToken(),
+        userAuthToken as string,
         groupId as string,
         findFlat?.id as string
       );
@@ -276,7 +257,8 @@ const FlatProvider = (props: Props) => {
         removeFlat,
         // Auth
         authenticateUser,
-        getAuthenticatedUser,
+        userAuthToken,
+        setUserAuthToken,
         // Groups
         isGroupLoading,
         userHasGroup,

@@ -13,6 +13,8 @@ import Homepage from "./views/Homepage";
 import MainLayout from "./views/MainLayout";
 import { Hub } from "aws-amplify/utils";
 
+import { fetchAuthSession } from "aws-amplify/auth";
+
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const location = useLocation();
@@ -31,6 +33,15 @@ export default function App() {
     }
   };
 
+  const getTokens = async () => {
+    var cognitoTokens = (await fetchAuthSession()).tokens;
+    localStorage.setItem(
+      "flatini-auth-token",
+      cognitoTokens?.accessToken.toString() as string
+    );
+    console.log("flatauth", cognitoTokens?.accessToken.toString());
+  };
+
   useEffect(() => {
     const getCustomState = Hub.listen("auth", ({ payload }) => {
       switch (payload.event) {
@@ -47,6 +58,8 @@ export default function App() {
     });
 
     getUser();
+    getTokens();
+
     console.log("code", inviteCode);
     return getCustomState;
   }, []);
