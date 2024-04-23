@@ -14,6 +14,7 @@ import checkmark from "./flatini-library/assets/checkmark.png";
 import cross from "./flatini-library/assets/cross.png";
 import { extractNumber } from "./utils/util";
 import Button from "./flatini-library/components/Button";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div<{
   isFlatDuplicated: boolean;
@@ -52,6 +53,7 @@ const InfoWrapper = styled.div`
 `;
 
 const FlatView = () => {
+  const navigate = useNavigate();
   const {
     flats,
     addFlat,
@@ -256,28 +258,15 @@ const FlatView = () => {
           Location: <span style={{ opacity: 0.7 }}>{activeFlatData.title}</span>
         </p>
       </div>
+      <div
+        onClick={() =>
+          navigate("/warnings", { state: { flatUrl: activeFlatData.url } })
+        }
+      >
+        check warnings page
+      </div>
     </Wrapper>
   );
-
-  // if (isFlatDuplicated) {
-  //   return (
-  //     <Wrapper style={{ backgroundColor: "#322848" }}>
-  //       <p>The flat you’re viewing has already been added to the list</p>
-  //       <div
-  //         style={{ marginTop: 30, display: "flex", flexDirection: "column" }}
-  //       ></div>
-  //     </Wrapper>
-  //   );
-  // } else {
-  //   return (
-  //     <Wrapper>
-  //       <p>The flat you are viewing has not been added to the list yet.</p>
-  //       <div style={{ marginTop: 30 }}>
-  //         <SaveDataButton onClickAction={addFlat} />
-  //       </div>
-  //     </Wrapper>
-  //   );
-  // }
 };
 
 export default FlatView;

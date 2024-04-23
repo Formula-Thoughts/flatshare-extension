@@ -8,6 +8,7 @@ import Participants from "./views/Participants";
 import Auth from "./views/Auth";
 import CreateGroup from "./views/CreateGroup";
 import { flatiniAuthWebsite } from "./utils/constants";
+import Warnings from "./Warnings";
 
 function App() {
   const navigate = useNavigate();
@@ -124,6 +125,7 @@ function App() {
           <Route path="/" element={<Flats />} />
           <Route path="/Settings" element={<Settings />} />
           <Route path="/FlatView" element={<FlatView />} />
+          <Route path="/Warnings" element={<Warnings />} />
           <Route path="/Participants" element={<Participants />} />
         </Routes>
       ) : (
