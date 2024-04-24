@@ -139,7 +139,7 @@ function App() {
           <Route path="/" element={<Flats />} />
           <Route path="/Settings" element={<Settings />} />
           <Route path="/FlatView" element={<FlatView />} />
-          <Route path="/Warnings" element={<Warnings />} />
+          {/* <Route path="/Warnings" element={<Warnings />} /> */}
           <Route path="/Participants" element={<Participants />} />
         </Routes>
       ) : (

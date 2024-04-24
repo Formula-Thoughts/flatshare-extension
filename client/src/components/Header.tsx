@@ -3,6 +3,8 @@ import Logo from "../flatini-library/components/Logo";
 import styled from "styled-components";
 import Text, { TextTypes } from "../flatini-library/components/Text";
 import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
+import { flatiniAuthWebsite } from "../utils/constants";
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -21,7 +23,9 @@ const Header = () => {
   const navigate = useNavigate();
   return (
     <Wrapper>
-      <Logo style={{ width: "8rem" }} />
+      <a href={flatiniAuthWebsite} target="_blank">
+        <Logo style={{ width: "8rem" }} />
+      </a>
       <NavBar>
         <div onClick={() => navigate("/")}>
           <Text type={TextTypes.paragraph}>Flats</Text>

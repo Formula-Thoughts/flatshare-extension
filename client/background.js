@@ -8,3 +8,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
     // This code will run only on initial installation
   }
 });
+
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));

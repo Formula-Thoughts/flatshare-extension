@@ -257,13 +257,13 @@ const FlatView = () => {
           Location: <span style={{ opacity: 0.7 }}>{activeFlatData.title}</span>
         </p>
       </div>
-      <div
+      {/* <div
         onClick={() =>
           navigate("/warnings", { state: { flatUrl: activeFlatData.url } })
         }
       >
         check warnings page
-      </div>
+      </div> */}
     </Wrapper>
   );
 };
