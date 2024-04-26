@@ -33,7 +33,7 @@ const Auth = () => {
           Find together the perfect place.
         </Text>
         <Text type={TextTypes.paragraph}>
-          Dwelly is an extension that allows you to save your favourite
+          Flatini is an extension that allows you to save your favourite
           properties to a list, and invite your flatmates.
         </Text>
         <div>
