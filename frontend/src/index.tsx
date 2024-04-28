@@ -26,7 +26,7 @@ Amplify.configure({
           redirectSignOut: [
             "https://localhost:3000",
             "https://localhost:3000/",
-            "https://flatini.formulathoughts.com",
+            "https://flatini.formulathoughts.com/",
           ],
           responseType: "code",
           domain: "flatini.auth.eu-west-2.amazoncognito.com/",
