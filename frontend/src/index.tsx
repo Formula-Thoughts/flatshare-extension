@@ -20,8 +20,10 @@ Amplify.configure({
         oauth: {
           scopes: ["email", "openid", "profile"],
           redirectSignIn: [
-            "https://localhost:3000",
-            "https://flatini.formulathoughts.com",
+            "https://localhost:3000/",
+            "https://flatini.formulathoughts.com/",
+            "http://flatini.formulathoughts.com/",
+            "https://flatini.formulathoughts.com/*",
           ],
           redirectSignOut: [
             "https://localhost:3000",
