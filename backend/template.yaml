@@ -27,7 +27,18 @@ Resources:
         CaseSensitive: false
       AutoVerifiedAttributes:
         - email
-      UserPoolName: flatini-user-pool
+      UserPoolName: !Join
+        - "-"
+        - - "flatini-user-pool"
+          - !Select
+            - 0
+            - !Split
+              - "-"
+              - !Select
+                - 2
+                - !Split
+                  - "/"
+                  - !Ref "AWS::StackId"
       Schema:
         - Name: email
           AttributeDataType: String
@@ -79,7 +90,18 @@ Resources:
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain: flatini
+      Domain: !Join
+        - "-"
+        - - "flatini"
+          - !Select
+            - 0
+            - !Split
+              - "-"
+              - !Select
+                - 2
+                - !Split
+                  - "/"
+                  - !Ref "AWS::StackId"
       UserPoolId: !Ref FlatiniUserPool
 
   Database:
