@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import IBlobRepo, Group, TData, UserGroups
+from src.core import IBlobRepo, Group, TData, UserGroups, Flat, GroupParticipantName, GroupId
 from src.data import S3ClientWrapper
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -51,6 +51,12 @@ class S3GroupRepo:
         except ClientError:
             raise GroupNotFoundException()
 
+    def add_flat(self, flat: Flat) -> None:
+        ...
+
+    def add_participant(self, flat: GroupParticipantName) -> None:
+        ...
+
 
 class S3UserGroupsRepo:
     def __init__(self, blob_repo: IBlobRepo):
@@ -64,3 +70,6 @@ class S3UserGroupsRepo:
             return self.__blob_repo.get(key=f"user_groups/{_id}", model_type=UserGroups)
         except ClientError:
             raise UserGroupsNotFoundException()
+
+    def add_group(self, group: GroupId) -> None:
+        ...

@@ -69,9 +69,18 @@ class IGroupRepo(Protocol):
     def get(self, _id: str) -> Group:
         ...
 
+    def add_participant(self, participant: GroupParticipantName) -> None:
+        ...
+
+    def add_flat(self, flat: Flat) -> None:
+        ...
+
 
 class IUserGroupsRepo(Protocol):
     def create(self, user_groups: UserGroups) -> None:
+        ...
+
+    def add_group(self, group: GroupId) -> None:
         ...
 
     def get(self, _id: str) -> UserGroups:
