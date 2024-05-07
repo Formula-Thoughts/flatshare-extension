@@ -1,13 +1,13 @@
 import { Authenticator } from "@aws-amplify/ui-react";
+import { Amplify } from "aws-amplify";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import reportWebVitals from "./reportWebVitals";
-import { Amplify } from "aws-amplify";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
+import App from "./App";
 import theme from "./flatini-library/theme";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -20,18 +20,15 @@ Amplify.configure({
         oauth: {
           scopes: ["email", "openid", "profile"],
           redirectSignIn: [
-            "https://localhost:3000/",
-            "https://flatini.formulathoughts.com/",
-            "http://flatini.formulathoughts.com/",
-            "https://flatini.formulathoughts.com/*",
+            "https://localhost:3000",
+            "https://flatini.formulathoughts.com",
           ],
           redirectSignOut: [
             "https://localhost:3000",
-            "https://localhost:3000/",
-            "https://flatini.formulathoughts.com/",
+            "https://flatini.formulathoughts.com",
           ],
           responseType: "code",
-          domain: "flatini.auth.eu-west-2.amazoncognito.com/",
+          domain: "flatini.auth.eu-west-2.amazoncognito.com",
         },
       },
       userPoolId: "eu-west-2_bnEvX4XMD",
