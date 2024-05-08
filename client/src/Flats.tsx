@@ -1,13 +1,9 @@
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import { useProvider } from "./context/AppProvider";
-import { useEffect } from "react";
-import { _getGroupById } from "./utils/resources";
 import MainLayout from "./layouts/MainLayout";
 import Text, { TextTypes } from "./flatini-library/components/Text";
-import { Authenticator } from "@aws-amplify/ui-react";
 import Image from "./flatini-library/components/Image";
 import NoFlatsFoundImage from "./assets/no-flats-found.png";
 import UserCircle from "./flatini-library/components/UserCircle";
@@ -42,7 +38,7 @@ const NoFlatsFound = styled.div`
 `;
 
 export const Flats = () => {
-  const { flats, userHasGroup } = useProvider();
+  const { flats } = useProvider();
 
   return (
     <MainLayout>
@@ -62,6 +58,7 @@ export const Flats = () => {
               <a
                 href="https://www.rightmove.co.uk/property-to-rent.html"
                 target="_blank"
+                rel="noreferrer"
               >
                 Rightmove
               </a>
@@ -69,15 +66,24 @@ export const Flats = () => {
               <a
                 href="https://www.zoopla.co.uk/to-rent/property/london/"
                 target="_blank"
+                rel="noreferrer"
               >
                 Zoopla
               </a>
               ,{" "}
-              <a href="https://www.openrent.co.uk/" target="_blank">
+              <a
+                href="https://www.openrent.co.uk/"
+                target="_blank"
+                rel="noreferrer"
+              >
                 OpenRent
               </a>{" "}
               or{" "}
-              <a href="https://www.spareroom.co.uk/" target="_blank">
+              <a
+                href="https://www.spareroom.co.uk/"
+                target="_blank"
+                rel="noreferrer"
+              >
                 SpareRoom
               </a>{" "}
               and add it to your list.

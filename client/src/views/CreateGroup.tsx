@@ -1,9 +1,7 @@
 import React from "react";
-import { flatiniAuthWebsite } from "../utils/constants";
 import styled, { useTheme } from "styled-components";
 import Button from "../flatini-library/components/Button";
 import Text, { TextTypes } from "../flatini-library/components/Text";
-import MainLayout from "../layouts/MainLayout";
 import Logo from "../flatini-library/components/Logo";
 import { useProvider } from "../context/AppProvider";
 

@@ -8,7 +8,6 @@ import Participants from "./views/Participants";
 import Auth from "./views/Auth";
 import CreateGroup from "./views/CreateGroup";
 import { flatiniAuthWebsite } from "./utils/constants";
-import Warnings from "./Warnings";
 import Loading from "./views/Loading";
 import ErrorPage from "./views/ErrorPage";
 
@@ -110,6 +109,7 @@ function App() {
         state.authenticateUser();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.userAuthToken]);
 
   if (state.appHasError || (state.appHasError as string).length > 0) {

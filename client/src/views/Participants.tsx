@@ -3,7 +3,7 @@ import styled from "styled-components";
 import MainLayout from "../layouts/MainLayout";
 import Button from "../flatini-library/components/Button";
 import { useProvider } from "../context/AppProvider";
-import { FaCheck, FaClipboard } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
 import Text, { TextTypes } from "../flatini-library/components/Text";
 import { flatiniAuthWebsite } from "../utils/constants";
 import UserCircle from "../flatini-library/components/UserCircle";
@@ -38,6 +38,7 @@ const Participants = () => {
 
   useEffect(() => {
     copyToClipboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode]);
 
   return (

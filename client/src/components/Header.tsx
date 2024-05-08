@@ -1,11 +1,8 @@
-import React from "react";
 import Logo from "../flatini-library/components/Logo";
 import styled from "styled-components";
-import Text, { TextTypes } from "../flatini-library/components/Text";
-import { useNavigate } from "react-router";
 import { Link, NavLink } from "react-router-dom";
 import { flatiniAuthWebsite } from "../utils/constants";
-import { FaCog, FaEye, FaFolderMinus, FaUser } from "react-icons/fa";
+import { FaEye, FaUser } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCog,
@@ -99,7 +96,7 @@ const Header = () => {
         <TopBar>
           <Logo style={{ width: "8rem" }} />
           <div style={{ flex: 1, textAlign: "right" }}>
-            <a href={flatiniAuthWebsite} target="_blank">
+            <a href={flatiniAuthWebsite} target="_blank" rel="noreferrer">
               <FaUser size={20} />
             </a>
           </div>

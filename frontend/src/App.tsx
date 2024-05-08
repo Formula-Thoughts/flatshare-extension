@@ -1,12 +1,6 @@
-import {
-  Route,
-  BrowserRouter as Router,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
-import { AuthUser, getCurrentUser, signInWithRedirect } from "aws-amplify/auth";
+import { AuthUser, getCurrentUser } from "aws-amplify/auth";
 import { useEffect, useState } from "react";
 import Invite from "./views/Invite";
 import Homepage from "./views/Homepage";
@@ -62,7 +56,8 @@ export default function App() {
 
     console.log("code", inviteCode);
     return getCustomState;
-  }, []);
+    // Untested next line
+  }, [inviteCode, navigate]);
 
   if (!user) {
     return (

@@ -142,6 +142,7 @@ const FlatView = () => {
         }
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUrl]);
 
   if (loadingFlatData) {

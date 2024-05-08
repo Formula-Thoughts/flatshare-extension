@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ColorLayout from "./layouts/ColorLayout";
 import TimeAgo from "javascript-time-ago";
@@ -9,7 +9,7 @@ type Data = {
   flatUrl: string;
 };
 
-type Warning = {
+type WarningType = {
   data: string;
   votes: string[];
   added: Date;
@@ -19,7 +19,7 @@ const Warnings = () => {
   const location = useLocation();
   const data: Data = location.state;
 
-  const [warnings, setWarnings] = useState<Warning[]>([
+  const [warnings] = useState<WarningType[]>([
     {
       data: "“We went to see this property and it had mould all over the place, stay away!”",
       votes: ["user_id", "user_id_2"],
@@ -37,7 +37,7 @@ const Warnings = () => {
   );
 };
 
-const Warning = (props: Warning) => {
+const Warning = (props: WarningType) => {
   const timeAgo = new TimeAgo("en-US");
 
   return (

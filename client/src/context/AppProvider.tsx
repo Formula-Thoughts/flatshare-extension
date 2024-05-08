@@ -3,12 +3,11 @@ import {
   _addFlat,
   _createGroup,
   _deleteFlat,
-  _getGroupById,
   _getGroupShareCode,
   _getUserGroup,
   _updateGroup,
 } from "../utils/resources";
-import { extractNumberFromString, getObjectByKeyPart } from "../utils/util";
+import { extractNumberFromString } from "../utils/util";
 import { AxiosError, AxiosRequestHeaders } from "axios";
 
 interface AppContextType {

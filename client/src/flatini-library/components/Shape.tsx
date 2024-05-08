@@ -1,4 +1,4 @@
-import React, { HTMLProps } from "react";
+import React from "react";
 import Image from "./Image";
 
 import Shape1 from "../assets/shape-1.svg";

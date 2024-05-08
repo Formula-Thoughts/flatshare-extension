@@ -3,7 +3,6 @@ import { flatiniAuthWebsite } from "../utils/constants";
 import styled, { useTheme } from "styled-components";
 import Button from "../flatini-library/components/Button";
 import Text, { TextTypes } from "../flatini-library/components/Text";
-import MainLayout from "../layouts/MainLayout";
 import Logo from "../flatini-library/components/Logo";
 
 const Wrapper = styled.div`
@@ -37,7 +36,7 @@ const Auth = () => {
           properties to a list, and invite your flatmates.
         </Text>
         <div>
-          <a href={flatiniAuthWebsite} target="_blank">
+          <a href={flatiniAuthWebsite} target="_blank" rel="noreferrer">
             <Button
               style={{ maxWidth: "100%" }}
               onClick={async () => {}}

@@ -1,4 +1,4 @@
-import { Axios, AxiosInstance, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import axios from "./axios";
 
 export const _getGroupById = async (id: string) => {
