@@ -16,8 +16,8 @@ export const _getUserGroup = async (token: string) => {
     const res = (await axios.get(`/groups`, config)) as AxiosResponse;
     return res.data;
   } catch (err) {
-    console.log("err 401", err);
-    return err;
+    // console.log("err 401", err);
+    throw err;
   }
 };
 

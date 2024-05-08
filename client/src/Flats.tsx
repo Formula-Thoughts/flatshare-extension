@@ -42,7 +42,7 @@ const NoFlatsFound = styled.div`
 `;
 
 export const Flats = () => {
-  const { flats } = useProvider();
+  const { flats, userHasGroup } = useProvider();
 
   return (
     <MainLayout>

@@ -10,6 +10,7 @@ import CreateGroup from "./views/CreateGroup";
 import { flatiniAuthWebsite } from "./utils/constants";
 import Warnings from "./Warnings";
 import Loading from "./views/Loading";
+import ErrorPage from "./views/ErrorPage";
 
 function App() {
   const navigate = useNavigate();
@@ -110,6 +111,10 @@ function App() {
       }
     }
   }, [state.userAuthToken]);
+
+  if (state.appHasError || (state.appHasError as string).length > 0) {
+    return <ErrorPage data={state.appHasError} />;
+  }
 
   if (!state.userAuthToken) {
     return (

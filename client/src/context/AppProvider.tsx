@@ -9,7 +9,7 @@ import {
   _updateGroup,
 } from "../utils/resources";
 import { extractNumberFromString, getObjectByKeyPart } from "../utils/util";
-import { AxiosRequestHeaders } from "axios";
+import { AxiosError, AxiosRequestHeaders } from "axios";
 
 interface AppContextType {
   activeUrl: any;
@@ -36,6 +36,7 @@ interface AppContextType {
   setParticipants: any;
   createGroup: any;
   addFlat: any;
+  appHasError: boolean | string;
 }
 
 export type Group = {
@@ -68,6 +69,8 @@ const FlatProvider = (props: Props) => {
     | {}
   >({});
 
+  const [appHasError, setAppHasError] = useState<boolean | string>(false);
+
   const [userAuthToken, setUserAuthToken] = useState<string | null>(null);
   // Renders dashboard screens
   const [isGroupLoading, setIsGroupLoading] = useState<boolean>(true);
@@ -97,6 +100,7 @@ const FlatProvider = (props: Props) => {
   const authenticateUser = () => {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       async function getAuthenticationDetails() {
+        localStorage.removeItem("flatini-auth");
         const authDetails = await chrome.scripting.executeScript({
           target: { tabId: tabs[0].id as number },
           func: () => {
@@ -123,6 +127,7 @@ const FlatProvider = (props: Props) => {
         const group = await _getUserGroup(userAuthToken as string);
 
         if (group) {
+          console.log("read group", group);
           setUserHasGroup(true);
           setGroupId(group?.groups[0].id);
 
@@ -140,10 +145,12 @@ const FlatProvider = (props: Props) => {
       } catch (err) {
         console.log("err from app provider", err);
         if ((err as AxiosRequestHeaders)?.response?.status === 404) {
+          if ((err as AxiosError)?.code === "ECONNABORTED") {
+            setAppHasError("ECONNABORTED");
+            return;
+          }
+
           setUserHasGroup(false);
-        }
-        if ((err as AxiosRequestHeaders)?.response?.status === 404) {
-          console.log("err 401", err);
         }
         setIsGroupLoading(false);
       }
@@ -174,10 +181,14 @@ const FlatProvider = (props: Props) => {
       const data = await _createGroup(userAuthToken as string);
 
       if (data && data.group) {
-        // Sets state dependencies
-        setFlats(data.group.flats);
-        setParticipants(data.group.flats);
+        console.log("data", data);
+
         setUserHasGroup(true);
+        setGroupId(data.group.id);
+
+        // Sets group dependencies
+        setFlats(data.group.flats);
+        setParticipants(data.group.participants);
         setRequirements({
           price: data.group.priceLimit,
           locations: data.group.locations,
@@ -268,6 +279,7 @@ const FlatProvider = (props: Props) => {
         setParticipants,
         createGroup,
         addFlat,
+        appHasError,
       }}
     >
       {props.children}
