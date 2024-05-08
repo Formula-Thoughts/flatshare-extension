@@ -64,18 +64,18 @@ export default function App() {
     return getCustomState;
   }, []);
 
-  // if (!user) {
-  //   return (
-  //     <MainLayout>
-  //       <Routes>
-  //         <Route
-  //           path="/*"
-  //           element={<Homepage code={inviteCode} user={user} />}
-  //         />
-  //       </Routes>
-  //     </MainLayout>
-  //   );
-  // }
+  if (!user) {
+    return (
+      <MainLayout>
+        <Routes>
+          <Route
+            path="/*"
+            element={<Homepage code={inviteCode} user={user} />}
+          />
+        </Routes>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>

@@ -12,9 +12,13 @@ export const _getUserGroup = async (token: string) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  const res = (await axios.get(`/groups`, config)) as AxiosResponse;
-  console.log("res", res);
-  return res.data;
+  try {
+    const res = (await axios.get(`/groups`, config)) as AxiosResponse;
+    return res.data;
+  } catch (err) {
+    console.log("err 401", err);
+    return err;
+  }
 };
 
 export const _createGroup = async (token: string) => {

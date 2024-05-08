@@ -67,9 +67,6 @@ function App() {
       navigate("/FlatView");
     } else if (url?.includes(flatiniAuthWebsite)) {
       state.authenticateUser();
-      // if (!state.getAuthenticatedUser()) {
-      //   state.authenticateUser();
-      // }
       navigate("/");
     } else {
       navigate("/");
@@ -96,18 +93,22 @@ function App() {
     addChromeEvents();
 
     if (state.userAuthToken) {
+      console.log(
+        "state user token yes",
+        state.userAuthToken,
+        typeof state.userAuthToken
+      );
       state.getGroup();
+      setActiveUrl();
     } else {
       const existingLocalStorage = localStorage.getItem("flatini-auth");
 
-      if (existingLocalStorage) {
+      if (existingLocalStorage && existingLocalStorage !== "null") {
         state.setUserAuthToken(existingLocalStorage);
       } else {
         state.authenticateUser();
       }
     }
-
-    // state.getGroup();
   }, [state.userAuthToken]);
 
   if (!state.userAuthToken) {

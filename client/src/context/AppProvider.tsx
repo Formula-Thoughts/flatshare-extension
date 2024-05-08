@@ -8,7 +8,6 @@ import {
   _getUserGroup,
   _updateGroup,
 } from "../utils/resources";
-import { group } from "console";
 import { extractNumberFromString, getObjectByKeyPart } from "../utils/util";
 import { AxiosRequestHeaders } from "axios";
 
@@ -118,7 +117,7 @@ const FlatProvider = (props: Props) => {
 
   const getGroup = async () => {
     //const token = localStorage.getItem("flatini-auth") as string;
-
+    console.log("usera", userAuthToken);
     if (userAuthToken) {
       try {
         const group = await _getUserGroup(userAuthToken as string);
@@ -139,9 +138,12 @@ const FlatProvider = (props: Props) => {
           return;
         }
       } catch (err) {
+        console.log("err from app provider", err);
         if ((err as AxiosRequestHeaders)?.response?.status === 404) {
-          console.log("err", err);
           setUserHasGroup(false);
+        }
+        if ((err as AxiosRequestHeaders)?.response?.status === 404) {
+          console.log("err 401", err);
         }
         setIsGroupLoading(false);
       }
@@ -207,13 +209,7 @@ const FlatProvider = (props: Props) => {
       title
     );
 
-    const addNewFlat: Flat = {
-      id: (flats.length + 1).toString(),
-      title: title,
-      url: url,
-      price: price,
-    };
-    setFlats([...flats, addNewFlat]);
+    getGroup();
   };
 
   const removeFlat = async (flatUrl: string) => {
@@ -224,9 +220,7 @@ const FlatProvider = (props: Props) => {
         groupId as string,
         findFlat?.id as string
       );
-      setFlats((prevFlats) =>
-        prevFlats.filter((flat) => flat.id !== findFlat?.id)
-      );
+      getGroup();
     }
   };
 
@@ -234,6 +228,11 @@ const FlatProvider = (props: Props) => {
     price: number,
     location: string
   ) => {
+    console.log("check", price, location);
+    console.log(
+      "check",
+      includesAnySubstring(requirements.locations, location)
+    );
     function includesAnySubstring(arr: string[], str: string): boolean {
       return arr.some((substring) => str.includes(substring));
     }

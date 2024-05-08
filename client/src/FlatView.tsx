@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import SaveDataButton from "./SaveDataButton";
 import { Flat, useProvider } from "./context/AppProvider";
 import {
   getFlatDataFromOpenRent,
@@ -14,7 +13,9 @@ import checkmark from "./flatini-library/assets/checkmark.png";
 import cross from "./flatini-library/assets/cross.png";
 import { extractNumber } from "./utils/util";
 import Button from "./flatini-library/components/Button";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+import Loading from "./views/Loading";
 
 const Wrapper = styled.div<{
   isFlatDuplicated: boolean;
@@ -31,6 +32,7 @@ const Wrapper = styled.div<{
   justify-content: center;
   text-align: left;
   padding: 50px 20px;
+  gap: 2rem;
   background: ${(props) => {
     if (props.isFlatDuplicated) {
       return "#0B0708";
@@ -46,14 +48,12 @@ const Wrapper = styled.div<{
 `;
 
 const InfoWrapper = styled.div`
-  margin-top: 2rem;
   gap: 1rem;
   display: flex;
   flex-direction: column;
 `;
 
 const FlatView = () => {
-  const navigate = useNavigate();
   const {
     flats,
     addFlat,
@@ -63,6 +63,7 @@ const FlatView = () => {
     removeFlat,
   } = useProvider();
   const [isFlatDuplicated, setIsFlatDuplicated] = useState(false);
+  const [loadingFlatData, setLoadingFlatData] = useState(true);
   const [activeFlatData, setActiveFlatData] = useState({
     price: "",
     title: "",
@@ -81,6 +82,7 @@ const FlatView = () => {
   };
 
   const removeFlatFromList = () => {
+    console.log("activeurl, contents", activeUrl.contents);
     removeFlat(activeUrl.contents);
     setIsFlatDuplicated(false);
   };
@@ -97,6 +99,7 @@ const FlatView = () => {
             title,
             url,
           });
+          setLoadingFlatData(false);
         }
       );
     } else if (activeUrl.propertyProvider === "spareroom") {
@@ -109,6 +112,7 @@ const FlatView = () => {
             title,
             url,
           });
+          setLoadingFlatData(false);
         }
       );
     } else if (activeUrl.propertyProvider === "zoopla") {
@@ -121,6 +125,7 @@ const FlatView = () => {
             title,
             url,
           });
+          setLoadingFlatData(false);
         }
       );
     } else if (activeUrl.propertyProvider === "rightmove") {
@@ -133,10 +138,15 @@ const FlatView = () => {
             title,
             url,
           });
+          setLoadingFlatData(false);
         }
       );
     }
   }, [activeUrl]);
+
+  if (loadingFlatData) {
+    return <Loading />;
+  }
 
   return (
     <Wrapper
@@ -152,6 +162,22 @@ const FlatView = () => {
       }
       isFlatDuplicated={isFlatDuplicated}
     >
+      <Link to="/">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+            cursor: "pointer",
+            opacity: 0.7,
+          }}
+        >
+          <FaArrowLeft />
+          <Text type={TextTypes.paragraph}>Back to my list</Text>
+        </div>
+      </Link>
+
       <Text type={TextTypes.title}>{activeFlatData.title}</Text>
       <InfoWrapper>
         {/* Location */}
@@ -184,38 +210,44 @@ const FlatView = () => {
           </div>
         )}
         {/* Price */}
-        {checkIfPropertyMeetsRequirements(
-          extractNumber(activeFlatData.price),
-          activeFlatData.title
-        ).price ? (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <Image
-              style={{ width: "2.3rem", marginRight: "1rem" }}
-              src={checkmark}
-              alt="checkmark"
-            />
-            <Text type={TextTypes.paragraph}>
-              Under{" "}
-              <span style={{ fontWeight: "bold" }}>£{requirements.price}</span>{" "}
-              per month.
-            </Text>
-          </div>
-        ) : (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <Image
-              style={{ width: "2.3rem", marginRight: "1rem" }}
-              src={cross}
-              alt="cross"
-            />
-            <Text type={TextTypes.paragraph}>
-              Not under{" "}
-              <span style={{ fontWeight: "bold" }}>£{requirements.price}</span>{" "}
-              per month.
-            </Text>
-          </div>
-        )}
+        {requirements.price ? (
+          checkIfPropertyMeetsRequirements(
+            extractNumber(activeFlatData.price),
+            activeFlatData.title
+          ).price ? (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Image
+                style={{ width: "2.3rem", marginRight: "1rem" }}
+                src={checkmark}
+                alt="checkmark"
+              />
+              <Text type={TextTypes.paragraph}>
+                Under{" "}
+                <span style={{ fontWeight: "bold" }}>
+                  £{requirements.price}
+                </span>{" "}
+                per month.
+              </Text>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Image
+                style={{ width: "2.3rem", marginRight: "1rem" }}
+                src={cross}
+                alt="cross"
+              />
+              <Text type={TextTypes.paragraph}>
+                Not under{" "}
+                <span style={{ fontWeight: "bold" }}>
+                  £{requirements.price}
+                </span>{" "}
+                per month.
+              </Text>
+            </div>
+          )
+        ) : null}
       </InfoWrapper>
-      <div style={{ marginTop: "2rem" }}>
+      <div>
         {isFlatDuplicated ? (
           <Button onClick={removeFlatFromList} label="Remove from list" />
         ) : Object.values(
@@ -249,7 +281,7 @@ const FlatView = () => {
           />
         )}
       </div>
-      <div style={{ marginTop: 30 }}>
+      <div>
         <p>
           Price: <span style={{ opacity: 0.7 }}>{activeFlatData.price}</span>
         </p>
