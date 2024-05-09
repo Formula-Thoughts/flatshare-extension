@@ -12,30 +12,30 @@ def uuid4_str():
     return str(uuid.uuid4())
 
 
-@dataclass(unsafe_hash=True)
-class Flat:
-    id: str = field(default_factory=uuid4_str)
-    url: str = None
-    title: str = None
-    price: float = None
-    added_by: str = None
-
-
 GroupParticipantName = str
 GroupId = str
 
 
 @dataclass(unsafe_hash=True)
+class Property:
+    id: str = field(default_factory=uuid4_str)
+    url: str = None
+    title: str = None
+    price: float = None
+    full_name: str = None
+
+
+@dataclass(unsafe_hash=True)
 class UserGroups:
+    id: GroupParticipantName = None
     name: str = None
-    auth_user_id: GroupParticipantName = None
     groups: list[GroupId] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
 class Group:
     id: str = field(default_factory=uuid4_str)
-    flats: list[Flat] = field(default_factory=lambda: [])
+    properties: list[Property] = field(default_factory=lambda: [])
     participants: list[GroupParticipantName] = field(default_factory=lambda: [])
     price_limit: float = None
     locations: list[str] = field(default_factory=lambda: [])
@@ -69,10 +69,14 @@ class IGroupRepo(Protocol):
     def get(self, _id: str) -> Group:
         ...
 
-    def add_participant(self, participant: GroupParticipantName) -> None:
+
+class IPropertyRepo(Protocol):
+    def create(self, flat: Property) -> None:
         ...
 
-    def add_flat(self, flat: Flat) -> None:
+
+class IParticipantRepo(Protocol):
+    def create(self, flat: Participant) -> None:
         ...
 
 

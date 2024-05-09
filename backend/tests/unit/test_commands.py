@@ -11,7 +11,7 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Property
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_FLAT_REQUEST, GROUP, FULLNAME_CLAIM
@@ -116,7 +116,7 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         expected_group = Group(id=group.id,
                                price_limit=group_request.price_limit,
                                locations=group_request.locations,
-                               flats=group.flats,
+                               properties=group.properties,
                                participants=group.participants)
         context = ApplicationContext(variables={
             GROUP: group,
@@ -153,7 +153,7 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         group_id = str(uuid.uuid4())
         auth_user_id = "12345"
         name = "test_user"
-        expected_user_group = UserGroups(auth_user_id=auth_user_id,
+        expected_user_group = UserGroups(id=auth_user_id,
                                          groups=[group_id],
                                          name=name)
         context = ApplicationContext(variables={
@@ -199,7 +199,7 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
         # assert
         with self.subTest(msg="assert sqs message is sent with correct params"):
             self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=auth_user_id,
-                                                                           payload=UserGroups(auth_user_id=auth_user_id,
+                                                                           payload=UserGroups(id=auth_user_id,
                                                                                               groups=expected_user_groups,
                                                                                               name=user_groups.name))
 
@@ -509,8 +509,8 @@ class TestCreateFlatCommand(TestCase):
         group = AutoFixture().create(dto=Group)
         user_groups = AutoFixture().create(dto=UserGroups)
         flat = AutoFixture().create(dto=CreateFlatRequest)
-        flats = AutoFixture().create_many(dto=Flat, ammount=3)
-        group.flats = flats
+        flats = AutoFixture().create_many(dto=Property, ammount=3)
+        group.properties = flats
         context = ApplicationContext(variables={
             CREATE_FLAT_REQUEST: flat,
             GROUP: group,
@@ -536,15 +536,15 @@ class TestCreateFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="correct number of flats are sent"):
-            self.assertEqual(len(captor.arg.flats), 4)
+            self.assertEqual(len(captor.arg.properties), 4)
 
         # assert
         with self.subTest(msg="correct flat params are set"):
-            self.assertEqual(captor.arg.flats[-1], Flat(id=UUID_EXAMPLE,
-                                                        url=flat.url,
-                                                        price=flat.price,
-                                                        title=flat.title,
-                                                        added_by=user_groups.name))
+            self.assertEqual(captor.arg.properties[-1], Property(id=UUID_EXAMPLE,
+                                                                 url=flat.url,
+                                                                 price=flat.price,
+                                                                 title=flat.title,
+                                                                 full_name=user_groups.name))
 
 
 @ddt
@@ -602,9 +602,9 @@ class TestDeleteFlatCommand(TestCase):
     def test_run(self):
         # arrange
         group = AutoFixture().create(dto=Group)
-        flat = AutoFixture().create(dto=Flat)
-        group.flats.append(flat)
-        length_of_flats_before_delete = len(group.flats)
+        flat = AutoFixture().create(dto=Property)
+        group.properties.append(flat)
+        length_of_flats_before_delete = len(group.properties)
         context = ApplicationContext(variables={
             "flat_id": flat.id,
             GROUP: group
@@ -627,7 +627,7 @@ class TestDeleteFlatCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert flat is removed from list"):
-            self.assertEqual(len(captor.arg.flats), length_of_flats_before_delete - 1)
+            self.assertEqual(len(captor.arg.properties), length_of_flats_before_delete - 1)
 
         # assert
         with self.subTest(msg="assert group published matches"):
@@ -640,7 +640,7 @@ class TestDeleteFlatCommand(TestCase):
     def test_run_when_flat_is_not_found(self):
         # arrange
         group = AutoFixture().create(dto=Group)
-        flat = AutoFixture().create(dto=Flat)
+        flat = AutoFixture().create(dto=Property)
         context = ApplicationContext(variables={
             "flat_id": flat.id,
             GROUP: group
@@ -823,7 +823,7 @@ class TestCreateGroupAsyncCommand(TestCase):
         self.__sqs_publisher.send_sqs_message = MagicMock()
         expected_group = Group(
                              id=UUID_EXAMPLE,
-                             flats=[],
+                             properties=[],
                              participants=[fullname],
                              price_limit=None,
                              locations=[]

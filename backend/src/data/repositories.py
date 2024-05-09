@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import IBlobRepo, Group, TData, UserGroups, Flat, GroupParticipantName, GroupId
+from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupParticipantName, GroupId
 from src.data import S3ClientWrapper
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -51,7 +51,7 @@ class S3GroupRepo:
         except ClientError:
             raise GroupNotFoundException()
 
-    def add_flat(self, flat: Flat) -> None:
+    def add_flat(self, flat: Property) -> None:
         ...
 
     def add_participant(self, flat: GroupParticipantName) -> None:
@@ -63,13 +63,25 @@ class S3UserGroupsRepo:
         self.__blob_repo = blob_repo
 
     def create(self, user_groups: UserGroups) -> None:
-        self.__blob_repo.create(data=user_groups, key_gen=lambda x: f"user_groups/{x.auth_user_id}")
+        self.__blob_repo.create(data=user_groups, key_gen=lambda x: f"user_groups/{x.id}")
 
     def get(self, _id: str) -> UserGroups:
         try:
             return self.__blob_repo.get(key=f"user_groups/{_id}", model_type=UserGroups)
         except ClientError:
             raise UserGroupsNotFoundException()
+
+    def add_group(self, group: GroupId) -> None:
+        ...
+
+
+class DynamoDbUserGroupsRepo:
+
+    def get(self, _id: str) -> UserGroups:
+        return UserGroups()
+
+    def create(self, user_groups: UserGroups) -> None:
+        ...
 
     def add_group(self, group: GroupId) -> None:
         ...

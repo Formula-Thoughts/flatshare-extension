@@ -217,14 +217,14 @@ Resources:
                   - "/"
                   - !Ref "AWS::StackId"
       AttributeDefinitions:
-        - AttributeName: "PK"
+        - AttributeName: "partition_key"
           AttributeType: "S"
-        - AttributeName: "SK"
+        - AttributeName: "id"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "PK"
+        - AttributeName: "partition_key"
           KeyType: "HASH"
-        - AttributeName: "SK"
+        - AttributeName: "id"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
 

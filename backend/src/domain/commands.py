@@ -6,7 +6,7 @@ from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Flat
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Property
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_FLAT_REQUEST, FLAT_ID, CODE, FULLNAME_CLAIM
@@ -57,7 +57,7 @@ class UpdateGroupAsyncCommand:
         group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
         group_from_store = context.get_var(GROUP, Group)
         group = Group(id=group_from_store.id,
-                      flats=group_from_store.flats,
+                      properties=group_from_store.properties,
                       participants=group_from_store.participants,
                       price_limit=group_request.price_limit,
                       locations=group_request.locations)
@@ -106,7 +106,7 @@ class CreateUserGroupsAsyncCommand:
 
     def run(self, context: ApplicationContext) -> None:
         check_if_user_group_exists = context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool)
-        user_groups = UserGroups(auth_user_id=context.auth_user_id,
+        user_groups = UserGroups(id=context.auth_user_id,
                                  groups=[context.get_var(GROUP_ID, str)])
         if check_if_user_group_exists:
             current_user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
@@ -191,10 +191,10 @@ class CreateFlatCommand:
         group = context.get_var(name=GROUP, _type=Group)
         user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
         flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
-        group.flats.append(Flat(url=flat_request.url,
-                                title=flat_request.title,
-                                price=flat_request.price,
-                                added_by=user_groups.name))
+        group.properties.append(Property(url=flat_request.url,
+                                         title=flat_request.title,
+                                         price=flat_request.price,
+                                         full_name=user_groups.name))
         self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
@@ -225,11 +225,11 @@ class DeleteFlatCommand:
         flat_id = context.get_var(name=FLAT_ID, _type=str)
         group = context.get_var(name=GROUP, _type=Group)
 
-        if flat_id not in map(lambda x: x.id, group.flats):
+        if flat_id not in map(lambda x: x.id, group.properties):
             context.error_capsules.append(FlatNotFoundError(message=f"flat {flat_id} not found"))
             return
 
-        group.flats = list(filter(lambda x: x.id != flat_id, group.flats))
+        group.properties = list(filter(lambda x: x.id != flat_id, group.properties))
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
@@ -285,7 +285,7 @@ class CreateGroupAsyncCommand:
         group_id = str(uuid.uuid4())
         fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
         group = Group(id=group_id,
-                      flats=[],
+                      properties=[],
                       participants=[fullname])
         context.response = CreatedGroupResponse(group=group)
         context.set_var(name=GROUP_ID, value=group_id)

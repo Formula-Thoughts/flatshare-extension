@@ -32,7 +32,7 @@ class S3TestCase(TestCase):
                                 })
 
 
-class TestGroupRepo(S3TestCase):
+class TestS3GroupRepo(S3TestCase):
 
 
     @mock_aws
@@ -70,7 +70,7 @@ class TestGroupRepo(S3TestCase):
             sut.get(_id=str(uuid.uuid4()))
 
 
-class TestUserGroupsRepo(S3TestCase):
+class TestS3UserGroupsRepo(S3TestCase):
 
 
     @mock_aws
@@ -87,7 +87,7 @@ class TestUserGroupsRepo(S3TestCase):
         sut.create(user_groups=stored_user_groups)
 
         # act
-        fetched_user_groups = sut.get(_id=stored_user_groups.auth_user_id)
+        fetched_user_groups = sut.get(_id=stored_user_groups.id)
 
         # assert
         self.assertEqual(fetched_user_groups, stored_user_groups)
@@ -106,3 +106,9 @@ class TestUserGroupsRepo(S3TestCase):
         # act/assert
         with self.assertRaises(expected_exception=UserGroupsNotFoundException):
             sut.get(_id=str(uuid.uuid4()))
+
+
+class TestGroupRepo(TestCase):
+
+    def setUp(self):
+        self.__sut = Dynamo
