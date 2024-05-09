@@ -151,6 +151,14 @@ const FlatProvider = (props: Props) => {
 
           setUserHasGroup(false);
         }
+
+        if ((err as AxiosRequestHeaders)?.response?.status === 401) {
+          setAppHasError(
+            "Session expired. Please sign back in through flatini.formulathoughts.com and reload the extension"
+          );
+          localStorage.removeItem("flatini-auth");
+          return;
+        }
         setIsGroupLoading(false);
       }
     }
