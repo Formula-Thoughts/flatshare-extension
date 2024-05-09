@@ -145,11 +145,6 @@ const FlatProvider = (props: Props) => {
       } catch (err) {
         console.log("err from app provider", err);
         if ((err as AxiosRequestHeaders)?.response?.status === 404) {
-          if ((err as AxiosError)?.code === "ECONNABORTED") {
-            setAppHasError("ECONNABORTED");
-            return;
-          }
-
           setUserHasGroup(false);
         }
 
@@ -157,6 +152,12 @@ const FlatProvider = (props: Props) => {
           setAppHasError(
             "Session expired. Please sign back in through flatini.formulathoughts.com and reload the extension"
           );
+          localStorage.removeItem("flatini-auth");
+          return;
+        }
+
+        if ((err as AxiosError)?.code === "ECONNABORTED") {
+          setAppHasError(`ECONNABORTED - ${(err as AxiosError).message}`);
           localStorage.removeItem("flatini-auth");
           return;
         }
