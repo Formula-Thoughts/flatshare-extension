@@ -8,6 +8,7 @@ import {
   faCog,
   faHouseChimney,
   faPeopleGroup,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { useProvider } from "../context/AppProvider";
 
@@ -122,6 +123,12 @@ const Header = () => {
                 style={{ fontSize: "1.4rem" }}
                 icon={faHouseChimney}
               />
+              <NavIconActiveBorder className="active-border" />
+            </NavLink>
+          </NavIcon>
+          <NavIcon>
+            <NavLink to="/Explore">
+              <FontAwesomeIcon style={{ fontSize: "1.4rem" }} icon={faSearch} />
               <NavIconActiveBorder className="active-border" />
             </NavLink>
           </NavIcon>
