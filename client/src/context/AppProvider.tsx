@@ -36,6 +36,7 @@ interface AppContextType {
   createGroup: any;
   addFlat: any;
   appHasError: boolean | string;
+  setAppHasError: any;
 }
 
 export type Group = {
@@ -287,6 +288,7 @@ const FlatProvider = (props: Props) => {
         createGroup,
         addFlat,
         appHasError,
+        setAppHasError,
       }}
     >
       {props.children}

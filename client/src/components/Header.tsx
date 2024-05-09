@@ -17,6 +17,10 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  position: sticky;
+  top: 0;
+  background: ${(props) => props.theme.colors.background};
+  z-index: 10000;
 `;
 
 const NavBar = styled.div`
@@ -37,6 +41,16 @@ const TopBar = styled.div`
 const NavIcon = styled.div`
   width: 3rem;
   text-align: center;
+
+  svg {
+    transition: all ease 0.4s;
+  }
+
+  &:hover {
+    svg {
+      opacity: 0.8;
+    }
+  }
 
   a {
     display: flex;

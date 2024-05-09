@@ -16,6 +16,13 @@ const FlatList = styled.div`
 
 const FlatCard = styled.div`
   position: relative;
+
+  &:hover {
+    svg {
+      transition: all ease 0.4s;
+      opacity: 1 !important;
+    }
+  }
 `;
 
 const FlatCardBody = styled.div`
@@ -104,7 +111,6 @@ export const Flats = () => {
                     display: "flex",
                     gap: "1rem",
                     alignItems: "flex-start",
-                    justifyContent: "center",
                   }}
                 >
                   <FontAwesomeIcon

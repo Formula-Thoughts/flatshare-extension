@@ -61,6 +61,7 @@ const FlatView = () => {
     checkIfPropertyMeetsRequirements,
     requirements,
     removeFlat,
+    setAppHasError,
   } = useProvider();
   const [isFlatDuplicated, setIsFlatDuplicated] = useState(false);
   const [loadingFlatData, setLoadingFlatData] = useState(true);
@@ -149,6 +150,11 @@ const FlatView = () => {
     return <Loading />;
   }
 
+  if (!activeFlatData.price || !activeFlatData.title || !activeFlatData.url) {
+    setAppHasError(
+      "Sorry. This property cannot be added to your list, would you mind reloading the extension? :)"
+    );
+  }
   return (
     <Wrapper
       doesFlatMeetRequirements={

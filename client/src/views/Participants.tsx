@@ -50,7 +50,7 @@ const Participants = () => {
           <Text type={TextTypes.title}>Participants</Text>
           <Text type={TextTypes.small}>Add people to your group</Text>
         </div>
-        <ul>
+        <ul style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {participants?.map((participant: string) => {
             return (
               <li

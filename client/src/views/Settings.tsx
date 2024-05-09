@@ -55,7 +55,7 @@ const Settings = () => {
           </div>
           <div>
             <label style={{ display: "block", opacity: 0.5 }}>
-              Desired locations
+              Desired locations (Use commas to add multiple)
             </label>
             <div style={{ display: "flex", alignItems: "center" }}>
               <InputText
