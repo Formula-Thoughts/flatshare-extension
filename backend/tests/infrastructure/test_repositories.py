@@ -10,8 +10,8 @@ from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCa
 from moto import mock_aws
 
 from src.core import Group, UserGroups
-from src.data import S3ClientWrapper
-from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo
+from src.data import S3ClientWrapper, DynamoDbWrapper
+from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException
 
 BUCKET = "test-bucket"
@@ -32,8 +32,37 @@ class S3TestCase(TestCase):
                                 })
 
 
-class TestS3GroupRepo(S3TestCase):
+class DynamoDbTestCase(TestCase):
 
+    def _set_up_table(self):
+        table_name = 'flatini-test'
+        self.__dynamo = boto3.client('dynamodb')
+        self._dynamo_client_wrapper = DynamoDbWrapper(dynamo_client=self.__dynamo, tablename=table_name)
+        self.__dynamo.create_table(TableName=table_name,
+                                   KeySchema=[
+                                       {
+                                           'AttributeName': 'partitionKey',
+                                           'KeyType': 'HASH',
+                                       },
+                                       {
+                                           'AttributeName': 'id',
+                                           'KeyType': 'RANGE',
+                                       }
+                                   ],
+                                   AttributeDefinitions=[
+                                       {
+                                           'AttributeName': 'partitionKey',
+                                           'AttributeType': 'S'
+                                       },
+                                       {
+                                           'AttributeName': 'id',
+                                           'AttributeType': 'S'
+                                       }
+                                   ],
+                                   BillingMode='PAY_PER_REQUEST')
+
+
+class TestS3GroupRepo(S3TestCase):
 
     @mock_aws
     @patch.dict(os.environ, {
@@ -72,7 +101,6 @@ class TestS3GroupRepo(S3TestCase):
 
 class TestS3UserGroupsRepo(S3TestCase):
 
-
     @mock_aws
     @patch.dict(os.environ, {
         "S3_BUCKET_NAME": BUCKET,
@@ -108,7 +136,25 @@ class TestS3UserGroupsRepo(S3TestCase):
             sut.get(_id=str(uuid.uuid4()))
 
 
-class TestGroupRepo(TestCase):
+class TestGroupRepo(DynamoDbTestCase):
 
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
     def setUp(self):
-        self.__sut = Dynamo
+        self._set_up_table()
+        self.__sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper)
+
+    def test_get_user_groups_retrieves_user_group(self):
+        # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
+        self.__sut.create(user_groups=user_groups)
+
+        # act
+        received_user_groups = self.__sut.get(_id=user_groups.id)
+
+        # assert
+        with self.subTest(msg="assert correct user groups document was received"):
+            self.assertEqual(received_user_groups, user_groups)

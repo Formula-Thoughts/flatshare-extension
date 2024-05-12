@@ -1,4 +1,5 @@
 import boto3
+from boto3.dynamodb.conditions import Key
 from botocore.client import BaseClient
 
 CognitoUserPoolId = str
@@ -60,3 +61,30 @@ class CognitoClientWrapper:
                        username: Username) -> dict:
         return self.__cognito_client.admin_get_user(UserPoolId=user_pool_id,
                                                     Username=username)
+
+
+class DynamoDbWrapper:
+
+    def __init__(self, tablename: str,
+                 dynamo_client: BaseClient):
+        self.__dynamo_client = dynamo_client
+        self.__tablename = tablename
+
+    def put(self,
+            item: dict,
+            condition_expression: boto3.dynamodb.conditions.ConditionBase):
+        self.__dynamo_client.put_item(TableName=self.__tablename,
+                                      Item=item,
+                                      ConditionExpression=condition_expression)
+
+    def update_item(self,
+                    key: dict,
+                    update_expression: str,
+                    condition_expression: boto3.dynamodb.conditions.ConditionBase):
+        self.__dynamo_client.update_item(Key=key,
+                                         UpdateExpression=update_expression,
+                                         ConditionExpression=condition_expression)
+
+    def query(self,
+              key_condition_expression: boto3.dynamodb.conditions.ConditionBase):
+        self.__dynamo_client.query(KeyConditionExpression=key_condition_expression)

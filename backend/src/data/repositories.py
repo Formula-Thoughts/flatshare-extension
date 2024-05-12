@@ -6,7 +6,7 @@ from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupParticipantName, GroupId
-from src.data import S3ClientWrapper
+from src.data import S3ClientWrapper, DynamoDbWrapper
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
@@ -51,9 +51,6 @@ class S3GroupRepo:
         except ClientError:
             raise GroupNotFoundException()
 
-    def add_flat(self, flat: Property) -> None:
-        ...
-
     def add_participant(self, flat: GroupParticipantName) -> None:
         ...
 
@@ -76,6 +73,9 @@ class S3UserGroupsRepo:
 
 
 class DynamoDbUserGroupsRepo:
+
+    def __init__(self, dynamo_wrapper: DynamoDbWrapper):
+        self.__dynamo_wrapper = dynamo_wrapper
 
     def get(self, _id: str) -> UserGroups:
         return UserGroups()

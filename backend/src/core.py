@@ -17,7 +17,13 @@ GroupId = str
 
 
 @dataclass(unsafe_hash=True)
-class Property:
+class Entity:
+    etag: str = None
+    partition_key: str = None
+
+
+@dataclass(unsafe_hash=True)
+class Property(Entity):
     id: str = field(default_factory=uuid4_str)
     url: str = None
     title: str = None
@@ -26,14 +32,14 @@ class Property:
 
 
 @dataclass(unsafe_hash=True)
-class UserGroups:
+class UserGroups(Entity):
     id: GroupParticipantName = None
     name: str = None
     groups: list[GroupId] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
-class Group:
+class Group(Entity):
     id: str = field(default_factory=uuid4_str)
     properties: list[Property] = field(default_factory=lambda: [])
     participants: list[GroupParticipantName] = field(default_factory=lambda: [])
@@ -69,14 +75,12 @@ class IGroupRepo(Protocol):
     def get(self, _id: str) -> Group:
         ...
 
-
-class IPropertyRepo(Protocol):
-    def create(self, flat: Property) -> None:
+    def add_participant(self, participant: GroupParticipantName) -> Group:
         ...
 
 
-class IParticipantRepo(Protocol):
-    def create(self, flat: Participant) -> None:
+class IPropertyRepo(Protocol):
+    def create(self, flat: Property) -> None:
         ...
 
 
