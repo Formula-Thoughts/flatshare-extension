@@ -4,6 +4,7 @@ import styled, { useTheme } from "styled-components";
 import Text, { TextTypes } from "../flatini-library/components/Text";
 import InputText from "../flatini-library/components/InputText";
 import Button from "../flatini-library/components/Button";
+import Logo from "../flatini-library/components/Logo";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -73,6 +74,7 @@ const Invite = (props: any) => {
   return (
     <Wrapper>
       <Content>
+        <Logo style={{ width: "10rem" }} />
         <Text type={TextTypes.title}>Join a group</Text>
         <Text type={TextTypes.paragraph}>
           Enter the group code that has been shared with you.

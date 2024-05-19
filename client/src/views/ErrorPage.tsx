@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Text, { TextTypes } from "../flatini-library/components/Text";
 import Logo from "../flatini-library/components/Logo";
+import Button from "../flatini-library/components/Button";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -53,6 +54,10 @@ const ErrorPage = (props: Props) => {
         <Issue>
           {typeof props.data === "string" ? props.data : "Unknown Error"}
         </Issue>
+        <Button
+          onClick={() => window.location.reload()}
+          label="Reload Flatini"
+        />
       </Content>
     </Wrapper>
   );
