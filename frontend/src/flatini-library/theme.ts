@@ -20,12 +20,12 @@ const theme: DefaultTheme = {
       paragraph: {
         lineHeight: "1.6rem",
         fontWeight: "normal",
-        size: "1.3rem",
+        size: "1.1rem",
       },
       title: {
-        lineHeight: "1.6rem",
+        lineHeight: "2.1rem",
         fontWeight: "bold",
-        size: "1.7rem",
+        size: "2rem",
       },
     },
   },

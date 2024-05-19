@@ -3,12 +3,15 @@ import styled from "styled-components";
 import { device } from "../util/mediaQueries";
 
 const Primary = styled.button`
+  all: unset;
   background: ${(props) => props.theme.colors.text};
   color: ${(props) => props.theme.colors.background};
-  padding: 1.5rem;
+  padding: 1.2rem;
   border-radius: 0.7rem;
   font-weight: bold;
   font-size: ${(props) => props.theme.fonts.types.paragraph.size};
+  font-family: ${(props) => props.theme.fonts.family.primary};
+  cursor: pointer;
 
   &:hover {
     background: ${(props) => props.theme.colors.primary};

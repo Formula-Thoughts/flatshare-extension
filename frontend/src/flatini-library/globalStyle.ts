@@ -77,6 +77,10 @@ const GlobalStyle = createGlobalStyle`
         outline: none;   
         border: 0; 
     }
+
+    a {
+        color: ${(props) => props.theme.colors.text};
+    }
 `;
 
 export default GlobalStyle;

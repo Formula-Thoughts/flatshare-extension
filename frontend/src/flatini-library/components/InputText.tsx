@@ -1,14 +1,18 @@
 import React, { ChangeEvent } from "react";
 import styled from "styled-components";
-import { device } from "../util/mediaQueries";
 
 const Input = styled.input`
   padding: 1.5rem;
   border-radius: 0.7rem;
   font-size: ${(props) => props.theme.fonts.types.paragraph.size};
+  all: unset;
+  padding: 1rem 0;
+  font-size: 1.6rem;
+  font-weight: bold;
 
-  @media ${device.tablet} {
-    padding: 1.1rem;
+  &:focus,
+  &:hover {
+    color: ${(props) => props.theme.colors.primary};
   }
 `;
 

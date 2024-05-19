@@ -6,7 +6,12 @@ import InputText from "../flatini-library/components/InputText";
 import Button from "../flatini-library/components/Button";
 
 const Wrapper = styled.div`
-  max-width: 25rem;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 `;
 
 const Content = styled.div`
@@ -75,7 +80,7 @@ const Invite = (props: any) => {
         <InputText
           name="code"
           placeholder="Enter a code..."
-          onChange={(value) => setCode(value)}
+          onChange={(value: any) => setCode(value)}
           defaultValue={props.code || ""}
         />
         <div>
