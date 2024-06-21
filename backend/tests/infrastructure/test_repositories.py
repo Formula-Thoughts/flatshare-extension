@@ -1,7 +1,7 @@
 import os
 import uuid
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock, MagicMock
 
 import boto3
 from autofixture import AutoFixture
@@ -10,7 +10,7 @@ from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCa
 from moto import mock_aws
 
 from src.core import Group, UserGroups
-from src.data import S3ClientWrapper, DynamoDbWrapper
+from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
 from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException
 
@@ -36,12 +36,12 @@ class DynamoDbTestCase(TestCase):
 
     def _set_up_table(self):
         table_name = 'flatini-test'
-        self.__dynamo = boto3.client('dynamodb')
+        self.__dynamo = boto3.resource('dynamodb')
         self._dynamo_client_wrapper = DynamoDbWrapper(dynamo_client=self.__dynamo, tablename=table_name)
         self.__dynamo.create_table(TableName=table_name,
                                    KeySchema=[
                                        {
-                                           'AttributeName': 'partitionKey',
+                                           'AttributeName': 'partition_key',
                                            'KeyType': 'HASH',
                                        },
                                        {
@@ -51,7 +51,7 @@ class DynamoDbTestCase(TestCase):
                                    ],
                                    AttributeDefinitions=[
                                        {
-                                           'AttributeName': 'partitionKey',
+                                           'AttributeName': 'partition_key',
                                            'AttributeType': 'S'
                                        },
                                        {
@@ -143,18 +143,58 @@ class TestGroupRepo(DynamoDbTestCase):
         "AWS_ACCESS_KEY_ID": "test",
         "AWS_SECRET_ACCESS_KEY": "test"
     }, clear=True)
-    def setUp(self):
-        self._set_up_table()
-        self.__sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper)
-
     def test_get_user_groups_retrieves_user_group(self):
         # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                     object_mapper=object_mapper,
+                                     object_hasher=object_hasher)
+        hash = "test hash"
+        object_hasher.hash = MagicMock(return_value=hash)
         user_groups = AutoFixture().create(dto=UserGroups)
-        self.__sut.create(user_groups=user_groups)
+        sut.create(user_groups=user_groups)
 
         # act
-        received_user_groups = self.__sut.get(_id=user_groups.id)
+        received_user_groups = sut.get(_id=user_groups.id)
+        user_groups.etag = hash
+        user_groups.partition_key = f"user_groups:{user_groups.id}"
 
         # assert
         with self.subTest(msg="assert correct user groups document was received"):
             self.assertEqual(received_user_groups, user_groups)
+
+        # assert
+        with self.subTest(msg="assert hasher was called once"):
+            object_hasher.hash.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert hasher was called with correct args"):
+            object_hasher.hash.assert_called_with(object=user_groups)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_add_group_adds_group_to_user_groups(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                     object_mapper=object_mapper,
+                                     object_hasher=object_hasher)
+        user_groups = AutoFixture().create(dto=UserGroups)
+        object_hasher.hash = MagicMock(return_value="hash")
+        sut.create(user_groups=user_groups)
+        group_to_add = str(uuid.uuid4())
+
+        # act
+        sut.add_group(group=group_to_add, user_id=user_groups.id, etag=user_groups.etag)
+        received_user_groups = sut.get(_id=user_groups.id)
+
+        # assert
+        with self.subTest(msg="assert document was updated"):
+            self.assertEqual(received_user_groups.groups, [*user_groups.groups, group_to_add])

@@ -1,6 +1,10 @@
+import hashlib
+
 import boto3
+from boto3 import dynamodb
 from boto3.dynamodb.conditions import Key
 from botocore.client import BaseClient
+from formula_thoughts_web.abstractions import Serializer
 
 CognitoUserPoolId = str
 
@@ -15,6 +19,18 @@ S3BucketName = str
 S3BucketPrefix = str
 
 ContentType = str
+
+
+class ObjectHasher:
+
+    def __init__(self, serializer: Serializer):
+        self.__serializer = serializer
+
+    def hash(self, object) -> str:
+        dhash = hashlib.md5()
+        encoded = self.__serializer.serialize(data=object).encode()
+        dhash.update(encoded)
+        return dhash.hexdigest()
 
 
 class S3ClientWrapper:
@@ -67,24 +83,27 @@ class DynamoDbWrapper:
 
     def __init__(self, tablename: str,
                  dynamo_client: BaseClient):
-        self.__dynamo_client = dynamo_client
-        self.__tablename = tablename
+        self.__table = dynamo_client.Table(tablename)
 
     def put(self,
             item: dict,
-            condition_expression: boto3.dynamodb.conditions.ConditionBase):
-        self.__dynamo_client.put_item(TableName=self.__tablename,
-                                      Item=item,
-                                      ConditionExpression=condition_expression)
+            condition_expression: boto3.dynamodb.conditions.ConditionBase=None):
+        if condition_expression is None:
+            self.__table.put_item(Item=item)
+        else:
+            self.__table.put_item(Item=item,
+                                  ConditionExpression=condition_expression)
 
     def update_item(self,
                     key: dict,
                     update_expression: str,
-                    condition_expression: boto3.dynamodb.conditions.ConditionBase):
-        self.__dynamo_client.update_item(Key=key,
-                                         UpdateExpression=update_expression,
-                                         ConditionExpression=condition_expression)
+                    condition_expression: boto3.dynamodb.conditions.ConditionBase,
+                    expression_attribute_values: dict):
+        self.__table.update_item(Key=key,
+                                 UpdateExpression=update_expression,
+                                 ConditionExpression=condition_expression,
+                                 ExpressionAttributeValues=expression_attribute_values)
 
     def query(self,
-              key_condition_expression: boto3.dynamodb.conditions.ConditionBase):
-        self.__dynamo_client.query(KeyConditionExpression=key_condition_expression)
+              key_condition_expression: boto3.dynamodb.conditions.ConditionBase) -> dict:
+        return self.__table.query(KeyConditionExpression=key_condition_expression)

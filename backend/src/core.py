@@ -14,6 +14,7 @@ def uuid4_str():
 
 GroupParticipantName = str
 GroupId = str
+UserId = str
 
 
 @dataclass(unsafe_hash=True)
@@ -70,6 +71,9 @@ class IBlobRepo(Protocol):
 
 class IGroupRepo(Protocol):
     def create(self, group: Group) -> None:
+        ...
+
+    def update(self, group: Group) -> None:
         ...
 
     def get(self, _id: str) -> Group:
