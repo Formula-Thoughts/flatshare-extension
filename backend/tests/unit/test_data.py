@@ -1,16 +1,16 @@
 from unittest import TestCase
-from unittest.mock import Mock
 
 from attr import dataclass
-from formula_thoughts_web.abstractions import Serializer
 from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, ObjectMapper
 
 from src.data import ObjectHasher
+
 
 @dataclass(unsafe_hash=True)
 class TestModel:
     prop1: int = None
     prop2: str = None
+
 
 class ObjectHasherTestCase(TestCase):
 
