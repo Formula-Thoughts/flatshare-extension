@@ -5,6 +5,7 @@ from boto3 import dynamodb
 from boto3.dynamodb.conditions import Key
 from botocore.client import BaseClient
 from formula_thoughts_web.abstractions import Serializer
+from formula_thoughts_web.crosscutting import ObjectMapper
 
 CognitoUserPoolId = str
 
@@ -23,12 +24,15 @@ ContentType = str
 
 class ObjectHasher:
 
-    def __init__(self, serializer: Serializer):
+    def __init__(self, serializer: Serializer,
+                 object_mapper: ObjectMapper):
+        self.__object_mapper = object_mapper
         self.__serializer = serializer
 
     def hash(self, object) -> str:
         dhash = hashlib.md5()
-        encoded = self.__serializer.serialize(data=object).encode()
+        json = self.__serializer.serialize(data=self.__object_mapper.map_to_dict(_from=object, to=type(object)))
+        encoded = json.encode()
         dhash.update(encoded)
         return dhash.hexdigest()
 
