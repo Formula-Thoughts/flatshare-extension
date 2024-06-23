@@ -42,10 +42,14 @@ class UserGroups(Entity):
 @dataclass(unsafe_hash=True)
 class Group(Entity):
     id: str = field(default_factory=uuid4_str)
-    properties: list[Property] = field(default_factory=lambda: [])
     participants: list[GroupParticipantName] = field(default_factory=lambda: [])
     price_limit: float = None
     locations: list[str] = field(default_factory=lambda: [])
+
+
+@dataclass(unsafe_hash=True)
+class GroupProperties(Group):
+    properties: list[Property] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
@@ -76,15 +80,15 @@ class IGroupRepo(Protocol):
     def update(self, group: Group) -> None:
         ...
 
-    def get(self, _id: str) -> Group:
+    def get(self, _id: str) -> GroupProperties:
         ...
 
-    def add_participant(self, participant: GroupParticipantName) -> Group:
+    def add_participant(self, participant: GroupParticipantName) -> None:
         ...
 
 
 class IPropertyRepo(Protocol):
-    def create(self, flat: Property) -> None:
+    def create(self, group_id: str, property: Property) -> None:
         ...
 
 
@@ -92,7 +96,7 @@ class IUserGroupsRepo(Protocol):
     def create(self, user_groups: UserGroups) -> None:
         ...
 
-    def add_group(self, group: GroupId) -> None:
+    def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
         ...
 
     def get(self, _id: str) -> UserGroups:

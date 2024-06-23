@@ -9,9 +9,10 @@ from botocore.client import BaseClient
 from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCamelToSnakeDeserializer, ObjectMapper
 from moto import mock_aws
 
-from src.core import Group, UserGroups
+from src.core import Group, UserGroups, Property
 from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
-from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo
+from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
+    DynamoDbPropertyRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException
 
 BUCKET = "test-bucket"
@@ -192,9 +193,47 @@ class TestGroupRepo(DynamoDbTestCase):
         group_to_add = str(uuid.uuid4())
 
         # act
-        sut.add_group(group=group_to_add, user_id=user_groups.id, etag=user_groups.etag)
+        sut.add_group(group=group_to_add, user_groups=user_groups)
         received_user_groups = sut.get(_id=user_groups.id)
 
         # assert
         with self.subTest(msg="assert document was updated"):
             self.assertEqual(received_user_groups.groups, [*user_groups.groups, group_to_add])
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_get_group_properties(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        prop_repo = DynamoDbPropertyRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                   object_mapper=object_mapper,
+                                   object_hasher=object_hasher)
+        group = AutoFixture().create(dto=Group)
+        props: list[Property] = AutoFixture().create_many(dto=Property, ammount=3)
+        hash_value = "hash"
+        object_hasher.hash = MagicMock(return_value=hash_value)
+        sut.create(group=group)
+        for prop in props:
+            prop_repo.create(group_id=group.id, property=prop)
+
+        # act
+        group_properties = sut.get(_id=group.id)
+
+        group.etag = hash_value
+        group.partition_key = f"group:{group.id}"
+        group
+        for prop in props:
+            prop.etag = hash_value
+            prop.partition_key = f"group:{group.id}:flat"
+
+        # assert
+        with self.subTest(msg="assert group properties were received"):
+            self.assertEqual(group_properties.groups, [*user_groups.groups, group_to_add])

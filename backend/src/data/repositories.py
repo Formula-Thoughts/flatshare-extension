@@ -8,7 +8,8 @@ from botocore.exceptions import ClientError
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupParticipantName, GroupId, UserId
+from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupParticipantName, GroupId, UserId, \
+    GroupProperties
 from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -48,9 +49,9 @@ class S3GroupRepo:
     def create(self, group: Group) -> None:
         self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.id}")
 
-    def get(self, _id: str) -> Group:
+    def get(self, _id: str) -> GroupProperties:
         try:
-            return self.__blob_repo.get(key=f"groups/{_id}", model_type=Group)
+            return self.__blob_repo.get(key=f"groups/{_id}", model_type=GroupProperties)
         except ClientError:
             raise GroupNotFoundException()
 
@@ -78,6 +79,41 @@ class S3UserGroupsRepo:
         ...
 
 
+class DynamoDbPropertyRepo:
+
+    def __init__(self, dynamo_wrapper: DynamoDbWrapper,
+                 object_mapper: ObjectMapper,
+                 object_hasher: ObjectHasher):
+        self.__object_hasher = object_hasher
+        self.__object_mapper = object_mapper
+        self.__dynamo_wrapper = dynamo_wrapper
+
+    def create(self, group_id: str, property: Property) -> None:
+        ...
+
+
+class DynamoDbGroupRepo:
+
+    def __init__(self, dynamo_wrapper: DynamoDbWrapper,
+                 object_mapper: ObjectMapper,
+                 object_hasher: ObjectHasher):
+        self.__object_hasher = object_hasher
+        self.__object_mapper = object_mapper
+        self.__dynamo_wrapper = dynamo_wrapper
+
+    def create(self, group: Group) -> None:
+        ...
+
+    def update(self, group: Group) -> None:
+        ...
+
+    def get(self, _id: str) -> GroupProperties:
+        return GroupProperties()
+
+    def add_participant(self, participant: GroupParticipantName) -> None:
+        ...
+
+
 class DynamoDbUserGroupsRepo:
 
     def __init__(self, dynamo_wrapper: DynamoDbWrapper,
@@ -101,13 +137,13 @@ class DynamoDbUserGroupsRepo:
         self.__dynamo_wrapper.put(item=item,
                                   condition_expression=Attr('etag').not_exists())
 
-    def add_group(self, user_id: UserId, etag: str, group: GroupId) -> None:
+    def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
         self.__dynamo_wrapper.update_item(key={
-            "id": user_id,
-            "partition_key": f"user_groups:{user_id}"
+            "id": user_groups.id,
+            "partition_key": f"user_groups:{user_groups.id}"
         },
             update_expression="SET groups = list_append(groups, :i)",
-            condition_expression=Attr("etag").eq(etag),
+            condition_expression=Attr("etag").eq(user_groups.etag),
             expression_attribute_values={
                 ':i': [group]
             })
