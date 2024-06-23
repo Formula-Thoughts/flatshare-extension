@@ -9,7 +9,7 @@ from botocore.client import BaseClient
 from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCamelToSnakeDeserializer, ObjectMapper
 from moto import mock_aws
 
-from src.core import Group, UserGroups, Property
+from src.core import Group, UserGroups, Property, GroupProperties
 from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
 from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo
@@ -227,13 +227,17 @@ class TestGroupRepo(DynamoDbTestCase):
         # act
         group_properties = sut.get(_id=group.id)
 
-        group.etag = hash_value
-        group.partition_key = f"group:{group.id}"
-        group
+        expected_group_properties = GroupProperties(etag=hash_value,
+                                                    partition_key=f"group:{group.id}",
+                                                    id=group.id,
+                                                    participants=group.participants,
+                                                    price_limit=group.price_limit,
+                                                    locations=group.locations,
+                                                    properties=props)
         for prop in props:
             prop.etag = hash_value
             prop.partition_key = f"group:{group.id}:flat"
 
         # assert
-        with self.subTest(msg="assert group properties were received"):
-            self.assertEqual(group_properties.groups, [*user_groups.groups, group_to_add])
+        with self.subTest(msg="assert expected group properties were received"):
+            self.assertEqual(group_properties, expected_group_properties)
