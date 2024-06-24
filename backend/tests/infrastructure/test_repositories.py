@@ -1,5 +1,6 @@
 import os
 import uuid
+from decimal import Decimal
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 
@@ -302,3 +303,38 @@ class TestGroupRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert expected properties were received"):
             self.assertCountEqual(properties, expected_properties)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_update_group(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        group = AutoFixture().create(dto=Group)
+        group_id = group.id
+        hash_value = "hash"
+        object_hasher.hash = MagicMock(return_value=hash_value)
+        sut.create(group=group)
+        group.price_limit = Decimal('123.2')
+        sut.update(group=group)
+
+        # act
+        group_properties = sut.get(_id=group_id)
+
+        expected_group_properties = GroupProperties(etag=hash_value,
+                                                    partition_key=f"group:{group_id}",
+                                                    id=group_id,
+                                                    participants=group.participants,
+                                                    price_limit=group.price_limit,
+                                                    locations=group.locations,
+                                                    properties=[])
+        # assert
+        with self.subTest(msg="assert expected groups were received"):
+            self.assertEqual(group_properties.__dict__, expected_group_properties.__dict__)

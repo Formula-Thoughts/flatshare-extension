@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import typing
 
@@ -116,6 +117,7 @@ class DynamoDbGroupRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def create(self, group: Group) -> None:
+        clone = json.loads(json.dumps(self.__object_mapper.map_to_dict(_from=group, to=Group)))
         group_id = group.id
         self.__partition_key_gen(group, group_id)
         self.__id_setter(group, group_id)
