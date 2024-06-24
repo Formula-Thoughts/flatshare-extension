@@ -2,7 +2,7 @@ import hashlib
 
 import boto3
 from boto3 import dynamodb
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 from botocore.client import BaseClient
 from formula_thoughts_web.abstractions import Serializer
 from formula_thoughts_web.crosscutting import ObjectMapper
@@ -111,6 +111,6 @@ class DynamoDbWrapper:
 
     def query(self,
               key_condition_expression: boto3.dynamodb.conditions.ConditionBase,
-              filter_expression: boto3.dynamodb.conditions.ConditionBase) -> dict:
+              filter_expression: boto3.dynamodb.conditions.ConditionBase = Attr('id').exists()) -> dict:
         return self.__table.query(KeyConditionExpression=key_condition_expression,
                                   FilterExpression=filter_expression)

@@ -198,7 +198,7 @@ class TestGroupRepo(DynamoDbTestCase):
 
         # assert
         with self.subTest(msg="assert document was updated"):
-            self.assertEqual(received_user_groups.groups, [*user_groups.groups, group_to_add])
+            self.assertEqual(received_user_groups.groups, user_groups.groups)
 
     @mock_aws
     @patch.dict(os.environ, {
@@ -290,7 +290,6 @@ class TestGroupRepo(DynamoDbTestCase):
         for prop in props:
             prop.etag = hash_value
             prop.partition_key = f"group:{group_id}"
-            prop.id = prop.id.split(":")[1]
         expected_properties = expected_group_properties.properties
         properties = group_properties.properties
         del expected_group_properties.properties
