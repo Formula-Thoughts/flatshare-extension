@@ -4,3 +4,7 @@ class UserGroupsNotFoundException(Exception):
 
 class GroupNotFoundException(Exception):
     pass
+
+
+class ConflictException(Exception):
+    pass

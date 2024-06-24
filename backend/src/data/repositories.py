@@ -95,6 +95,7 @@ class DynamoDbPropertyRepo:
         prop_dict = self.__object_mapper.map_to_dict(_from=property, to=Property)
         self.__dynamo_wrapper.put(item=prop_dict,
                                   condition_expression=Attr('etag').not_exists())
+        property.id = property.id.split(":")[1]
 
     @staticmethod
     def __partition_key_gen(property: Property, group: GroupId) -> None:
@@ -122,6 +123,7 @@ class DynamoDbGroupRepo:
         group_dict = self.__object_mapper.map_to_dict(_from=group, to=Group)
         self.__dynamo_wrapper.put(item=group_dict,
                                   condition_expression=Attr('etag').not_exists())
+        group.id = group_id
 
     def update(self, group: Group) -> None:
         ...
@@ -146,7 +148,7 @@ class DynamoDbGroupRepo:
 
         return GroupProperties(etag=group.etag,
                                partition_key=group.partition_key,
-                               id=group.id.split(":")[1],
+                               id=_id,
                                participants=group.participants,
                                price_limit=group.price_limit,
                                locations=group.locations,
@@ -188,15 +190,22 @@ class DynamoDbUserGroupsRepo:
                                   condition_expression=Attr('etag').not_exists())
 
     def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
-        self.__dynamo_wrapper.update_item(key={
-            "id": user_groups.id,
-            "partition_key": f"user_groups:{user_groups.id}"
-        },
-            update_expression="SET groups = list_append(groups, :i)",
-            condition_expression=Attr("etag").eq(user_groups.etag),
-            expression_attribute_values={
-                ':i': [group]
-            })
+        try:
+            user_groups.groups.append(group)
+            new_hash = self.__object_hasher.hash(object=user_groups)
+            self.__dynamo_wrapper.update_item(key={
+                "id": user_groups.id,
+                "partition_key": f"user_groups:{user_groups.id}"
+            },
+                update_expression="SET groups = list_append(groups, :i) SET etag = :j",
+                condition_expression=Attr("etag").eq(user_groups.etag),
+                expression_attribute_values={
+                    ':i': [group],
+                    ':j': [new_hash]
+                })
+        except Exception as e:
+            e = e
+
 
     @staticmethod
     def __partition_key_gen(user_groups: UserGroups):

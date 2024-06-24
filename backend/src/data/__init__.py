@@ -91,12 +91,9 @@ class DynamoDbWrapper:
 
     def put(self,
             item: dict,
-            condition_expression: boto3.dynamodb.conditions.ConditionBase=None):
-        if condition_expression is None:
-            self.__table.put_item(Item=item)
-        else:
-            self.__table.put_item(Item=item,
-                                  ConditionExpression=condition_expression)
+            condition_expression: boto3.dynamodb.conditions.ConditionBase):
+        self.__table.put_item(Item=item,
+                              ConditionExpression=condition_expression)
 
     def update_item(self,
                     key: dict,
@@ -110,7 +107,6 @@ class DynamoDbWrapper:
 
     def query(self,
               key_condition_expression: boto3.dynamodb.conditions.ConditionBase,
-              filter_expression: boto3.dynamodb.conditions.ConditionBase
-              ) -> dict:
+              filter_expression: boto3.dynamodb.conditions.ConditionBase) -> dict:
         return self.__table.query(KeyConditionExpression=key_condition_expression,
                                   FilterExpression=filter_expression)

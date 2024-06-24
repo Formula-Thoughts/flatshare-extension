@@ -13,7 +13,7 @@ from src.core import Group, UserGroups, Property, GroupProperties
 from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
 from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo
-from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException
+from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException
 
 BUCKET = "test-bucket"
 
@@ -199,6 +199,34 @@ class TestGroupRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert document was updated"):
             self.assertEqual(received_user_groups.groups, [*user_groups.groups, group_to_add])
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_add_group_adds_group_to_user_groups_when_precondition_check_fails(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                     object_mapper=object_mapper,
+                                     object_hasher=object_hasher)
+        user_groups = AutoFixture().create(dto=UserGroups)
+        object_hasher.hash = Mock()
+        object_hasher.hash.side_effect = ["hash1", "hash1", "hash2"]
+        sut.create(user_groups=user_groups)
+        group_to_add = str(uuid.uuid4())
+
+        # act
+        sut.add_group(group=str(uuid.uuid4()), user_groups=user_groups)
+        sut_call = lambda: sut.add_group(group=group_to_add, user_groups=user_groups)
+
+        # assert
+        with self.subTest(msg="assert conflict exception is thrown"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
 
     @mock_aws
     @patch.dict(os.environ, {
