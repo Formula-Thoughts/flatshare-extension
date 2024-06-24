@@ -58,7 +58,7 @@ class S3GroupRepo:
     def update(self, group: Group) -> None:
         ...
 
-    def add_participant(self, flat: GroupParticipantName) -> None:
+    def add_participant(self, participant: GroupParticipantName) -> None:
         ...
 
 
@@ -88,8 +88,21 @@ class DynamoDbPropertyRepo:
         self.__object_mapper = object_mapper
         self.__dynamo_wrapper = dynamo_wrapper
 
-    def create(self, group_id: str, property: Property) -> None:
-        ...
+    def create(self, group_id: GroupId, property: Property) -> None:
+        self.__partition_key_gen(property, group_id)
+        self.__id_setter(property)
+        property.etag = self.__object_hasher.hash(object=property)
+        prop_dict = self.__object_mapper.map_to_dict(_from=property, to=Property)
+        self.__dynamo_wrapper.put(item=prop_dict,
+                                  condition_expression=Attr('etag').not_exists())
+
+    @staticmethod
+    def __partition_key_gen(property: Property, group: GroupId) -> None:
+        property.partition_key = f"group:{group}"
+
+    @staticmethod
+    def __id_setter(property: Property):
+        property.id = f"property:{property.id}"
 
 
 class DynamoDbGroupRepo:
@@ -102,16 +115,53 @@ class DynamoDbGroupRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def create(self, group: Group) -> None:
-        ...
+        group_id = group.id
+        self.__partition_key_gen(group, group_id)
+        self.__id_setter(group, group_id)
+        group.etag = self.__object_hasher.hash(object=group)
+        group_dict = self.__object_mapper.map_to_dict(_from=group, to=Group)
+        self.__dynamo_wrapper.put(item=group_dict,
+                                  condition_expression=Attr('etag').not_exists())
 
     def update(self, group: Group) -> None:
         ...
 
     def get(self, _id: str) -> GroupProperties:
-        return GroupProperties()
+        items = self.__dynamo_wrapper.query(key_condition_expression=Key("partition_key").eq(f"group:{_id}"),
+                                            filter_expression=Key("id").begins_with("group") |
+                                                              Key("id").begins_with("property"))["Items"]
+        property_dicts = []
+        properties = []
+        group = None
+        for item in items:
+            if 'property' in item['id']:
+                property_dicts.append(item)
+            else:
+                group = item
+        group = self.__object_mapper.map_from_dict(_from=group, to=Group)
+        for property_dict in property_dicts:
+            prop = self.__object_mapper.map_from_dict(_from=property_dict, to=Property)
+            prop.id = prop.id.split(":")[1]
+            properties.append(prop)
+
+        return GroupProperties(etag=group.etag,
+                               partition_key=group.partition_key,
+                               id=group.id.split(":")[1],
+                               participants=group.participants,
+                               price_limit=group.price_limit,
+                               locations=group.locations,
+                               properties=properties)
 
     def add_participant(self, participant: GroupParticipantName) -> None:
         ...
+
+    @staticmethod
+    def __partition_key_gen(group: Group, group_id):
+        group.partition_key = f"group:{group_id}"
+
+    @staticmethod
+    def __id_setter(group: Group, group_id):
+        group.id = f"group:{group_id}"
 
 
 class DynamoDbUserGroupsRepo:
@@ -127,11 +177,11 @@ class DynamoDbUserGroupsRepo:
         user_groups = self.__dynamo_wrapper.query(key_condition_expression=
                                                   Key('id').eq(_id) &
                                                   Key('partition_key').eq(f'user_groups:{_id}')
-                                              )["Items"][0]
+                                                  )["Items"][0]
         return self.__object_mapper.map_from_dict(_from=user_groups, to=UserGroups)
 
     def create(self, user_groups: UserGroups) -> None:
-        user_groups.partition_key = self.__partition_key_gen(user_id=user_groups.id)
+        self.__partition_key_gen(user_groups=user_groups)
         user_groups.etag = self.__object_hasher.hash(object=user_groups)
         item = self.__object_mapper.map_to_dict(_from=user_groups, to=UserGroups)
         self.__dynamo_wrapper.put(item=item,
@@ -149,5 +199,5 @@ class DynamoDbUserGroupsRepo:
             })
 
     @staticmethod
-    def __partition_key_gen(user_id: UserId) -> str:
-        return f"user_groups:{user_id}"
+    def __partition_key_gen(user_groups: UserGroups):
+        user_groups.partition_key = f"user_groups:{user_groups.id}"

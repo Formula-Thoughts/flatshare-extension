@@ -217,27 +217,37 @@ class TestGroupRepo(DynamoDbTestCase):
                                    object_mapper=object_mapper,
                                    object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
+        group_id = group.id
         props: list[Property] = AutoFixture().create_many(dto=Property, ammount=3)
         hash_value = "hash"
         object_hasher.hash = MagicMock(return_value=hash_value)
         sut.create(group=group)
         for prop in props:
-            prop_repo.create(group_id=group.id, property=prop)
+            prop_repo.create(group_id=group_id, property=prop)
 
         # act
-        group_properties = sut.get(_id=group.id)
+        group_properties = sut.get(_id=group_id)
 
         expected_group_properties = GroupProperties(etag=hash_value,
-                                                    partition_key=f"group:{group.id}",
-                                                    id=group.id,
+                                                    partition_key=f"group:{group_id}",
+                                                    id=group_id,
                                                     participants=group.participants,
                                                     price_limit=group.price_limit,
                                                     locations=group.locations,
                                                     properties=props)
         for prop in props:
             prop.etag = hash_value
-            prop.partition_key = f"group:{group.id}:flat"
+            prop.partition_key = f"group:{group_id}"
+            prop.id = prop.id.split(":")[1]
+        expected_properties = expected_group_properties.properties
+        properties = group_properties.properties
+        del expected_group_properties.properties
+        del group_properties.properties
 
         # assert
-        with self.subTest(msg="assert expected group properties were received"):
-            self.assertEqual(group_properties, expected_group_properties)
+        with self.subTest(msg="assert expected groups were received"):
+            self.assertEqual(group_properties.__dict__, expected_group_properties.__dict__)
+
+        # assert
+        with self.subTest(msg="assert expected properties were received"):
+            self.assertCountEqual(properties, expected_properties)

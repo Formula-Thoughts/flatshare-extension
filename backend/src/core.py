@@ -1,6 +1,7 @@
 import typing
 import uuid
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Protocol
 
 from formula_thoughts_web.abstractions import SequenceBuilder, Command
@@ -28,7 +29,7 @@ class Property(Entity):
     id: str = field(default_factory=uuid4_str)
     url: str = None
     title: str = None
-    price: float = None
+    price: Decimal = None
     full_name: str = None
 
 
@@ -43,7 +44,7 @@ class UserGroups(Entity):
 class Group(Entity):
     id: str = field(default_factory=uuid4_str)
     participants: list[GroupParticipantName] = field(default_factory=lambda: [])
-    price_limit: float = None
+    price_limit: Decimal = None
     locations: list[str] = field(default_factory=lambda: [])
 
 
@@ -54,13 +55,13 @@ class GroupProperties(Group):
 
 @dataclass(unsafe_hash=True)
 class UpsertGroupRequest:
-    price_limit: float = None
+    price_limit: Decimal = None
     locations: list[str] = field(default_factory=lambda: [])
 
 
 @dataclass(unsafe_hash=True)
 class CreateFlatRequest:
-    price: float = None
+    price: Decimal = None
     title: str = None
     url: str = None
 
@@ -88,7 +89,7 @@ class IGroupRepo(Protocol):
 
 
 class IPropertyRepo(Protocol):
-    def create(self, group_id: str, property: Property) -> None:
+    def create(self, group_id: GroupId, property: Property) -> None:
         ...
 
 

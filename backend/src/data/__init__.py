@@ -109,5 +109,8 @@ class DynamoDbWrapper:
                                  ExpressionAttributeValues=expression_attribute_values)
 
     def query(self,
-              key_condition_expression: boto3.dynamodb.conditions.ConditionBase) -> dict:
-        return self.__table.query(KeyConditionExpression=key_condition_expression)
+              key_condition_expression: boto3.dynamodb.conditions.ConditionBase,
+              filter_expression: boto3.dynamodb.conditions.ConditionBase
+              ) -> dict:
+        return self.__table.query(KeyConditionExpression=key_condition_expression,
+                                  FilterExpression=filter_expression)
