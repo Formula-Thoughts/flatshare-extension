@@ -11,7 +11,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupParticipantName, GroupId, UserId, \
     GroupProperties
 from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
-from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException
 
 
 class S3BlobRepo:
@@ -203,8 +203,10 @@ class DynamoDbUserGroupsRepo:
                     ':i': [group],
                     ':j': [new_hash]
                 })
-        except Exception as e:
-            e = e
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == 'ConditionalCheckFailedException':
+                raise ConflictException()
 
 
     @staticmethod
