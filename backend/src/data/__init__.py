@@ -22,6 +22,10 @@ S3BucketPrefix = str
 ContentType = str
 
 
+CONDITIONAL_CHECK_FAILED = 'ConditionalCheckFailedException'
+RESOURCE_NOT_FOUND = 'ResourceNotFoundException'
+
+
 class ObjectHasher:
 
     def __init__(self, serializer: Serializer,

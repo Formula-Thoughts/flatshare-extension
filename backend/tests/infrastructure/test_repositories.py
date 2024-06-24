@@ -233,6 +233,30 @@ class TestGroupRepo(DynamoDbTestCase):
         "AWS_ACCESS_KEY_ID": "test",
         "AWS_SECRET_ACCESS_KEY": "test"
     }, clear=True)
+    def test_add_group_adds_group_to_user_groups_when_not_found(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                     object_mapper=object_mapper,
+                                     object_hasher=object_hasher)
+        user_groups = AutoFixture().create(dto=UserGroups)
+        object_hasher.hash = MagicMock(return_value="hash1")
+
+        # act
+        sut_call = lambda: sut.add_group(group=str(uuid.uuid4()), user_groups=user_groups)
+
+        # assert
+        with self.subTest(msg="assert conflict exception is thrown"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
     def test_get_group_properties(self):
         # arrange
         self._set_up_table()
