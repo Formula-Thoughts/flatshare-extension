@@ -138,7 +138,7 @@ class TestS3UserGroupsRepo(S3TestCase):
             sut.get(_id=str(uuid.uuid4()))
 
 
-class TestGroupRepo(DynamoDbTestCase):
+class TestUserGroupRepo(DynamoDbTestCase):
 
     @mock_aws
     @patch.dict(os.environ, {
@@ -174,6 +174,30 @@ class TestGroupRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert hasher was called with correct args"):
             object_hasher.hash.assert_called_with(object=user_groups)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_get_user_groups_throw_when_not_found(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                     object_mapper=object_mapper,
+                                     object_hasher=object_hasher)
+        hash = "test hash"
+        object_hasher.hash = MagicMock(return_value=hash)
+
+        # act
+        sut_call = lambda: sut.get(_id=str(uuid.uuid4()))
+
+        # assert
+        with self.subTest(msg="assert user groups not found error is thrown"):
+            with self.assertRaises(expected_exception=UserGroupsNotFoundException):
+                sut_call()
 
     @mock_aws
     @patch.dict(os.environ, {
@@ -253,6 +277,9 @@ class TestGroupRepo(DynamoDbTestCase):
             with self.assertRaises(expected_exception=ConflictException):
                 sut_call()
 
+
+class TestGroupRepo(DynamoDbTestCase):
+
     @mock_aws
     @patch.dict(os.environ, {
         "AWS_ACCESS_KEY_ID": "test",
@@ -267,8 +294,8 @@ class TestGroupRepo(DynamoDbTestCase):
                                 object_mapper=object_mapper,
                                 object_hasher=object_hasher)
         prop_repo = DynamoDbPropertyRepo(dynamo_wrapper=self._dynamo_client_wrapper,
-                                   object_mapper=object_mapper,
-                                   object_hasher=object_hasher)
+                                         object_mapper=object_mapper,
+                                         object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
         group_id = group.id
         props: list[Property] = AutoFixture().create_many(dto=Property, ammount=3)
@@ -303,6 +330,64 @@ class TestGroupRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert expected properties were received"):
             self.assertCountEqual(properties, expected_properties)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_get_group_properties_when_no_properties(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        group = AutoFixture().create(dto=Group)
+        group_id = group.id
+        hash_value = "hash"
+        object_hasher.hash = MagicMock(return_value=hash_value)
+        sut.create(group=group)
+
+        # act
+        group_properties = sut.get(_id=group_id)
+
+        expected_group_properties = GroupProperties(etag=hash_value,
+                                                    partition_key=f"group:{group_id}",
+                                                    id=group_id,
+                                                    participants=group.participants,
+                                                    price_limit=group.price_limit,
+                                                    locations=group.locations,
+                                                    properties=[])
+
+        # assert
+        with self.subTest(msg="assert expected group properties were received"):
+            self.assertEqual(group_properties, expected_group_properties)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_get_group_properties_should_throw_when_not_found(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        hash_value = "hash"
+        object_hasher.hash = MagicMock(return_value=hash_value)
+
+        # act
+        sut_call = lambda: sut.get(_id=str(uuid.uuid4()))
+
+        # assert
+        with self.subTest(msg="assert group was not found"):
+            with self.assertRaises(expected_exception=GroupNotFoundException):
+                sut_call()
 
     @mock_aws
     @patch.dict(os.environ, {

@@ -93,7 +93,7 @@ class DynamoDbPropertyRepo:
         self.__partition_key_gen(property, group_id)
         self.__id_setter(property)
         property.etag = self.__object_hasher.hash(object=property)
-        prop_dict = self.__object_mapper.map_to_dict(_from=property, to=Property)
+        prop_dict = self.__object_mapper.map_to_dict(_from=property, to=Property, preserve_decimal=True)
         self.__dynamo_wrapper.put(item=prop_dict,
                                   condition_expression=Attr('etag').not_exists())
         property.id = property.id.split(":")[1]
@@ -117,12 +117,11 @@ class DynamoDbGroupRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def create(self, group: Group) -> None:
-        clone = json.loads(json.dumps(self.__object_mapper.map_to_dict(_from=group, to=Group)))
         group_id = group.id
         self.__partition_key_gen(group, group_id)
         self.__id_setter(group, group_id)
         group.etag = self.__object_hasher.hash(object=group)
-        group_dict = self.__object_mapper.map_to_dict(_from=group, to=Group)
+        group_dict = self.__object_mapper.map_to_dict(_from=group, to=Group, preserve_decimal=True)
         self.__dynamo_wrapper.put(item=group_dict,
                                   condition_expression=Attr('etag').not_exists())
         group.id = group_id
@@ -134,6 +133,8 @@ class DynamoDbGroupRepo:
         items = self.__dynamo_wrapper.query(key_condition_expression=Key("partition_key").eq(f"group:{_id}"),
                                             filter_expression=Key("id").begins_with("group") |
                                                               Key("id").begins_with("property"))["Items"]
+        if len(items) == 0:
+            raise GroupNotFoundException(f"Group with id {_id} not found")
         property_dicts = []
         properties = []
         group = None
