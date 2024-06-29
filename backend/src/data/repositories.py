@@ -12,7 +12,8 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupParticipantName, GroupId, UserId, \
     GroupProperties
 from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
-from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
+    GroupAlreadyExistsException
 
 
 class S3BlobRepo:
@@ -117,14 +118,19 @@ class DynamoDbGroupRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def create(self, group: Group) -> None:
-        group_id = group.id
-        self.__partition_key_gen(group, group_id)
-        self.__id_setter(group, group_id)
-        group.etag = self.__object_hasher.hash(object=group)
-        group_dict = self.__object_mapper.map_to_dict(_from=group, to=Group, preserve_decimal=True)
-        self.__dynamo_wrapper.put(item=group_dict,
-                                  condition_expression=Attr('etag').not_exists())
-        group.id = group_id
+        try:
+            group_id = group.id
+            self.__partition_key_gen(group, group_id)
+            self.__id_setter(group, group_id)
+            group.etag = self.__object_hasher.hash(object=group)
+            group_dict = self.__object_mapper.map_to_dict(_from=group, to=Group, preserve_decimal=True)
+            self.__dynamo_wrapper.put(item=group_dict,
+                                      condition_expression=Attr('etag').not_exists())
+            group.id = group_id
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == 'ConditionalCheckFailedException':
+                raise GroupAlreadyExistsException()
 
     def update(self, group: Group) -> None:
         ...
