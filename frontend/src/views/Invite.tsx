@@ -56,7 +56,7 @@ const Invite = (props: any) => {
 
     try {
       const res = (await axios.post(
-        `https://pmer135n4j.execute-api.eu-west-2.amazonaws.com/participants?code=${code}`,
+        `https://v17eiwhzph.execute-api.eu-west-2.amazonaws.com/participants?code=${code}`,
         {},
         config
       )) as AxiosResponse;
