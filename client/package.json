@@ -17,6 +17,7 @@
     "aws-amplify": "^6.0.15",
     "axios": "^1.5.0",
     "cheerio": "^1.0.0-rc.12",
+    "javascript-time-ago": "^2.5.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
@@ -30,18 +31,30 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack -w --config webpack.config.js",
-    "dev": "webpack -w --config webpack.config.js"
+    "dev": "webpack -w --config webpack.config.js",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "devDependencies": {
+    "@eslint/js": "^9.2.0",
     "@svgr/webpack": "^8.1.0",
     "@types/chrome": "^0.0.245",
     "@types/react": "^18.2.21",
     "@types/uuid": "^9.0.4",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "globals": "^15.1.0",
     "html-webpack-plugin": "^5.5.3",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
+    "typescript-eslint": "^7.8.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"
   }

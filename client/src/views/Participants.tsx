@@ -3,9 +3,16 @@ import styled from "styled-components";
 import MainLayout from "../layouts/MainLayout";
 import Button from "../flatini-library/components/Button";
 import { useProvider } from "../context/AppProvider";
-import { FaClipboard } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
+import Text, { TextTypes } from "../flatini-library/components/Text";
+import { flatiniAuthWebsite } from "../utils/constants";
+import UserCircle from "../flatini-library/components/UserCircle";
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+`;
 
 const AddMembers = styled.div``;
 
@@ -17,13 +24,13 @@ const Participants = () => {
     if (shareCode) {
       if ("clipboard" in navigator) {
         await navigator.clipboard.writeText(
-          `https://localhost:3000/invite?code=${shareCode}`
+          `${flatiniAuthWebsite}invite?groupCode=${shareCode}`
         );
       } else {
         document.execCommand(
           "copy",
           true,
-          `https://localhost:3000/invite?code=${shareCode}`
+          `${flatiniAuthWebsite}invite?groupCode=${shareCode}`
         );
       }
     }
@@ -31,14 +38,33 @@ const Participants = () => {
 
   useEffect(() => {
     copyToClipboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode]);
 
   return (
     <MainLayout>
       <Wrapper>
-        <ul>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+        >
+          <Text type={TextTypes.title}>Participants</Text>
+          <Text type={TextTypes.small}>Add people to your group</Text>
+        </div>
+        <ul style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {participants?.map((participant: string) => {
-            return <li>{participant}</li>;
+            return (
+              <li
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  gap: "1rem",
+                }}
+              >
+                <UserCircle>{Array.from(participant)[0]}</UserCircle>
+                <Text type={TextTypes.title}>{participant}</Text>
+              </li>
+            );
           })}
         </ul>
         <AddMembers>
@@ -47,13 +73,29 @@ const Participants = () => {
               onClick={async () => {
                 setShareCode(await getGroupShareCode());
               }}
-              label="Generate share link"
+              label="Share code to invite"
             />
             {shareCode ? (
-              <div>
-                <FaClipboard />
-                Copied to clipboard:
-                {`https://localhost:3000/invite?code=${shareCode}`}
+              <div
+                style={{
+                  marginTop: "1rem",
+                  display: "flex",
+                  gap: "1rem",
+                }}
+              >
+                <FaCheck size={20} />
+                <div>
+                  <Text
+                    type={TextTypes.paragraph}
+                    style={{ fontWeight: "bold", marginBottom: "0.5rem" }}
+                  >
+                    Link copied to clipboard!
+                  </Text>
+                  <Text type={TextTypes.small}>
+                    Share this link with someone so they can login to Flatini
+                    and join your group
+                  </Text>
+                </div>
               </div>
             ) : null}
           </div>

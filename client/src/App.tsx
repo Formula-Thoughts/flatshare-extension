@@ -8,6 +8,9 @@ import Participants from "./views/Participants";
 import Auth from "./views/Auth";
 import CreateGroup from "./views/CreateGroup";
 import { flatiniAuthWebsite } from "./utils/constants";
+import Loading from "./views/Loading";
+import ErrorPage from "./views/ErrorPage";
+import Explore from "./views/Explore";
 
 function App() {
   const navigate = useNavigate();
@@ -65,6 +68,7 @@ function App() {
       navigate("/FlatView");
     } else if (url?.includes(flatiniAuthWebsite)) {
       state.authenticateUser();
+      navigate("/");
     } else {
       navigate("/");
     }
@@ -88,10 +92,32 @@ function App() {
 
   useEffect(() => {
     addChromeEvents();
-    state.getGroup();
-  }, []);
 
-  if (!state.getAuthenticatedUser()) {
+    if (state.userAuthToken) {
+      console.log(
+        "state user token yes",
+        state.userAuthToken,
+        typeof state.userAuthToken
+      );
+      state.getGroup();
+      setActiveUrl();
+    } else {
+      const existingLocalStorage = localStorage.getItem("flatini-auth");
+
+      if (existingLocalStorage && existingLocalStorage !== "null") {
+        state.setUserAuthToken(existingLocalStorage);
+      } else {
+        state.authenticateUser();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.userAuthToken]);
+
+  if (state.appHasError || (state.appHasError as string).length > 0) {
+    return <ErrorPage data={state.appHasError} />;
+  }
+
+  if (!state.userAuthToken) {
     return (
       <Routes>
         <Route path="/" element={<Auth />} />
@@ -100,14 +126,16 @@ function App() {
   }
 
   if (state.isGroupLoading) {
-    return <p>loading...</p>;
+    return <Loading />;
   }
 
   if (!state.userHasGroup) {
     return (
-      <Routes>
-        <Route path="/" element={<CreateGroup />} />
-      </Routes>
+      <>
+        <Routes>
+          <Route path="/" element={<CreateGroup />} />
+        </Routes>
+      </>
     );
   }
 
@@ -115,10 +143,11 @@ function App() {
     <>
       {state.activeUrl ? (
         <Routes>
-          {/* <Route path="/" element={<Landing />} /> */}
           <Route path="/" element={<Flats />} />
           <Route path="/Settings" element={<Settings />} />
+          <Route path="/Explore" element={<Explore />} />
           <Route path="/FlatView" element={<FlatView />} />
+          {/* <Route path="/Warnings" element={<Warnings />} /> */}
           <Route path="/Participants" element={<Participants />} />
         </Routes>
       ) : (

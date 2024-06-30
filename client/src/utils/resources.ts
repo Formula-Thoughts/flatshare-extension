@@ -1,4 +1,4 @@
-import { Axios, AxiosInstance, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import axios from "./axios";
 
 export const _getGroupById = async (id: string) => {
@@ -12,8 +12,13 @@ export const _getUserGroup = async (token: string) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  const res = (await axios.get(`/groups`, config)) as AxiosResponse;
-  return res.data;
+  try {
+    const res = (await axios.get(`/groups`, config)) as AxiosResponse;
+    return res.data;
+  } catch (err) {
+    // console.log("err 401", err);
+    throw err;
+  }
 };
 
 export const _createGroup = async (token: string) => {
@@ -72,9 +77,19 @@ export const _addFlat = async (
   return res.data;
 };
 
-export const _deleteFlat = async (groupCode: string, flatId: string) => {
+export const _deleteFlat = async (
+  token: string,
+  groupId: string,
+  flatId: string
+) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
   const res = (await axios.delete(
-    `/groups/${groupCode}/flats/${flatId}`
+    `/groups/${groupId}/flats/${flatId}`,
+    config
   )) as AxiosResponse;
   return res.data;
 };

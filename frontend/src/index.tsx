@@ -1,11 +1,13 @@
 import { Authenticator } from "@aws-amplify/ui-react";
+import { Amplify } from "aws-amplify";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
 import App from "./App";
+import theme from "./flatini-library/theme";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import { Amplify } from "aws-amplify";
-import { BrowserRouter } from "react-router-dom";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -23,26 +25,27 @@ Amplify.configure({
           ],
           redirectSignOut: [
             "https://localhost:3000",
-            "https://localhost:3000/",
             "https://flatini.formulathoughts.com",
           ],
           responseType: "code",
-          domain: "flatini.auth.eu-west-2.amazoncognito.com/",
+          domain: "flatini-d1910890.auth.eu-west-2.amazoncognito.com",
         },
       },
-      userPoolId: "eu-west-2_bnEvX4XMD",
-      userPoolClientId: "7ucjfuink7rbnmqeuapl20ccd8",
+      userPoolId: "eu-west-2_WLM18TtB9",
+      userPoolClientId: "h9me4ijemhsm18kh6521ldblo",
     },
   },
 });
 
 root.render(
   <React.StrictMode>
-    <Authenticator.Provider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Authenticator.Provider>
+    <ThemeProvider theme={theme}>
+      <Authenticator.Provider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Authenticator.Provider>
+    </ThemeProvider>
   </React.StrictMode>
 );
 

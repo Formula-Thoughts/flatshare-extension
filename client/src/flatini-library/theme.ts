@@ -15,7 +15,7 @@ const theme: DefaultTheme = {
       small: {
         lineHeight: "1.6rem",
         fontWeight: "normal",
-        size: "0.8rem",
+        size: "1.1rem",
       },
       paragraph: {
         lineHeight: "1.6rem",

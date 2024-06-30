@@ -2,7 +2,6 @@ import React from "react";
 import Text, { TextTypes } from "../flatini-library/components/Text";
 import MainLayout from "../layouts/MainLayout";
 import { styled, useTheme } from "styled-components";
-import { useProvider } from "../context/AppProvider";
 
 const Wrapper = styled.div`
   border: 1px solid red;
@@ -18,7 +17,6 @@ const Block = styled.div`
 
 const Landing = () => {
   const theme = useTheme();
-  const state = useProvider();
 
   return (
     <MainLayout>
