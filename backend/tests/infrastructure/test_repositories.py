@@ -299,8 +299,6 @@ class TestGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        serializer = JsonSnakeToCamelSerializer()
-        deserializer = JsonCamelToSnakeDeserializer()
         object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                 object_mapper=object_mapper,
