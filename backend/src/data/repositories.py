@@ -13,7 +13,7 @@ from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupPartici
     GroupProperties
 from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
-    GroupAlreadyExistsException
+    GroupAlreadyExistsException, UserGroupAlreadyExistsException
 
 
 class S3BlobRepo:
@@ -192,11 +192,16 @@ class DynamoDbUserGroupsRepo:
         return self.__object_mapper.map_from_dict(_from=user_groups, to=UserGroups)
 
     def create(self, user_groups: UserGroups) -> None:
-        self.__partition_key_gen(user_groups=user_groups)
-        user_groups.etag = self.__object_hasher.hash(object=user_groups)
-        item = self.__object_mapper.map_to_dict(_from=user_groups, to=UserGroups)
-        self.__dynamo_wrapper.put(item=item,
-                                  condition_expression=Attr('etag').not_exists())
+        try:
+            self.__partition_key_gen(user_groups=user_groups)
+            user_groups.etag = self.__object_hasher.hash(object=user_groups)
+            item = self.__object_mapper.map_to_dict(_from=user_groups, to=UserGroups)
+            self.__dynamo_wrapper.put(item=item,
+                                      condition_expression=Attr('etag').not_exists())
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == 'ConditionalCheckFailedException':
+                raise UserGroupAlreadyExistsException()
 
     def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
         try:
