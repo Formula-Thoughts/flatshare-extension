@@ -13,7 +13,7 @@ class GroupNotFoundError(Error):
     ...
 
 
-class FlatNotFoundError(Error):
+class PropertyNotFoundError(Error):
     ...
 
 
@@ -21,11 +21,11 @@ current_user_already_added_to_group = InvalidGroupDataError(message="current use
 
 invalid_price_error = InvalidGroupDataError(message="price has to be greater than 0")
 
-flat_price_required_error = InvalidGroupDataError(message="price field is a required attribute")
+property_price_required_error = InvalidGroupDataError(message="price field is a required attribute")
 
-flat_url_required_error = InvalidGroupDataError(message="url field is a required attribute")
+property_url_required_error = InvalidGroupDataError(message="url field is a required attribute")
 
-flat_title_required_error = InvalidGroupDataError(message="title field is a required attribute")
+property_title_required_error = InvalidGroupDataError(message="title field is a required attribute")
 
 code_required_error = InvalidGroupDataError(message="code parameter is required from group invite")
 

@@ -300,12 +300,14 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/*/
 
+  # TODO: Currently not used
   LambdaFunctionEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
       EventSourceArn: !GetAtt MyQueue.Arn
       FunctionName: !GetAtt FlatiniFunction.Arn
 
+  # TODO: Currently not used
   MyQueue:
     Type: AWS::SQS::Queue
     Properties:

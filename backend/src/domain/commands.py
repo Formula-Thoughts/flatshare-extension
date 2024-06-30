@@ -6,14 +6,14 @@ from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Property
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, Property
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
-    CREATE_FLAT_REQUEST, FLAT_ID, CODE, FULLNAME_CLAIM
+    CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    FlatNotFoundError, \
+    PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_title_required_error
+    property_price_required_error, property_url_required_error, property_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -165,7 +165,7 @@ class FetchGroupByIdCommand:
             context.error_capsules.append(GroupNotFoundError(message=f"group {group_id} not found"))
 
 
-class SetFlatRequestCommand:
+class SetPropertyRequestCommand:
 
     def __init__(self, object_mapper: ObjectMapper,
                  logger: Logger):
@@ -173,8 +173,8 @@ class SetFlatRequestCommand:
         self.__object_mapper = object_mapper
 
     def run(self, context: ApplicationContext):
-        request = self.__object_mapper.map_from_dict(_from=context.body, to=CreateFlatRequest)
-        context.set_var(CREATE_FLAT_REQUEST, request)
+        request = self.__object_mapper.map_from_dict(_from=context.body, to=CreatePropertyRequest)
+        context.set_var(CREATE_PROPERTY_REQUEST, request)
         self.__logger.add_global_properties(properties={
             "location": request.title,
             "price": request.price,
@@ -182,7 +182,7 @@ class SetFlatRequestCommand:
         })
 
 
-class CreateFlatCommand:
+class CreatePropertyCommand:
 
     def __init__(self, sqs_message_publisher: SQSEventPublisher):
         self.__sqs_message_publisher = sqs_message_publisher
@@ -190,46 +190,46 @@ class CreateFlatCommand:
     def run(self, context: ApplicationContext):
         group = context.get_var(name=GROUP, _type=Group)
         user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
-        flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
-        group.properties.append(Property(url=flat_request.url,
-                                         title=flat_request.title,
-                                         price=flat_request.price,
+        property_request = context.get_var(name=CREATE_PROPERTY_REQUEST, _type=CreatePropertyRequest)
+        group.properties.append(Property(url=property_request.url,
+                                         title=property_request.title,
+                                         price=property_request.price,
                                          full_name=user_groups.name))
         self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
 
-class ValidateFlatRequestCommand:
+class ValidatePropertyRequestCommand:
 
     def run(self, context: ApplicationContext):
-        create_flat_request = context.get_var(name=CREATE_FLAT_REQUEST, _type=CreateFlatRequest)
+        create_property_request = context.get_var(name=CREATE_PROPERTY_REQUEST, _type=CreatePropertyRequest)
 
-        if create_flat_request.price is None:
-            context.error_capsules.append(flat_price_required_error)
-        elif create_flat_request.price <= 0:
+        if create_property_request.price is None:
+            context.error_capsules.append(property_price_required_error)
+        elif create_property_request.price <= 0:
             context.error_capsules.append(invalid_price_error)
 
-        if create_flat_request.url is None:
-            context.error_capsules.append(flat_url_required_error)
+        if create_property_request.url is None:
+            context.error_capsules.append(property_url_required_error)
 
-        if create_flat_request.title is None:
-            context.error_capsules.append(flat_title_required_error)
+        if create_property_request.title is None:
+            context.error_capsules.append(property_title_required_error)
 
 
-class DeleteFlatCommand:
+class DeletePropertyCommand:
 
     def __init__(self, sqs_event_publisher: SQSEventPublisher):
         self.__sqs_event_publisher = sqs_event_publisher
 
     def run(self, context: ApplicationContext):
-        flat_id = context.get_var(name=FLAT_ID, _type=str)
+        property_id = context.get_var(name=PROPERTY_ID, _type=str)
         group = context.get_var(name=GROUP, _type=Group)
 
-        if flat_id not in map(lambda x: x.id, group.properties):
-            context.error_capsules.append(FlatNotFoundError(message=f"flat {flat_id} not found"))
+        if property_id not in map(lambda x: x.id, group.properties):
+            context.error_capsules.append(PropertyNotFoundError(message=f"property {property_id} not found"))
             return
 
-        group.properties = list(filter(lambda x: x.id != flat_id, group.properties))
+        group.properties = list(filter(lambda x: x.id != property_id, group.properties))
         self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 

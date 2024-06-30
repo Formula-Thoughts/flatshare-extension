@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreateFlatApiHandler, \
-    DeleteFlatApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
+from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreatePropertyApiHandler, \
+    DeletePropertyApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
     CreateGroupApiHandler
 
 
@@ -40,11 +40,11 @@ class TestFetchUserGroupsApiHandler(TestCase):
             self.assertEqual(route_key, "GET /groups")
 
 
-class TestCreateFlatApiHandler(TestCase):
+class TestCreatePropertyApiHandler(TestCase):
 
     def test_route_key_matches_expected(self):
         # arrange
-        sut = CreateFlatApiHandler(sequence=Mock(),
+        sut = CreatePropertyApiHandler(sequence=Mock(),
                                    command_pipeline=Mock(),
                                    deserializer=Mock(),
                                    logger=Mock())
@@ -54,14 +54,14 @@ class TestCreateFlatApiHandler(TestCase):
 
         # assert
         with self.subTest(msg="route key matches"):
-            self.assertEqual(route_key, "POST /groups/{group_id}/flats")
+            self.assertEqual(route_key, "POST /groups/{group_id}/properties")
 
 
-class TestDeleteFlatApiHandler(TestCase):
+class TestDeletePropertyApiHandler(TestCase):
 
     def test_route_key_matches_expected(self):
         # arrange
-        sut = DeleteFlatApiHandler(sequence=Mock(),
+        sut = DeletePropertyApiHandler(sequence=Mock(),
                                    command_pipeline=Mock(),
                                    deserializer=Mock(),
                                    logger=Mock())
@@ -71,7 +71,7 @@ class TestDeleteFlatApiHandler(TestCase):
 
         # assert
         with self.subTest(msg="route key matches"):
-            self.assertEqual(route_key, "DELETE /groups/{group_id}/flats/{flat_id}")
+            self.assertEqual(route_key, "DELETE /groups/{group_id}/properties/{property_id}")
 
 
 class TestAddCurrentUserToGroupApiHandler(TestCase):

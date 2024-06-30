@@ -60,7 +60,7 @@ class UpsertGroupRequest:
 
 
 @dataclass(unsafe_hash=True)
-class CreateFlatRequest:
+class CreatePropertyRequest:
     price: Decimal = None
     title: str = None
     url: str = None
@@ -144,19 +144,19 @@ class IFetchGroupByIdCommand(Command, Protocol):
     pass
 
 
-class ISetFlatRequestCommand(Command, Protocol):
+class ISetPropertyRequestCommand(Command, Protocol):
     pass
 
 
-class IValidateFlatRequestCommand(Command, Protocol):
+class IValidatePropertyRequestCommand(Command, Protocol):
     pass
 
 
-class ICreateFlatCommand(Command, Protocol):
+class ICreatePropertyCommand(Command, Protocol):
     pass
 
 
-class IDeleteFlatCommand(Command, Protocol):
+class IDeletePropertyCommand(Command, Protocol):
     pass
 
 
@@ -196,11 +196,11 @@ class IGetUserGroupByIdSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
-class ICreateFlatSequenceBuilder(SequenceBuilder, Protocol):
+class ICreatePropertySequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 
-class IDeleteFlatSequenceBuilder(SequenceBuilder, Protocol):
+class IDeletePropertySequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 

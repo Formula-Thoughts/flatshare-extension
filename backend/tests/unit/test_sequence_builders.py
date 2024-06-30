@@ -4,13 +4,13 @@ from unittest.mock import Mock
 from src.core import IValidateGroupCommand, ISetGroupRequestCommand, IUpdateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
-    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
+    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, ICreatePropertyCommand, \
+    IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
     IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
-    CreateFlatSequenceBuilder, DeleteFlatSequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
+    CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
     CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder
 
 
@@ -109,17 +109,17 @@ class TestGetUserGroupByIdSequenceBuilder(TestCase):
         ])
 
 
-class TestCreateFlatSequenceBuilder(TestCase):
+class TestCreatePropertySequenceBuilder(TestCase):
 
     def setUp(self):
         self.__get_user_group_by_id: IGetUserGroupByIdSequenceBuilder = Mock()
-        self.__set_create_flat_request: ISetFlatRequestCommand = Mock()
-        self.__create_flat: ICreateFlatCommand = Mock()
-        self.__validate_flat: IValidateFlatRequestCommand = Mock()
-        self.__sut = CreateFlatSequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
-                                               set_create_flat_request=self.__set_create_flat_request,
-                                               create_flat=self.__create_flat,
-                                               validate_flat=self.__validate_flat)
+        self.__set_create_property_request: ISetPropertyRequestCommand = Mock()
+        self.__create_property: ICreatePropertyCommand = Mock()
+        self.__validate_property: IValidatePropertyRequestCommand = Mock()
+        self.__sut = CreatePropertySequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
+                                               set_create_property_request=self.__set_create_property_request,
+                                               create_property=self.__create_property,
+                                               validate_property=self.__validate_property)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -127,20 +127,20 @@ class TestCreateFlatSequenceBuilder(TestCase):
 
         # assert
         self.assertEqual(self.__sut.components, [
-            self.__set_create_flat_request,
+            self.__set_create_property_request,
             self.__get_user_group_by_id,
-            self.__validate_flat,
-            self.__create_flat
+            self.__validate_property,
+            self.__create_property
         ])
 
 
-class TestDeleteFlatSequenceBuilder(TestCase):
+class TestDeletePropertySequenceBuilder(TestCase):
 
     def setUp(self):
         self.__get_user_group_by_id: IGetUserGroupByIdSequenceBuilder = Mock()
-        self.__delete_flat: IDeleteFlatCommand = Mock()
-        self.__sut = DeleteFlatSequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
-                                               delete_flat=self.__delete_flat)
+        self.__delete_property: IDeletePropertyCommand = Mock()
+        self.__sut = DeletePropertySequenceBuilder(get_user_group_by_id=self.__get_user_group_by_id,
+                                               delete_property=self.__delete_property)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -149,7 +149,7 @@ class TestDeleteFlatSequenceBuilder(TestCase):
         # assert
         self.assertEqual(self.__sut.components, [
             self.__get_user_group_by_id,
-            self.__delete_flat
+            self.__delete_property
         ])
 
 

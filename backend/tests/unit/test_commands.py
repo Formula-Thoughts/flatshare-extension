@@ -11,21 +11,21 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreateFlatRequest, Property
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, Property
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_FLAT_REQUEST, GROUP, FULLNAME_CLAIM
+    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetFlatRequestCommand, CreateFlatCommand, \
-    ValidateFlatRequestCommand, DeleteFlatCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
+    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
+    ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
-    FlatNotFoundError, \
+    PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
-    flat_price_required_error, flat_url_required_error, flat_title_required_error
+    property_price_required_error, property_url_required_error, property_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
@@ -480,39 +480,39 @@ class TestFetchGroupByIdCommand(TestCase):
             self.assertEqual(type(context.error_capsules[0]), GroupNotFoundError)
 
 
-class TestSetFlatRequestCommand(TestCase):
+class TestSetPropertyRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = SetFlatRequestCommand(object_mapper=ObjectMapper(), logger=Mock())
+        self.__sut = SetPropertyRequestCommand(object_mapper=ObjectMapper(), logger=Mock())
 
     def test_run(self):
         # arrange
-        flat_request = AutoFixture().create(dto=CreateFlatRequest)
-        context = ApplicationContext(body=flat_request.__dict__, variables={})
+        property_request = AutoFixture().create(dto=CreatePropertyRequest)
+        context = ApplicationContext(body=property_request.__dict__, variables={})
 
         # act
         self.__sut.run(context=context)
 
         # assert
-        self.assertEqual(context.get_var(name="create_flat_request", _type=CreateFlatRequest), flat_request)
+        self.assertEqual(context.get_var(name="create_property_request", _type=CreatePropertyRequest), property_request)
 
 
-class TestCreateFlatCommand(TestCase):
+class TestCreatePropertyCommand(TestCase):
 
     def setUp(self):
         self.__sqs_message_publisher: SQSEventPublisher = Mock()
-        self.__sut = CreateFlatCommand(sqs_message_publisher=self.__sqs_message_publisher)
+        self.__sut = CreatePropertyCommand(sqs_message_publisher=self.__sqs_message_publisher)
 
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
     def test_run(self, _):
         # arrange
         group = AutoFixture().create(dto=Group)
         user_groups = AutoFixture().create(dto=UserGroups)
-        flat = AutoFixture().create(dto=CreateFlatRequest)
-        flats = AutoFixture().create_many(dto=Property, ammount=3)
-        group.properties = flats
+        property = AutoFixture().create(dto=CreatePropertyRequest)
+        properties = AutoFixture().create_many(dto=Property, ammount=3)
+        group.properties = properties
         context = ApplicationContext(variables={
-            CREATE_FLAT_REQUEST: flat,
+            CREATE_PROPERTY_REQUEST: property,
             GROUP: group,
             USER_GROUPS: user_groups
         })
@@ -535,29 +535,29 @@ class TestCreateFlatCommand(TestCase):
             self.assertEqual(context.response, SingleGroupResponse(group=group))
 
         # assert
-        with self.subTest(msg="correct number of flats are sent"):
+        with self.subTest(msg="correct number of properties are sent"):
             self.assertEqual(len(captor.arg.properties), 4)
 
         # assert
-        with self.subTest(msg="correct flat params are set"):
+        with self.subTest(msg="correct property params are set"):
             self.assertEqual(captor.arg.properties[-1], Property(id=UUID_EXAMPLE,
-                                                                 url=flat.url,
-                                                                 price=flat.price,
-                                                                 title=flat.title,
+                                                                 url=property.url,
+                                                                 price=property.price,
+                                                                 title=property.title,
                                                                  full_name=user_groups.name))
 
 
 @ddt
-class TestValidateFlatRequestCommand(TestCase):
+class TestValidatePropertyRequestCommand(TestCase):
 
     def setUp(self):
-        self.__sut = ValidateFlatRequestCommand()
+        self.__sut = ValidatePropertyRequestCommand()
 
     def test_run_when_valid(self):
         # arrange
-        flat_request = AutoFixture().create(dto=CreateFlatRequest)
+        property_request = AutoFixture().create(dto=CreatePropertyRequest)
         context = ApplicationContext(variables={
-            CREATE_FLAT_REQUEST: flat_request
+            CREATE_PROPERTY_REQUEST: property_request
         })
 
         # act
@@ -568,17 +568,17 @@ class TestValidateFlatRequestCommand(TestCase):
             self.assertEqual(len(context.error_capsules), 0)
 
     @data(
-        [None, "https://test.com", "UK", 1, flat_price_required_error],
-        [100.20, None, "UK", 1, flat_url_required_error],
-        [100.20, "https://test.com", None, 1, flat_title_required_error],
+        [None, "https://test.com", "UK", 1, property_price_required_error],
+        [100.20, None, "UK", 1, property_url_required_error],
+        [100.20, "https://test.com", None, 1, property_title_required_error],
         [-10, "https://test.com", "UK", 1, invalid_price_error],
-        [None, "https://test.com", None, 2, flat_price_required_error],
-        [None, None, None, 3, flat_price_required_error])
+        [None, "https://test.com", None, 2, property_price_required_error],
+        [None, None, None, 3, property_price_required_error])
     def test_run_when_invalid(self, data):
         # arrange
         [price, url, location, errors_count, error] = data
         context = ApplicationContext(variables={
-            CREATE_FLAT_REQUEST: CreateFlatRequest(price=price, url=url, title=location)
+            CREATE_PROPERTY_REQUEST: CreatePropertyRequest(price=price, url=url, title=location)
         })
 
         # act
@@ -593,20 +593,20 @@ class TestValidateFlatRequestCommand(TestCase):
             self.assertEqual(context.error_capsules[0], error)
 
 
-class TestDeleteFlatCommand(TestCase):
+class TestDeletePropertyCommand(TestCase):
 
     def setUp(self):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = DeleteFlatCommand(sqs_event_publisher=self.__sqs_event_publisher)
+        self.__sut = DeletePropertyCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
     def test_run(self):
         # arrange
         group = AutoFixture().create(dto=Group)
-        flat = AutoFixture().create(dto=Property)
-        group.properties.append(flat)
-        length_of_flats_before_delete = len(group.properties)
+        property = AutoFixture().create(dto=Property)
+        group.properties.append(property)
+        length_of_properties_before_delete = len(group.properties)
         context = ApplicationContext(variables={
-            "flat_id": flat.id,
+            "property_id": property.id,
             GROUP: group
         })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
@@ -626,8 +626,8 @@ class TestDeleteFlatCommand(TestCase):
                                                                            payload=captor)
 
         # assert
-        with self.subTest(msg="assert flat is removed from list"):
-            self.assertEqual(len(captor.arg.properties), length_of_flats_before_delete - 1)
+        with self.subTest(msg="assert property is removed from list"):
+            self.assertEqual(len(captor.arg.properties), length_of_properties_before_delete - 1)
 
         # assert
         with self.subTest(msg="assert group published matches"):
@@ -637,12 +637,12 @@ class TestDeleteFlatCommand(TestCase):
         with self.subTest(msg="assert response is set"):
             self.assertEqual(context.response, SingleGroupResponse(group=group))
 
-    def test_run_when_flat_is_not_found(self):
+    def test_run_when_property_is_not_found(self):
         # arrange
         group = AutoFixture().create(dto=Group)
-        flat = AutoFixture().create(dto=Property)
+        property = AutoFixture().create(dto=Property)
         context = ApplicationContext(variables={
-            "flat_id": flat.id,
+            "property_id": property.id,
             GROUP: group
         })
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
@@ -659,8 +659,8 @@ class TestDeleteFlatCommand(TestCase):
             self.assertEqual(len(context.error_capsules), 1)
 
         # assert
-        with self.subTest(msg="assert flat not found error is added"):
-            self.assertEqual(type(context.error_capsules[0]), FlatNotFoundError)
+        with self.subTest(msg="assert property not found error is added"):
+            self.assertEqual(type(context.error_capsules[0]), PropertyNotFoundError)
 
 
 class TestAddCurrentUserToGroupCommand(TestCase):
@@ -673,7 +673,7 @@ class TestAddCurrentUserToGroupCommand(TestCase):
         # arrange
         fullname = "full name"
         group = AutoFixture().create(dto=Group)
-        length_of_flats_before_delete = len(group.participants)
+        length_of_properties_before_delete = len(group.participants)
         context = ApplicationContext(variables={
             GROUP: group,
             FULLNAME_CLAIM: fullname
@@ -696,7 +696,7 @@ class TestAddCurrentUserToGroupCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert user is append to group"):
-            self.assertEqual(len(captor.arg.participants), length_of_flats_before_delete + 1)
+            self.assertEqual(len(captor.arg.participants), length_of_properties_before_delete + 1)
 
         # assert
         with self.subTest(msg="assert correct user is added to group"):

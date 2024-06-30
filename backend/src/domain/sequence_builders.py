@@ -3,8 +3,8 @@ from formula_thoughts_web.application import FluentSequenceBuilder
 from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
-    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetFlatRequestCommand, ICreateFlatCommand, \
-    IValidateFlatRequestCommand, IDeleteFlatCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
+    IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, ICreatePropertyCommand, \
+    IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
     ICreateGroupAsyncCommand, IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
 
@@ -80,38 +80,38 @@ class GetUserGroupByIdSequenceBuilder(FluentSequenceBuilder):
             ._add_command(command=self.__fetch_group_by_id_command)
 
 
-class CreateFlatSequenceBuilder(FluentSequenceBuilder):
+class CreatePropertySequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self,
                  get_user_group_by_id: IGetUserGroupByIdSequenceBuilder,
-                 set_create_flat_request: ISetFlatRequestCommand,
-                 create_flat: ICreateFlatCommand,
-                 validate_flat: IValidateFlatRequestCommand):
-        self.__validate_flat = validate_flat
-        self.__create_flat = create_flat
-        self.__set_create_flat_request = set_create_flat_request
+                 set_create_property_request: ISetPropertyRequestCommand,
+                 create_property: ICreatePropertyCommand,
+                 validate_property: IValidatePropertyRequestCommand):
+        self.__validate_property = validate_property
+        self.__create_property = create_property
+        self.__set_create_property_request = set_create_property_request
         self.__get_user_group_by_id = get_user_group_by_id
         super().__init__()
 
     def build(self):
-        self._add_command(self.__set_create_flat_request)\
+        self._add_command(self.__set_create_property_request)\
             ._add_sequence_builder(self.__get_user_group_by_id)\
-            ._add_command(self.__validate_flat)\
-            ._add_command(self.__create_flat)
+            ._add_command(self.__validate_property)\
+            ._add_command(self.__create_property)
 
 
-class DeleteFlatSequenceBuilder(FluentSequenceBuilder):
+class DeletePropertySequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self,
                  get_user_group_by_id: IGetUserGroupByIdSequenceBuilder,
-                 delete_flat: IDeleteFlatCommand):
-        self.__delete_flat = delete_flat
+                 delete_property: IDeletePropertyCommand):
+        self.__delete_property = delete_property
         self.__get_user_group_by_id = get_user_group_by_id
         super().__init__()
 
     def build(self):
         self._add_sequence_builder(sequence_builder=self.__get_user_group_by_id)\
-            ._add_command(command=self.__delete_flat)
+            ._add_command(command=self.__delete_property)
 
 
 class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
