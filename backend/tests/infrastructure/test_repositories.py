@@ -457,3 +457,27 @@ class TestGroupRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert participant was added"):
             self.assertEqual([*prev_participants, participant_to_add], group.participants)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_add_participant_when_not_found(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        group = AutoFixture().create(dto=Group)
+        participant_to_add = "Bob Marley"
+
+        # act
+        sut_call = lambda: sut.add_participant(participant=participant_to_add, group=group)
+
+        # assert
+        with self.subTest(msg="assert conflict error is thrown"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()

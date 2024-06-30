@@ -102,18 +102,23 @@ class DynamoDbGroupRepo:
                                properties=properties)
 
     def add_participant(self, participant: GroupParticipantName, group: Group) -> None:
-        group.participants.append(participant)
-        new_hash = self.__object_hasher.hash(object=group)
-        self.__dynamo_wrapper.update_item(key={
-            "id": f"group:{group.id}",
-            "partition_key": f"group:{group.id}"
-        },
-            update_expression="SET participants = list_append(participants, :i) SET etag = :j",
-            condition_expression=Attr("etag").eq(group.etag),
-            expression_attribute_values={
-                ':i': [participant],
-                ':j': new_hash
-            })
+        try:
+            group.participants.append(participant)
+            new_hash = self.__object_hasher.hash(object=group)
+            self.__dynamo_wrapper.update_item(key={
+                "id": f"group:{group.id}",
+                "partition_key": f"group:{group.id}"
+            },
+                update_expression="SET participants = list_append(participants, :i) SET etag = :j",
+                condition_expression=Attr("etag").eq(group.etag),
+                expression_attribute_values={
+                    ':i': [participant],
+                    ':j': new_hash
+                })
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == CONDITIONAL_CHECK_FAILED:
+                raise ConflictException()
 
     @staticmethod
     def __partition_key_gen(group: Group, group_id):
