@@ -4,9 +4,11 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, ICreatePropertyCommand, \
-    IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddUserToGroupSequenceBuilder, IAddCurrentUserToGroupCommand, \
+    IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddUserToGroupSequenceBuilder, \
+    IAddCurrentUserToGroupCommand, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
-    ICreateGroupAsyncCommand, IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
+    ICreateGroupAsyncCommand, IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, \
+    ICreateGroupCommand, ICreateUserGroupsCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -156,8 +158,8 @@ class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
 class CreateGroupSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self, fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder,
-                 create_user_groups: ICreateUserGroupsAsyncCommand,
-                 create_group: ICreateGroupAsyncCommand):
+                 create_user_groups: ICreateUserGroupsCommand,
+                 create_group: ICreateGroupCommand):
         super().__init__()
         self.__fetch_user_group_if_exists = fetch_user_group_if_exists
         self.__create_group = create_group

@@ -7,7 +7,8 @@ from src.core import IValidateGroupCommand, ISetGroupRequestCommand, IUpdateGrou
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, ICreatePropertyCommand, \
     IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
     IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, \
-    IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
+    IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
+    ICreateGroupCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
@@ -207,8 +208,8 @@ class TestCreateGroupSequenceBuilder(TestCase):
 
     def setUp(self):
         self.__fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder = Mock()
-        self.__create_user_groups: ICreateUserGroupsAsyncCommand = Mock()
-        self.__create_group: ICreateGroupAsyncCommand = Mock()
+        self.__create_user_groups: ICreateUserGroupsCommand = Mock()
+        self.__create_group: ICreateGroupCommand = Mock()
         self.__sut = CreateGroupSequenceBuilder(
             fetch_user_group_if_exists=self.__fetch_user_group_if_exists,
             create_user_groups=self.__create_user_groups,

@@ -9,13 +9,16 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IDeletePropertySequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
     IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder, \
-    IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder
+    IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
+    ICreateGroupCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
-    FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, DeletePropertyCommand, \
+    FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, \
+    DeletePropertyCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
-    ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand
+    ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand, \
+    CreateUserGroupsCommand, CreateGroupCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
@@ -27,6 +30,8 @@ def register_domain_dependencies(container: Container):
      .register(service=IValidateGroupCommand, implementation=ValidateGroupCommand)
      .register(service=IUpdateGroupAsyncCommand, implementation=UpdateGroupAsyncCommand)
      .register(service=ICreateGroupAsyncCommand, implementation=CreateGroupAsyncCommand)
+     .register(service=ICreateUserGroupsCommand, implementation=CreateUserGroupsCommand)
+     .register(service=ICreateGroupCommand, implementation=CreateGroupCommand)
      .register(service=ICreateUserGroupsAsyncCommand, implementation=CreateUserGroupsAsyncCommand)
      .register(service=IUpsertGroupBackgroundCommand, implementation=UpsertGroupBackgroundCommand)
      .register(service=IFetchUserGroupsCommand, implementation=FetchUserGroupsCommand)
