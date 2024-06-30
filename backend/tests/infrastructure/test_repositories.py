@@ -15,7 +15,7 @@ from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
 from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException, \
-    GroupAlreadyExistsException
+    GroupAlreadyExistsException, UserGroupAlreadyExistsException
 
 BUCKET = "test-bucket"
 
@@ -175,6 +175,32 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert hasher was called with correct args"):
             object_hasher.hash.assert_called_with(object=user_groups)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_create_user_groups_should_throw_when_already_exists(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher: ObjectHasher = Mock()
+        sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                     object_mapper=object_mapper,
+                                     object_hasher=object_hasher)
+        hash = "test hash"
+        object_hasher.hash = MagicMock(return_value=hash)
+        user_groups = AutoFixture().create(dto=UserGroups)
+        sut.create(user_groups=user_groups)
+
+        # act
+        sut_call = lambda: sut.create(user_groups=user_groups)
+
+        # assert
+        with self.subTest(msg="assert user group already exists error is thrown"):
+            with self.assertRaises(expected_exception=UserGroupAlreadyExistsException):
+                sut_call()
 
     @mock_aws
     @patch.dict(os.environ, {

@@ -10,5 +10,9 @@ class GroupAlreadyExistsException(Exception):
     pass
 
 
+class UserGroupAlreadyExistsException(Exception):
+    pass
+
+
 class ConflictException(Exception):
     pass
