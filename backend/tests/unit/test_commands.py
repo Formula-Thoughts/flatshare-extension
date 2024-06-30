@@ -21,7 +21,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, \
-    FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand
+    FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -190,7 +190,7 @@ class TestSaveUserGroupsAsyncOverSQSCommand(TestCase):
             USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True,
             USER_GROUPS: user_groups
         },
-                                     auth_user_id=auth_user_id)
+            auth_user_id=auth_user_id)
         self.__sqs_event_publisher.send_sqs_message = MagicMock()
 
         # act
@@ -822,12 +822,12 @@ class TestCreateGroupAsyncCommand(TestCase):
         })
         self.__sqs_publisher.send_sqs_message = MagicMock()
         expected_group = Group(
-                             id=UUID_EXAMPLE,
-                             properties=[],
-                             participants=[fullname],
-                             price_limit=None,
-                             locations=[]
-                         )
+            id=UUID_EXAMPLE,
+            properties=[],
+            participants=[fullname],
+            price_limit=None,
+            locations=[]
+        )
 
         # act
         self.__sut.run(context=context)
@@ -856,7 +856,6 @@ class TestFetchAuthUserClaimsCommand(TestCase):
 
     @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
     def test_run_should_fetch_name_and_set_it(self):
-
         # arrange
         name = "test user"
         auth_user_id = "1234"
@@ -943,3 +942,40 @@ class TestCreateGroupCommand(TestCase):
         # assert
         with self.subTest(msg="assert group id var is set"):
             self.assertEqual(context.get_var(name=GROUP_ID, _type=str), UUID_EXAMPLE)
+
+
+class TestCreateUserGroupsCommand(TestCase):
+
+    def setUp(self):
+        self.__user_groups_repo: IUserGroupsRepo = Mock()
+        self.__sut = CreateUserGroupsCommand(user_groups_repo=self.__user_groups_repo)
+
+    def test_run_when_user_groups_does_not_exist(self):
+        # arrange
+        self.__user_groups_repo.create = MagicMock()
+        gannon = "aidan gannon"
+        auth_user_id = "1234"
+        group_id = "group_id"
+        context = ApplicationContext(variables={
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: False,
+            FULLNAME_CLAIM: gannon,
+            GROUP_ID: group_id
+        }, auth_user_id=auth_user_id)
+        expected_user_groups = UserGroups(id=auth_user_id,
+                                          name=gannon,
+                                          groups=[group_id])
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="user group is created once"):
+            self.__user_groups_repo.create.assert_called_once()
+
+        # assert
+        with self.subTest(msg="user group is created with correct fields"):
+            self.__user_groups_repo.create.assert_called_with(user_groups=expected_user_groups)
+
+        # assert
+        with self.subTest(msg="user groups var is set"):
+            self.assertEqual(expected_user_groups, context.get_var(name=USER_GROUPS, _type=UserGroups))

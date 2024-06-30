@@ -323,3 +323,21 @@ class FetchAuthUserClaimsIfUserDoesNotExistCommand:
                                                      username=context.auth_user_id)
 
         context.set_var(name=FULLNAME_CLAIM, value=list(filter(lambda x: x['Name'] == "name", user['UserAttributes']))[0]['Value'])
+
+
+class CreateUserGroupsCommand:
+
+    def __init__(self, user_groups_repo: IUserGroupsRepo) -> None:
+        self.__user_groups_repo = user_groups_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        user_group_exists = context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool)
+        user_groups = UserGroups(id=context.auth_user_id,
+                                 groups=[context.get_var(GROUP_ID, str)])
+        if user_group_exists:
+            current_user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
+            user_groups.groups = current_user_groups.groups + user_groups.groups
+            user_groups.name = current_user_groups.name
+        else:
+            user_groups.name = context.get_var(name=FULLNAME_CLAIM, _type=str)
+            context.set_var(name=USER_GROUPS, value=user_groups)
