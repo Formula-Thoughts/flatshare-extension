@@ -479,3 +479,32 @@ class TestGroupRepo(DynamoDbTestCase):
         with self.subTest(msg="assert conflict is thrown"):
             with self.assertRaises(expected_exception=ConflictException):
                 sut_call()
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_update_group_when_conflict(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        group = AutoFixture().create(dto=Group)
+        sut.create(group=group)
+        prev_etag = group.etag
+        group.price_limit = Decimal("123.4")
+        sut.update(group=group)
+
+        # act
+        group.etag = prev_etag
+        group.price_limit = Decimal("123.5")
+        sut_call = lambda: sut.update(group=group)
+
+        # assert
+        with self.subTest(msg="assert conflict is thrown"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
