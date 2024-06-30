@@ -150,31 +150,22 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                      object_mapper=object_mapper,
                                      object_hasher=object_hasher)
-        hash = "test hash"
-        object_hasher.hash = MagicMock(return_value=hash)
         user_groups = AutoFixture().create(dto=UserGroups)
+        user_groups.etag = None
         sut.create(user_groups=user_groups)
 
         # act
         received_user_groups = sut.get(_id=user_groups.id)
-        user_groups.etag = hash
-        user_groups.partition_key = f"user_groups:{user_groups.id}"
+        user_groups.etag = None
+        user_groups.etag = object_hasher.hash(user_groups)
 
         # assert
         with self.subTest(msg="assert correct user groups document was received"):
             self.assertEqual(received_user_groups, user_groups)
-
-        # assert
-        with self.subTest(msg="assert hasher was called once"):
-            object_hasher.hash.assert_called_once()
-
-        # assert
-        with self.subTest(msg="assert hasher was called with correct args"):
-            object_hasher.hash.assert_called_with(object=user_groups)
 
     @mock_aws
     @patch.dict(os.environ, {
@@ -185,12 +176,10 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                      object_mapper=object_mapper,
                                      object_hasher=object_hasher)
-        hash = "test hash"
-        object_hasher.hash = MagicMock(return_value=hash)
         user_groups = AutoFixture().create(dto=UserGroups)
         sut.create(user_groups=user_groups)
 
@@ -211,12 +200,10 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                      object_mapper=object_mapper,
                                      object_hasher=object_hasher)
-        hash = "test hash"
-        object_hasher.hash = MagicMock(return_value=hash)
 
         # act
         sut_call = lambda: sut.get(_id=str(uuid.uuid4()))
@@ -235,12 +222,11 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                      object_mapper=object_mapper,
                                      object_hasher=object_hasher)
         user_groups = AutoFixture().create(dto=UserGroups)
-        object_hasher.hash = MagicMock(return_value="hash")
         sut.create(user_groups=user_groups)
         group_to_add = str(uuid.uuid4())
 
@@ -261,13 +247,11 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                      object_mapper=object_mapper,
                                      object_hasher=object_hasher)
         user_groups = AutoFixture().create(dto=UserGroups)
-        object_hasher.hash = Mock()
-        object_hasher.hash.side_effect = ["hash1", "hash1", "hash2"]
         sut.create(user_groups=user_groups)
         group_to_add = str(uuid.uuid4())
 
@@ -289,12 +273,11 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbUserGroupsRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                      object_mapper=object_mapper,
                                      object_hasher=object_hasher)
         user_groups = AutoFixture().create(dto=UserGroups)
-        object_hasher.hash = MagicMock(return_value="hash1")
 
         # act
         sut_call = lambda: sut.add_group(group=str(uuid.uuid4()), user_groups=user_groups)
@@ -316,7 +299,9 @@ class TestGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        serializer = JsonSnakeToCamelSerializer()
+        deserializer = JsonCamelToSnakeDeserializer()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                 object_mapper=object_mapper,
                                 object_hasher=object_hasher)
@@ -324,39 +309,33 @@ class TestGroupRepo(DynamoDbTestCase):
                                          object_mapper=object_mapper,
                                          object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
+        group.etag = None
+        group.partition_key = None
         group_id = group.id
         props: list[Property] = AutoFixture().create_many(dto=Property, ammount=3)
-        hash_value = "hash"
-        object_hasher.hash = MagicMock(return_value=hash_value)
         sut.create(group=group)
+        group.etag = None
+        group.id = f"group:{group_id}"
+        group_hash = object_hasher.hash(group)
         for prop in props:
             prop_repo.create(group_id=group_id, property=prop)
 
         # act
         group_properties = sut.get(_id=group_id)
 
-        expected_group_properties = GroupProperties(etag=hash_value,
+        expected_group_properties = GroupProperties(etag=group_hash,
                                                     partition_key=f"group:{group_id}",
                                                     id=group_id,
                                                     participants=group.participants,
                                                     price_limit=group.price_limit,
                                                     locations=group.locations,
                                                     properties=props)
-        for prop in props:
-            prop.etag = hash_value
-            prop.partition_key = f"group:{group_id}"
-        expected_properties = expected_group_properties.properties
-        properties = group_properties.properties
-        del expected_group_properties.properties
-        del group_properties.properties
+        expected_group_properties.properties.sort(key=lambda x: x.id)
+        group_properties.properties.sort(key=lambda x: x.id)
 
         # assert
-        with self.subTest(msg="assert expected groups were received"):
-            self.assertEqual(group_properties.__dict__, expected_group_properties.__dict__)
-
-        # assert
-        with self.subTest(msg="assert expected properties were received"):
-            self.assertCountEqual(properties, expected_properties)
+        with self.subTest(msg="assert expected group properties were received"):
+            self.assertEqual(group_properties, expected_group_properties)
 
     @mock_aws
     @patch.dict(os.environ, {
@@ -367,15 +346,11 @@ class TestGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                 object_mapper=object_mapper,
                                 object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
-        group_id = group.id
-        props: list[Property] = AutoFixture().create_many(dto=Property, ammount=3)
-        hash_value = "hash"
-        object_hasher.hash = MagicMock(return_value=hash_value)
         sut.create(group=group)
 
         # act
@@ -394,20 +369,22 @@ class TestGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                 object_mapper=object_mapper,
                                 object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
+        group.etag = None
         group_id = group.id
-        hash_value = "hash"
-        object_hasher.hash = MagicMock(return_value=hash_value)
         sut.create(group=group)
+        group.etag = None
+        group.id = f"group:{group_id}"
+        group_hash = object_hasher.hash(group)
 
         # act
         group_properties = sut.get(_id=group_id)
 
-        expected_group_properties = GroupProperties(etag=hash_value,
+        expected_group_properties = GroupProperties(etag=group_hash,
                                                     partition_key=f"group:{group_id}",
                                                     id=group_id,
                                                     participants=group.participants,
@@ -428,12 +405,10 @@ class TestGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                 object_mapper=object_mapper,
                                 object_hasher=object_hasher)
-        hash_value = "hash"
-        object_hasher.hash = MagicMock(return_value=hash_value)
 
         # act
         sut_call = lambda: sut.get(_id=str(uuid.uuid4()))
@@ -452,25 +427,27 @@ class TestGroupRepo(DynamoDbTestCase):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
-        object_hasher: ObjectHasher = Mock()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
         sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                 object_mapper=object_mapper,
                                 object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
         group_id = group.id
-        hash_value = "hash"
-        object_hasher.hash = MagicMock(return_value=hash_value)
         sut.create(group=group)
+        prev_etag = group.etag
         new_price = Decimal('123.2')
         new_locations = ["DT1", "Dorchester"]
         group.price_limit = new_price
         group.locations = new_locations
         sut.update(group=group)
+        group.etag = prev_etag
+        group.id = f"group:{group_id}"
+        group_hash = object_hasher.hash(group)
 
         # act
         group_properties = sut.get(_id=group_id)
 
-        expected_group_properties = GroupProperties(etag=hash_value,
+        expected_group_properties = GroupProperties(etag=group_hash,
                                                     partition_key=f"group:{group_id}",
                                                     id=group_id,
                                                     participants=group.participants,
