@@ -292,6 +292,21 @@ class CreateGroupAsyncCommand:
         self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)
 
 
+class CreateGroupCommand:
+
+    def __init__(self, group_repo: IGroupRepo):
+        self.__group_repo = group_repo
+
+    def run(self, context: ApplicationContext):
+        group_id = str(uuid.uuid4())
+        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
+        group = Group(id=group_id,
+                      participants=[fullname])
+        self.__group_repo.create(group=group)
+        context.response = CreatedGroupResponse(group=group)
+        context.set_var(name=GROUP_ID, value=group_id)
+
+
 class FetchAuthUserClaimsIfUserDoesNotExistCommand:
 
     def __init__(self, cognito_wrapper: CognitoClientWrapper):

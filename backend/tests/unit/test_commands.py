@@ -21,7 +21,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, \
-    FetchAuthUserClaimsIfUserDoesNotExistCommand
+    FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -907,3 +907,39 @@ class TestFetchAuthUserClaimsCommand(TestCase):
         # assert
         with self.subTest(msg="assert full name was set as var"):
             self.assertEqual(context.get_var(FULLNAME_CLAIM, str), user_groups.name)
+
+
+class TestCreateGroupCommand(TestCase):
+
+    def setUp(self):
+        self.__group_repo: IGroupRepo = Mock()
+        self.__sut = CreateGroupCommand(group_repo=self.__group_repo)
+
+    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
+    def test_run(self, _):
+        # arrange
+        gannon = "aidan gannon"
+        context = ApplicationContext(variables={
+            FULLNAME_CLAIM: gannon
+        })
+        self.__group_repo.create = MagicMock()
+        expected_group = Group(id=UUID_EXAMPLE, participants=[gannon])
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert group is created once"):
+            self.__group_repo.create.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert group is created with correct args"):
+            self.__group_repo.create.assert_called_with(group=expected_group)
+
+        # assert
+        with self.subTest(msg="assert group response is returned"):
+            self.assertEqual(context.response, CreatedGroupResponse(group=expected_group))
+
+        # assert
+        with self.subTest(msg="assert group id var is set"):
+            self.assertEqual(context.get_var(name=GROUP_ID, _type=str), UUID_EXAMPLE)

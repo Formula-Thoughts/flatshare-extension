@@ -112,7 +112,15 @@ class ICreateGroupAsyncCommand(Command, Protocol):
     pass
 
 
+class ICreateGroupCommand(Command, Protocol):
+    pass
+
+
 class ICreateUserGroupsAsyncCommand(Command, Protocol):
+    pass
+
+
+class ICreateUserGroupsCommand(Command, Protocol):
     pass
 
 
