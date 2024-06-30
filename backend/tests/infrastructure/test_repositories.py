@@ -1,38 +1,21 @@
 import os
 import uuid
+from copy import copy
 from decimal import Decimal
 from unittest import TestCase
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch
 
 import boto3
 from autofixture import AutoFixture
-from botocore.client import BaseClient
-from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, JsonCamelToSnakeDeserializer, ObjectMapper
+from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, ObjectMapper
 from moto import mock_aws
 
 from src.core import Group, UserGroups, Property, GroupProperties
-from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
-from src.data.repositories import S3GroupRepo, S3BlobRepo, S3UserGroupsRepo, DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
+from src.data import DynamoDbWrapper, ObjectHasher
+from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException
-
-BUCKET = "test-bucket"
-
-
-class S3TestCase(TestCase):
-
-    def _set_up_bucket(self):
-        self.__s3 = boto3.client('s3')
-        self.__s3_client_wrapper = S3ClientWrapper(client=self.__s3)
-        self._blob_repo = S3BlobRepo(s3_client_wrapper=self.__s3_client_wrapper,
-                                     serializer=JsonSnakeToCamelSerializer(),
-                                     deserializer=JsonCamelToSnakeDeserializer(),
-                                     object_mapper=ObjectMapper())
-        self.__s3.create_bucket(Bucket=BUCKET,
-                                CreateBucketConfiguration={
-                                    'LocationConstraint': 'eu-west-2',
-                                })
 
 
 class DynamoDbTestCase(TestCase):
@@ -63,80 +46,6 @@ class DynamoDbTestCase(TestCase):
                                        }
                                    ],
                                    BillingMode='PAY_PER_REQUEST')
-
-
-class TestS3GroupRepo(S3TestCase):
-
-    @mock_aws
-    @patch.dict(os.environ, {
-        "S3_BUCKET_NAME": BUCKET,
-        "AWS_ACCESS_KEY_ID": "test",
-        "AWS_SECRET_ACCESS_KEY": "test"
-    }, clear=True)
-    def test_get_group_by_id(self):
-        # arrange
-        self._set_up_bucket()
-        sut = S3GroupRepo(blob_repo=self._blob_repo)
-        stored_group = AutoFixture().create(dto=Group)
-        sut.create(group=stored_group)
-
-        # act
-        fetched_group = sut.get(_id=stored_group.id)
-
-        # assert
-        self.assertEqual(fetched_group, stored_group)
-
-    @mock_aws
-    @patch.dict(os.environ, {
-        "S3_BUCKET_NAME": BUCKET,
-        "AWS_ACCESS_KEY_ID": "test",
-        "AWS_SECRET_ACCESS_KEY": "test"
-    }, clear=True)
-    def test_get_group_by_id_when_not_found(self):
-        # arrange
-        self._set_up_bucket()
-        sut = S3GroupRepo(blob_repo=self._blob_repo)
-
-        # act/assert
-        with self.assertRaises(expected_exception=GroupNotFoundException):
-            sut.get(_id=str(uuid.uuid4()))
-
-
-class TestS3UserGroupsRepo(S3TestCase):
-
-    @mock_aws
-    @patch.dict(os.environ, {
-        "S3_BUCKET_NAME": BUCKET,
-        "AWS_ACCESS_KEY_ID": "test",
-        "AWS_SECRET_ACCESS_KEY": "test"
-    }, clear=True)
-    def test_get_user_groups_by_auth_id(self):
-        # arrange
-        self._set_up_bucket()
-        sut = S3UserGroupsRepo(blob_repo=self._blob_repo)
-        stored_user_groups = AutoFixture().create(dto=UserGroups)
-        sut.create(user_groups=stored_user_groups)
-
-        # act
-        fetched_user_groups = sut.get(_id=stored_user_groups.id)
-
-        # assert
-        self.assertEqual(fetched_user_groups, stored_user_groups)
-
-    @mock_aws
-    @patch.dict(os.environ, {
-        "S3_BUCKET_NAME": BUCKET,
-        "AWS_ACCESS_KEY_ID": "test",
-        "AWS_SECRET_ACCESS_KEY": "test"
-    }, clear=True)
-    def test_get_user_groups_by_auth_id_when_not_found(self):
-        # arrange
-        self._set_up_bucket()
-        sut = S3UserGroupsRepo(blob_repo=self._blob_repo)
-
-        # act/assert
-        with self.assertRaises(expected_exception=UserGroupsNotFoundException):
-            sut.get(_id=str(uuid.uuid4()))
 
 
 class TestUserGroupRepo(DynamoDbTestCase):
@@ -508,3 +417,43 @@ class TestGroupRepo(DynamoDbTestCase):
         with self.subTest(msg="assert conflict is thrown"):
             with self.assertRaises(expected_exception=ConflictException):
                 sut_call()
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_add_participant(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        group = AutoFixture().create(dto=Group)
+        prev_participants = copy(group.participants)
+        group_id = group.id
+        sut.create(group=group)
+        participant_to_add = "Bob Marley"
+        sut.add_participant(participant=participant_to_add, group=group)
+        group_hash = object_hasher.hash(group)
+
+        # act
+        group_properties = sut.get(_id=group_id)
+
+        expected_group_properties = GroupProperties(etag=group_hash,
+                                                    partition_key=f"group:{group_id}",
+                                                    id=group_id,
+                                                    participants=group.participants,
+                                                    price_limit=group.price_limit,
+                                                    locations=group.locations,
+                                                    properties=[])
+
+        # assert
+        with self.subTest(msg="assert expected groups were received"):
+            self.assertEqual(group_properties, expected_group_properties)
+
+        # assert
+        with self.subTest(msg="assert participant was added"):
+            self.assertEqual([*prev_participants, participant_to_add], group.participants)

@@ -66,14 +66,6 @@ class CreateFlatRequest:
     url: str = None
 
 
-class IBlobRepo(Protocol):
-    def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
-        ...
-
-    def get(self, key: str, model_type: typing.Type[TData]) -> TData:
-        ...
-
-
 class IGroupRepo(Protocol):
     def create(self, group: Group) -> None:
         ...
@@ -84,7 +76,7 @@ class IGroupRepo(Protocol):
     def get(self, _id: str) -> GroupProperties:
         ...
 
-    def add_participant(self, participant: GroupParticipantName) -> None:
+    def add_participant(self, participant: GroupParticipantName, group: Group) -> None:
         ...
 
 

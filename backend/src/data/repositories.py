@@ -1,84 +1,11 @@
-import hashlib
-import json
-import os
-import typing
-
-from apport.user_group import UserGroupID
 from boto3.dynamodb.conditions import Attr, Key
 from botocore.exceptions import ClientError
-from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import IBlobRepo, Group, TData, UserGroups, Property, GroupParticipantName, GroupId, UserId, \
-    GroupProperties, UpsertGroupRequest
-from src.data import S3ClientWrapper, DynamoDbWrapper, ObjectHasher
+from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties
+from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException
-
-
-class S3BlobRepo:
-    def __init__(
-            self,
-            s3_client_wrapper: S3ClientWrapper,
-            serializer: Serializer,
-            deserializer: Deserializer,
-            object_mapper: ObjectMapper
-    ):
-        self.__object_mapper = object_mapper
-        self.__deserializer = deserializer
-        self.__serializer = serializer
-        self.__s3_client_wrapper = s3_client_wrapper
-
-    def create(self, data: TData, key_gen: typing.Callable[[TData], str]) -> None:
-        self.__s3_client_wrapper.put_object(
-            bucket=os.environ["S3_BUCKET_NAME"],
-            key=key_gen(data),
-            body=self.__serializer.serialize(self.__object_mapper.map_to_dict(_from=data, to=type(data))),
-            content_type="application/json",
-        )
-
-    def get(self, key: str, model_type: typing.Type[TData]) -> TData:
-        response = self.__s3_client_wrapper.get_object(bucket=os.environ["S3_BUCKET_NAME"],
-                                                       key=key)
-        return self.__object_mapper.map_from_dict(_from=self.__deserializer.deserialize(data=response),
-                                                  to=model_type)
-
-
-class S3GroupRepo:
-    def __init__(self, blob_repo: IBlobRepo):
-        self.__blob_repo = blob_repo
-
-    def create(self, group: Group) -> None:
-        self.__blob_repo.create(data=group, key_gen=lambda x: f"groups/{x.id}")
-
-    def get(self, _id: str) -> GroupProperties:
-        try:
-            return self.__blob_repo.get(key=f"groups/{_id}", model_type=GroupProperties)
-        except ClientError:
-            raise GroupNotFoundException()
-
-    def update(self, group: Group) -> None:
-        ...
-
-    def add_participant(self, participant: GroupParticipantName) -> None:
-        ...
-
-
-class S3UserGroupsRepo:
-    def __init__(self, blob_repo: IBlobRepo):
-        self.__blob_repo = blob_repo
-
-    def create(self, user_groups: UserGroups) -> None:
-        self.__blob_repo.create(data=user_groups, key_gen=lambda x: f"user_groups/{x.id}")
-
-    def get(self, _id: str) -> UserGroups:
-        try:
-            return self.__blob_repo.get(key=f"user_groups/{_id}", model_type=UserGroups)
-        except ClientError:
-            raise UserGroupsNotFoundException()
-
-    def add_group(self, group: GroupId) -> None:
-        ...
 
 
 class DynamoDbPropertyRepo:
@@ -129,7 +56,7 @@ class DynamoDbGroupRepo:
             group.id = group_id
         except ClientError as e:
             code = e.response['Error']['Code']
-            if code == 'ConditionalCheckFailedException':
+            if code == CONDITIONAL_CHECK_FAILED:
                 raise GroupAlreadyExistsException()
 
     def update(self, group: Group) -> None:
@@ -143,7 +70,7 @@ class DynamoDbGroupRepo:
             group.id = group_id
         except ClientError as e:
             code = e.response['Error']['Code']
-            if code == 'ConditionalCheckFailedException':
+            if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
 
     def get(self, _id: str) -> GroupProperties:
@@ -174,8 +101,19 @@ class DynamoDbGroupRepo:
                                locations=group.locations,
                                properties=properties)
 
-    def add_participant(self, participant: GroupParticipantName) -> None:
-        ...
+    def add_participant(self, participant: GroupParticipantName, group: Group) -> None:
+        group.participants.append(participant)
+        new_hash = self.__object_hasher.hash(object=group)
+        self.__dynamo_wrapper.update_item(key={
+            "id": f"group:{group.id}",
+            "partition_key": f"group:{group.id}"
+        },
+            update_expression="SET participants = list_append(participants, :i) SET etag = :j",
+            condition_expression=Attr("etag").eq(group.etag),
+            expression_attribute_values={
+                ':i': [participant],
+                ':j': new_hash
+            })
 
     @staticmethod
     def __partition_key_gen(group: Group, group_id):
@@ -214,7 +152,7 @@ class DynamoDbUserGroupsRepo:
                                       condition_expression=Attr('etag').not_exists())
         except ClientError as e:
             code = e.response['Error']['Code']
-            if code == 'ConditionalCheckFailedException':
+            if code == CONDITIONAL_CHECK_FAILED:
                 raise UserGroupAlreadyExistsException()
 
     def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
@@ -223,20 +161,20 @@ class DynamoDbUserGroupsRepo:
             new_hash = self.__object_hasher.hash(object=user_groups)
             self.__dynamo_wrapper.update_item(key={
                 "id": user_groups.id,
-                "partition_key": f"user_groups:{user_groups.id}"
+                "partition_key": f"user_group:{user_groups.id}"
             },
                 update_expression="SET groups = list_append(groups, :i) SET etag = :j",
                 condition_expression=Attr("etag").eq(user_groups.etag),
                 expression_attribute_values={
                     ':i': [group],
-                    ':j': [new_hash]
+                    ':j': new_hash
                 })
         except ClientError as e:
             code = e.response['Error']['Code']
-            if code == 'ConditionalCheckFailedException':
+            if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
 
 
     @staticmethod
     def __partition_key_gen(user_groups: UserGroups):
-        user_groups.partition_key = f"user_groups:{user_groups.id}"
+        user_groups.partition_key = f"user_group:{user_groups.id}"

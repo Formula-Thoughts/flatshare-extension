@@ -104,22 +104,6 @@ Resources:
                   - !Ref "AWS::StackId"
       UserPoolId: !Ref FlatiniUserPool
 
-  Database:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join
-        - "-"
-        - - "flatini-blob-db"
-          - !Select
-            - 0
-            - !Split
-              - "-"
-              - !Select
-                - 2
-                - !Split
-                  - "/"
-                  - !Ref "AWS::StackId"
-
   FlatiniAppRole:
     Type: AWS::IAM::Role
     Properties:
@@ -164,10 +148,10 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              - Effect: Allow
+              - Effect: "Allow"
                 Action:
-                  - s3:*
-                Resource: !Sub arn:aws:s3:::${Database}*
+                  - "dynamodb:*"
+                Resource: !Sub arn:aws:dynamodb:*:*:table/${FlatiniDb}*
 
   FlatiniHttpApi:
     Type: AWS::Serverless::HttpApi
@@ -234,7 +218,7 @@ Resources:
       Environment:
         Variables:
           QUEUE_NAME: !GetAtt MyQueue.QueueName
-          S3_BUCKET_NAME: !Ref Database
+          DYNAMODB_TABLE: !Ref FlatiniDb
           USER_POOL_ID: !GetAtt FlatiniUserPool.UserPoolId
 
       MemorySize: 1024
