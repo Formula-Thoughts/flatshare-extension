@@ -471,12 +471,11 @@ class TestGroupRepo(DynamoDbTestCase):
                                 object_mapper=object_mapper,
                                 object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
-        sut.update(group=group)
 
         # act
-        sut_call = lambda: sut.get(_id=group.id)
+        sut_call = lambda: sut.update(group=group)
 
         # assert
         with self.subTest(msg="assert conflict is thrown"):
-            with self.assertRaises(ConflictException):
+            with self.assertRaises(expected_exception=ConflictException):
                 sut_call()

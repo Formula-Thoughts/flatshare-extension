@@ -133,13 +133,18 @@ class DynamoDbGroupRepo:
                 raise GroupAlreadyExistsException()
 
     def update(self, group: Group) -> None:
-        group_id = group.id
-        prev_etag = group.etag
-        self.__id_setter(group=group, group_id=group_id)
-        group.etag = self.__object_hasher.hash(object=group)
-        self.__dynamo_wrapper.put(item=self.__object_mapper.map_to_dict(_from=group, to=Group, preserve_decimal=True),
-                                  condition_expression=Attr('etag').eq(prev_etag))
-        group.id = group_id
+        try:
+            group_id = group.id
+            prev_etag = group.etag
+            self.__id_setter(group=group, group_id=group_id)
+            group.etag = self.__object_hasher.hash(object=group)
+            self.__dynamo_wrapper.put(item=self.__object_mapper.map_to_dict(_from=group, to=Group, preserve_decimal=True),
+                                      condition_expression=Attr('etag').eq(prev_etag))
+            group.id = group_id
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == 'ConditionalCheckFailedException':
+                raise ConflictException()
 
     def get(self, _id: str) -> GroupProperties:
         items = self.__dynamo_wrapper.query(key_condition_expression=Key("partition_key").eq(f"group:{_id}"),
