@@ -452,6 +452,31 @@ class TestGroupRepo(DynamoDbTestCase):
                                                     price_limit=new_price,
                                                     locations=new_locations,
                                                     properties=[])
+
         # assert
         with self.subTest(msg="assert expected groups were received"):
             self.assertEqual(group_properties, expected_group_properties)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_update_group_when_not_found(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbGroupRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                object_mapper=object_mapper,
+                                object_hasher=object_hasher)
+        group = AutoFixture().create(dto=Group)
+        sut.update(group=group)
+
+        # act
+        sut_call = lambda: sut.get(_id=group.id)
+
+        # assert
+        with self.subTest(msg="assert conflict is thrown"):
+            with self.assertRaises(ConflictException):
+                sut_call()
