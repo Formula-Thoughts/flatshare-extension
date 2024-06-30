@@ -185,10 +185,13 @@ class DynamoDbUserGroupsRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def get(self, _id: str) -> UserGroups:
-        user_groups = self.__dynamo_wrapper.query(key_condition_expression=
+        items = self.__dynamo_wrapper.query(key_condition_expression=
                                                   Key('id').eq(_id) &
                                                   Key('partition_key').eq(f'user_groups:{_id}')
-                                                  )["Items"][0]
+                                                  )["Items"]
+        if len(items) == 0:
+            raise UserGroupsNotFoundException()
+        user_groups = items[0]
         return self.__object_mapper.map_from_dict(_from=user_groups, to=UserGroups)
 
     def create(self, user_groups: UserGroups) -> None:
