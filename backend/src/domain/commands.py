@@ -332,13 +332,11 @@ class CreateUserGroupsCommand:
 
     def run(self, context: ApplicationContext) -> None:
         user_group_exists = context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool)
-        user_groups = UserGroups(id=context.auth_user_id,
-                                 groups=[context.get_var(GROUP_ID, str)])
         if user_group_exists:
             current_user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
-            user_groups.groups = current_user_groups.groups + user_groups.groups
-            user_groups.name = current_user_groups.name
         else:
+            user_groups = UserGroups(id=context.auth_user_id,
+                                     groups=[context.get_var(GROUP_ID, str)])
             user_groups.name = context.get_var(name=FULLNAME_CLAIM, _type=str)
             self.__user_groups_repo.create(user_groups=user_groups)
             context.set_var(name=USER_GROUPS, value=user_groups)

@@ -979,3 +979,33 @@ class TestCreateUserGroupsCommand(TestCase):
         # assert
         with self.subTest(msg="user groups var is set"):
             self.assertEqual(expected_user_groups, context.get_var(name=USER_GROUPS, _type=UserGroups))
+
+    def test_run_when_user_groups_exists(self):
+        # arrange
+        self.__user_groups_repo.create = MagicMock()
+        self.__user_groups_repo.add_group = MagicMock()
+        gannon = "aidan gannon"
+        auth_user_id = "1234"
+        group_id = "group_id"
+        user_groups = AutoFixture().create(dto=UserGroups)
+        context = ApplicationContext(variables={
+            USER_BELONGS_TO_AT_LEAST_ONE_GROUP: True,
+            FULLNAME_CLAIM: gannon,
+            GROUP_ID: group_id,
+            USER_GROUPS: user_groups
+        }, auth_user_id=auth_user_id)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="user group is not created"):
+            self.__user_groups_repo.create.assert_not_called()
+
+        # assert
+        with self.subTest(msg="group is added once"):
+            self.__user_groups_repo.add_group.assert_called_once()
+
+        # assert
+        with self.subTest(msg="correct group is added"):
+            self.__user_groups_repo.add_group.assert_called_with(user_groups=user_groups, group=group_id)
