@@ -340,4 +340,5 @@ class CreateUserGroupsCommand:
             user_groups.name = current_user_groups.name
         else:
             user_groups.name = context.get_var(name=FULLNAME_CLAIM, _type=str)
+            self.__user_groups_repo.create(user_groups=user_groups)
             context.set_var(name=USER_GROUPS, value=user_groups)
