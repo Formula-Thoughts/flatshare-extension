@@ -461,7 +461,10 @@ class TestGroupRepo(DynamoDbTestCase):
         hash_value = "hash"
         object_hasher.hash = MagicMock(return_value=hash_value)
         sut.create(group=group)
-        group.price_limit = Decimal('123.2')
+        new_price = Decimal('123.2')
+        new_locations = ["DT1", "Dorchester"]
+        group.price_limit = new_price
+        group.locations = new_locations
         sut.update(group=group)
 
         # act
@@ -471,9 +474,9 @@ class TestGroupRepo(DynamoDbTestCase):
                                                     partition_key=f"group:{group_id}",
                                                     id=group_id,
                                                     participants=group.participants,
-                                                    price_limit=group.price_limit,
-                                                    locations=group.locations,
+                                                    price_limit=new_price,
+                                                    locations=new_locations,
                                                     properties=[])
         # assert
         with self.subTest(msg="assert expected groups were received"):
-            self.assertEqual(group_properties.__dict__, expected_group_properties.__dict__)
+            self.assertEqual(group_properties, expected_group_properties)
