@@ -323,7 +323,8 @@ class FetchAuthUserClaimsIfUserDoesNotExistCommand:
         user = self.__cognito_wrapper.admin_get_user(user_pool_id=os.environ["USER_POOL_ID"],
                                                      username=context.auth_user_id)
 
-        context.set_var(name=FULLNAME_CLAIM, value=list(filter(lambda x: x['Name'] == "name", user['UserAttributes']))[0]['Value'])
+        context.set_var(name=FULLNAME_CLAIM,
+                        value=list(filter(lambda x: x['Name'] == "name", user['UserAttributes']))[0]['Value'])
 
 
 class CreateUserGroupsCommand:
@@ -353,4 +354,11 @@ class UpdateGroupCommand:
     def run(self, context: ApplicationContext) -> None:
         group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
         group_from_store = context.get_var(GROUP, GroupProperties)
-        context.response = SingleGroupResponse(group=group_from_store)
+        group_to_update = Group(id=group_from_store.id,
+                                etag=group_from_store.etag,
+                                partition_key=group_from_store.partition_key,
+                                participants=group_from_store.participants,
+                                price_limit=group_request.price_limit,
+                                locations=group_request.locations)
+        self.__group_repo.update(group=group_to_update)
+        context.response = SingleGroupResponse(group=group_to_update)
