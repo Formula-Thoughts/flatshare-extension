@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from src.core import IValidateGroupCommand, ISetGroupRequestCommand, IUpdateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
-    IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
+    IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUserCommand, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, ICreatePropertyCommand, \
     IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
     IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, \
@@ -21,7 +21,7 @@ class TestUpdateGroupAsyncSequenceBuilder(TestCase):
         self.__save: IUpdateGroupAsyncCommand = Mock()
         self.__build_request: ISetGroupRequestCommand = Mock()
         self.__validate_request: IValidateGroupCommand = Mock()
-        self.__validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser = Mock()
+        self.__validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUserCommand = Mock()
         self.__validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand = Mock()
         self.__fetch_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__sut = UpdateGroupSequenceBuilder(set_group_request=self.__build_request,
@@ -91,7 +91,7 @@ class TestGetUserGroupByIdSequenceBuilder(TestCase):
 
     def setUp(self):
         self.__validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand = Mock()
-        self.__validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser = Mock()
+        self.__validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUserCommand = Mock()
         self.__fetch_group_by_id_command: IFetchGroupByIdCommand = Mock()
         self.__sut = GetUserGroupByIdSequenceBuilder(
             validate_if_user_belongs_to_at_least_one_group_command=self.__validate_if_user_belongs_to_at_least_one_group_command,

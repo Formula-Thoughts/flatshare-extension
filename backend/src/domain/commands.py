@@ -6,7 +6,8 @@ from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, Property
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
+    Property, GroupProperties
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM
@@ -137,7 +138,7 @@ class UpsertUserGroupsBackgroundCommand:
         self.__user_groups_repo.create(user_groups=context.get_var(EVENT, UserGroups))
 
 
-class ValidateIfGroupBelongsToUser:
+class ValidateIfGroupBelongsToUserCommand:
 
     def run(self, context: ApplicationContext) -> None:
         if not context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool):
@@ -342,3 +343,14 @@ class CreateUserGroupsCommand:
             user_groups.name = context.get_var(name=FULLNAME_CLAIM, _type=str)
             self.__user_groups_repo.create(user_groups=user_groups)
             context.set_var(name=USER_GROUPS, value=user_groups)
+
+
+class UpdateGroupCommand:
+
+    def __init__(self, group_repo: IGroupRepo) -> None:
+        self.__group_repo = group_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
+        group_from_store = context.get_var(GROUP, GroupProperties)
+        context.response = SingleGroupResponse(group=group_from_store)

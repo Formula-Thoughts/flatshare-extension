@@ -4,7 +4,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IUpsertGroupBackgroundCommand, IUpdateGroupSequenceBuilder, IUpsertGroupBackgroundSequenceBuilder, \
     ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundSequenceBuilder, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IFetchUserGroupsSequenceBuilder, IValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    IValidateIfGroupBelongsToUser, IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, \
+    IValidateIfGroupBelongsToUserCommand, IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, \
     ICreatePropertyCommand, ICreatePropertySequenceBuilder, IValidatePropertyRequestCommand, IDeletePropertyCommand, \
     IDeletePropertySequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
@@ -13,7 +13,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     ICreateGroupCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
-    FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUser, \
+    FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUserCommand, \
     FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, \
     DeletePropertyCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
@@ -49,8 +49,8 @@ def register_domain_dependencies(container: Container):
      .register(service=IValidatePropertyRequestCommand, implementation=ValidatePropertyRequestCommand)
      .register(service=IFetchAuthUserClaimsIfUserDoesNotExistCommand, implementation=FetchAuthUserClaimsIfUserDoesNotExistCommand)
      .register(service=IValidateUserIsNotParticipantCommand, implementation=ValidateUserIsNotParticipantCommand)
-     .register(service=IValidateIfGroupBelongsToUser,
-               implementation=ValidateIfGroupBelongsToUser)
+     .register(service=IValidateIfGroupBelongsToUserCommand,
+               implementation=ValidateIfGroupBelongsToUserCommand)
      .register(service=IValidateIfUserBelongsToAtLeastOneGroupCommand,
                implementation=ValidateIfUserBelongsToAtLeastOneGroupCommand)
      .register(service=IUpsertUserGroupsBackgroundSequenceBuilder,

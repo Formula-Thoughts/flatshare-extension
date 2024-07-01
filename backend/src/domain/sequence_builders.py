@@ -2,7 +2,7 @@ from formula_thoughts_web.application import FluentSequenceBuilder
 
 from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGroupAsyncCommand, \
     IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
-    IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUser, \
+    IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUserCommand, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, ICreatePropertyCommand, \
     IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddUserToGroupSequenceBuilder, \
     IAddCurrentUserToGroupCommand, \
@@ -16,9 +16,9 @@ class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
     def __init__(self, set_group_request: ISetGroupRequestCommand,
                  validate_group: IValidateGroupCommand,
                  validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
-                 validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser,
+                 validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUserCommand,
                  fetch_group_by_id: IFetchGroupByIdCommand,
-                 save_group_async: IUpdateGroupAsyncCommand):
+                 save_group_async: IUpdateGroupCommand):
         self.__fetch_group_by_id = fetch_group_by_id
         self.__validate_if_group_belongs_to_user = validate_if_group_belongs_to_user
         self.__validate_if_user_belongs_to_at_least_one_group_command = validate_if_user_belongs_to_at_least_one_group_command
@@ -69,7 +69,7 @@ class FetchUserGroupsSequenceBuilder(FluentSequenceBuilder):
 class GetUserGroupByIdSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self, validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
-                 validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUser,
+                 validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUserCommand,
                  fetch_group_by_id_command: IFetchGroupByIdCommand):
         super().__init__()
         self.__fetch_group_by_id_command = fetch_group_by_id_command

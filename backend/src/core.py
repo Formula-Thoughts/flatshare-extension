@@ -136,7 +136,7 @@ class IValidateIfUserBelongsToAtLeastOneGroupCommand(Command, Protocol):
     pass
 
 
-class IValidateIfGroupBelongsToUser(Command, Protocol):
+class IValidateIfGroupBelongsToUserCommand(Command, Protocol):
     pass
 
 
@@ -177,6 +177,10 @@ class ISetGroupIdFromCodeCommand(Command, Protocol):
 
 
 class IGetCodeFromGroupIdCommand(Command, Protocol):
+    pass
+
+
+class IUpdateGroupCommand(Command, Protocol):
     pass
 
 

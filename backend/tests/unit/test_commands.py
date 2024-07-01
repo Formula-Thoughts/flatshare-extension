@@ -11,17 +11,18 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
-from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, Property
+from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
+    Property, GroupProperties
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    ValidateIfGroupBelongsToUser, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
+    ValidateIfGroupBelongsToUserCommand, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, \
-    FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand
+    FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -368,7 +369,7 @@ class TestValidateIfUserBelongsToAtLeastOneGroupCommand(TestCase):
 class TestValidateIfGroupBelongsToUser(TestCase):
 
     def setUp(self):
-        self.__sut = ValidateIfGroupBelongsToUser()
+        self.__sut = ValidateIfGroupBelongsToUserCommand()
 
     def test_run_if_group_belongs_to_user(self):
         # arrange
@@ -1009,3 +1010,41 @@ class TestCreateUserGroupsCommand(TestCase):
         # assert
         with self.subTest(msg="correct group is added"):
             self.__user_groups_repo.add_group.assert_called_with(user_groups=user_groups, group=group_id)
+
+
+class TestUpdateGroupCommand(TestCase):
+
+    def setUp(self):
+        self.__group_repo: IGroupRepo = Mock()
+        self.__sut = UpdateGroupCommand(group_repo=self.__group_repo)
+
+    def test_update(self):
+        # arrange
+        self.__group_repo.update = MagicMock()
+        group_properties = AutoFixture().create(dto=GroupProperties)
+        group_request = AutoFixture().create(dto=UpsertGroupRequest)
+        context = ApplicationContext(variables={
+            GROUP: group_properties,
+            UPSERT_GROUP_REQUEST: group_request
+        })
+        expected_group_from_update = Group(id=group_properties.id,
+                                           etag=group_properties.etag,
+                                           partition_key=group_properties.partition_key,
+                                           participants=group_properties.participants,
+                                           price_limit=group_request.price_limit,
+                                           locations=group_request.locations)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="group was updated once"):
+            self.__group_repo.update.assert_called_once()
+
+        # assert
+        with self.subTest(msg="group was updated with correct group"):
+            self.__group_repo.update.assert_called_with(group=expected_group_from_update)
+
+        # assert
+        with self.subTest(msg="group response is set"):
+            self.assertEqual(context.response, SingleGroupResponse(group=expected_group_from_update))
