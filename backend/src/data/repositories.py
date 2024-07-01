@@ -1,4 +1,4 @@
-from boto3.dynamodb.conditions import Attr, Key
+from boto3.dynamodb.conditions import Attr, Key, ConditionExpressionBuilder, Or
 from botocore.exceptions import ClientError
 from formula_thoughts_web.crosscutting import ObjectMapper
 
@@ -74,9 +74,10 @@ class DynamoDbGroupRepo:
                 raise ConflictException()
 
     def get(self, _id: str) -> GroupProperties:
-        items = self.__dynamo_wrapper.query(key_condition_expression=Key("partition_key").eq(f"group:{_id}"),
-                                            filter_expression=Key("id").begins_with("group") |
-                                                              Key("id").begins_with("property"))["Items"]
+        items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key",
+                                            expression_attribute_values={
+                                                ":partition_key": f"group:{_id}",
+                                            })["Items"]
         if len(items) == 0:
             raise GroupNotFoundException(f"Group with id {_id} not found")
         property_dicts = []
@@ -139,10 +140,11 @@ class DynamoDbUserGroupsRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def get(self, _id: str) -> UserGroups:
-        items = self.__dynamo_wrapper.query(key_condition_expression=
-                                                  Key('id').eq(_id) &
-                                                  Key('partition_key').eq(f'user_groups:{_id}')
-                                                  )["Items"]
+        items = self.__dynamo_wrapper.query(key_condition_expression="id = :id and partition_key = :partition_key",
+                                            expression_attribute_values={
+                                                ':id': _id,
+                                                ':partition_key': f"user_group:{_id}"
+                                            })["Items"]
         if len(items) == 0:
             raise UserGroupsNotFoundException()
         user_groups = items[0]
