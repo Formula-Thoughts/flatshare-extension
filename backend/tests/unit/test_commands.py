@@ -1,5 +1,6 @@
 import os
 import uuid
+from decimal import Decimal
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch, call
 from uuid import UUID
@@ -42,7 +43,7 @@ class TestSetGroupRequestCommand(TestCase):
     def test_run(self):
         # arrange
         locations = ["UK"]
-        price_limit = 14.2
+        price_limit = Decimal('14.2')
         context = ApplicationContext(variables={},
                                      body={"price_limit": price_limit, "locations": locations})
 
@@ -117,7 +118,6 @@ class TestSaveGroupAsyncOverSQSCommand(TestCase):
         expected_group = Group(id=group.id,
                                price_limit=group_request.price_limit,
                                locations=group_request.locations,
-                               properties=group.properties,
                                participants=group.participants)
         context = ApplicationContext(variables={
             GROUP: group,
@@ -600,69 +600,6 @@ class TestDeletePropertyCommand(TestCase):
         self.__sqs_event_publisher: SQSEventPublisher = Mock()
         self.__sut = DeletePropertyCommand(sqs_event_publisher=self.__sqs_event_publisher)
 
-    def test_run(self):
-        # arrange
-        group = AutoFixture().create(dto=Group)
-        property = AutoFixture().create(dto=Property)
-        group.properties.append(property)
-        length_of_properties_before_delete = len(group.properties)
-        context = ApplicationContext(variables={
-            "property_id": property.id,
-            GROUP: group
-        })
-        self.__sqs_event_publisher.send_sqs_message = MagicMock()
-
-        # act
-        self.__sut.run(context=context)
-
-        captor = Captor()
-
-        # assert
-        with self.subTest(msg="assert sqs is called once"):
-            self.__sqs_event_publisher.send_sqs_message.assert_called_once()
-
-        # assert
-        with self.subTest(msg="assert sqs is called with correct args"):
-            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=group.id,
-                                                                           payload=captor)
-
-        # assert
-        with self.subTest(msg="assert property is removed from list"):
-            self.assertEqual(len(captor.arg.properties), length_of_properties_before_delete - 1)
-
-        # assert
-        with self.subTest(msg="assert group published matches"):
-            self.assertEqual(captor.arg, group)
-
-        # assert
-        with self.subTest(msg="assert response is set"):
-            self.assertEqual(context.response, SingleGroupResponse(group=group))
-
-    def test_run_when_property_is_not_found(self):
-        # arrange
-        group = AutoFixture().create(dto=Group)
-        property = AutoFixture().create(dto=Property)
-        context = ApplicationContext(variables={
-            "property_id": property.id,
-            GROUP: group
-        })
-        self.__sqs_event_publisher.send_sqs_message = MagicMock()
-
-        # act
-        self.__sut.run(context=context)
-
-        # assert
-        with self.subTest(msg="assert sqs is never called"):
-            self.__sqs_event_publisher.send_sqs_message.assert_not_called()
-
-        # assert
-        with self.subTest(msg="assert 1 error is added"):
-            self.assertEqual(len(context.error_capsules), 1)
-
-        # assert
-        with self.subTest(msg="assert property not found error is added"):
-            self.assertEqual(type(context.error_capsules[0]), PropertyNotFoundError)
-
 
 class TestAddCurrentUserToGroupCommand(TestCase):
 
@@ -824,7 +761,6 @@ class TestCreateGroupAsyncCommand(TestCase):
         self.__sqs_publisher.send_sqs_message = MagicMock()
         expected_group = Group(
             id=UUID_EXAMPLE,
-            properties=[],
             participants=[fullname],
             price_limit=None,
             locations=[]

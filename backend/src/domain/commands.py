@@ -58,7 +58,6 @@ class UpdateGroupAsyncCommand:
         group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
         group_from_store = context.get_var(GROUP, Group)
         group = Group(id=group_from_store.id,
-                      properties=group_from_store.properties,
                       participants=group_from_store.participants,
                       price_limit=group_request.price_limit,
                       locations=group_request.locations)
@@ -286,7 +285,6 @@ class CreateGroupAsyncCommand:
         group_id = str(uuid.uuid4())
         fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
         group = Group(id=group_id,
-                      properties=[],
                       participants=[fullname])
         context.response = CreatedGroupResponse(group=group)
         context.set_var(name=GROUP_ID, value=group_id)
