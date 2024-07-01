@@ -8,7 +8,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IAddCurrentUserToGroupCommand, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
     ICreateGroupAsyncCommand, IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, \
-    ICreateGroupCommand, ICreateUserGroupsCommand
+    ICreateGroupCommand, ICreateUserGroupsCommand, IUpdateGroupCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -18,11 +18,11 @@ class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
                  validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
                  validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUserCommand,
                  fetch_group_by_id: IFetchGroupByIdCommand,
-                 save_group_async: IUpdateGroupCommand):
+                 update_group: IUpdateGroupCommand):
         self.__fetch_group_by_id = fetch_group_by_id
         self.__validate_if_group_belongs_to_user = validate_if_group_belongs_to_user
         self.__validate_if_user_belongs_to_at_least_one_group_command = validate_if_user_belongs_to_at_least_one_group_command
-        self.__save_group_async = save_group_async
+        self.__update_group = update_group
         self.__validate_group = validate_group
         self.__set_group_request = set_group_request
         super().__init__()
@@ -33,7 +33,7 @@ class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
             ._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command)\
             ._add_command(command=self.__validate_if_group_belongs_to_user)\
             ._add_command(command=self.__fetch_group_by_id)\
-            ._add_command(command=self.__save_group_async)
+            ._add_command(command=self.__update_group)
 
 
 class UpsertGroupBackgroundSequenceBuilder(FluentSequenceBuilder):

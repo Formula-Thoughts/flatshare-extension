@@ -26,7 +26,7 @@ class TestUpdateGroupAsyncSequenceBuilder(TestCase):
         self.__fetch_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__sut = UpdateGroupSequenceBuilder(set_group_request=self.__build_request,
                                                 validate_group=self.__validate_request,
-                                                save_group_async=self.__save,
+                                                update_group=self.__save,
                                                 validate_if_group_belongs_to_user=self.__validate_if_group_belongs_to_user,
                                                 validate_if_user_belongs_to_at_least_one_group_command=self.__validate_if_user_belongs_to_at_least_one_group_command,
                                                 fetch_group_by_id=self.__fetch_group_by_id)

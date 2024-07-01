@@ -4,13 +4,14 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IUpsertGroupBackgroundCommand, IUpdateGroupSequenceBuilder, IUpsertGroupBackgroundSequenceBuilder, \
     ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundSequenceBuilder, IUpsertUserGroupsBackgroundCommand, \
     IFetchUserGroupsCommand, IFetchUserGroupsSequenceBuilder, IValidateIfUserBelongsToAtLeastOneGroupCommand, \
-    IValidateIfGroupBelongsToUserCommand, IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, \
+    IValidateIfGroupBelongsToUserCommand, IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, \
+    ISetPropertyRequestCommand, \
     ICreatePropertyCommand, ICreatePropertySequenceBuilder, IValidatePropertyRequestCommand, IDeletePropertyCommand, \
     IDeletePropertySequenceBuilder, IAddCurrentUserToGroupCommand, IAddUserToGroupSequenceBuilder, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
     IValidateUserIsNotParticipantCommand, ICreateGroupAsyncCommand, ICreateGroupSequenceBuilder, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
-    ICreateGroupCommand
+    ICreateGroupCommand, IUpdateGroupCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, UpdateGroupAsyncCommand, \
     UpsertGroupBackgroundCommand, CreateUserGroupsAsyncCommand, UpsertUserGroupsBackgroundCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUserCommand, \
@@ -18,7 +19,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, Up
     DeletePropertyCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
     ValidateUserIsNotParticipantCommand, CreateGroupAsyncCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand, \
-    CreateUserGroupsCommand, CreateGroupCommand
+    CreateUserGroupsCommand, CreateGroupCommand, UpdateGroupCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, UpsertGroupBackgroundSequenceBuilder, \
     UpsertUserGroupsBackgroundSequenceBuilder, FetchUserGroupsSequenceBuilder, GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, GetCodeForGroupSequenceBuilder, \
@@ -32,6 +33,7 @@ def register_domain_dependencies(container: Container):
      .register(service=ICreateGroupAsyncCommand, implementation=CreateGroupAsyncCommand)
      .register(service=ICreateUserGroupsCommand, implementation=CreateUserGroupsCommand)
      .register(service=ICreateGroupCommand, implementation=CreateGroupCommand)
+     .register(service=IUpdateGroupCommand, implementation=UpdateGroupCommand)
      .register(service=ICreateUserGroupsAsyncCommand, implementation=CreateUserGroupsAsyncCommand)
      .register(service=IUpsertGroupBackgroundCommand, implementation=UpsertGroupBackgroundCommand)
      .register(service=IFetchUserGroupsCommand, implementation=FetchUserGroupsCommand)
