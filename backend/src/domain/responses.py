@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core import Group
+from src.core import Group, GroupProperties
 
 
 @dataclass(unsafe_hash=True)
@@ -20,4 +20,4 @@ class SingleGroupResponse:
 
 @dataclass(unsafe_hash=True)
 class ListUserGroupsResponse:
-    groups: list[Group] = None
+    groups: list[GroupProperties] = None
