@@ -66,6 +66,8 @@ class DynamoDbWrapper:
 
     def query(self,
               key_condition_expression: boto3.dynamodb.conditions.ConditionBase,
-              filter_expression: boto3.dynamodb.conditions.ConditionBase = Attr('id').exists()) -> dict:
+              expression_attribute_values: dict,
+              filter_expression: boto3.dynamodb.conditions.ConditionBase = Attr('etag').exists()) -> dict:
         return self.__table.query(KeyConditionExpression=key_condition_expression,
-                                  FilterExpression=filter_expression)
+                                  FilterExpression=filter_expression,
+                                  ExpressionAttributeValues=expression_attribute_values)

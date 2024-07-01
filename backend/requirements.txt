@@ -1,2 +1,1 @@
 formula-thoughts-web==1.2.5
-boto3==1.34.131
