@@ -92,4 +92,4 @@ jobs:
       - name: build and deploy to aws
         run: |
           cd backend && sh clean_build.sh
-          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{needs.init.outputs.name}} --s3-bucket flatini-api-staging-s3 --s3-prefix flatini --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
+          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{needs.init.outputs.name}} --s3-bucket flatini-api-${{needs.init.outputs.name}}-s3 --s3-prefix flatini --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
