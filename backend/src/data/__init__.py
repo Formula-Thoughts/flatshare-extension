@@ -72,5 +72,7 @@ class DynamoDbWrapper:
                                   FilterExpression=filter_expression,
                                   ExpressionAttributeValues=expression_attribute_values)
 
-    def delete_item(self, key: dict):
-        self.__table.delete_item(Key=key)
+    def delete_item(self, key: dict,
+                    condition_expression: boto3.dynamodb.conditions):
+        self.__table.delete_item(Key=key,
+                                 ConditionExpression=condition_expression)

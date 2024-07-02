@@ -6,6 +6,10 @@ class GroupNotFoundException(Exception):
     pass
 
 
+class PropertyNotFoundException(Exception):
+    pass
+
+
 class GroupAlreadyExistsException(Exception):
     pass
 

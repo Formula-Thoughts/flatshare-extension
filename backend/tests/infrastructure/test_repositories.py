@@ -15,7 +15,7 @@ from src.data import DynamoDbWrapper, ObjectHasher
 from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException, \
-    GroupAlreadyExistsException, UserGroupAlreadyExistsException
+    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException
 
 
 class DynamoDbTestCase(TestCase):
@@ -515,7 +515,7 @@ class TestPropertyRepo(DynamoDbTestCase):
         "AWS_ACCESS_KEY_ID": "test",
         "AWS_SECRET_ACCESS_KEY": "test"
     }, clear=True)
-    def test_get_group_properties(self):
+    def test_delete_property(self):
         # arrange
         self._set_up_table()
         object_mapper = ObjectMapper()
@@ -540,3 +540,25 @@ class TestPropertyRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert property is not found"):
             self.assertEqual(len(items), 0)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_delete_property_when_not_found(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbPropertyRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                   object_mapper=object_mapper,
+                                   object_hasher=object_hasher)
+
+        # act
+        sut_call = lambda: sut.delete(group_id=str(uuid.uuid4()), property_id=str(uuid.uuid4()))
+
+        # assert
+        with self.subTest(msg="assert property is not found"):
+            with self.assertRaises(expected_exception=PropertyNotFoundException):
+                sut_call()

@@ -30,7 +30,7 @@ class DynamoDbPropertyRepo:
         self.__dynamo_wrapper.delete_item(key={
             "id": f"property:{property_id}",
             "partition_key": f"group:{group_id}"
-        })
+        }, condition_expression=Attr('etag').exists())
 
     @staticmethod
     def __partition_key_gen(property: Property, group: GroupId) -> None:
