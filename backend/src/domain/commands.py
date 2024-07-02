@@ -16,7 +16,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
-    GetGroupCodeResponse, SingleGroupPropertiesResponse
+    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
@@ -192,12 +192,12 @@ class CreatePropertyCommand:
         group = context.get_var(name=GROUP, _type=Group)
         user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
         property_request = context.get_var(name=CREATE_PROPERTY_REQUEST, _type=CreatePropertyRequest)
-        group.properties.append(Property(url=property_request.url,
-                                         title=property_request.title,
-                                         price=property_request.price,
-                                         full_name=user_groups.name))
-        self.__sqs_message_publisher.send_sqs_message(message_group_id=group.id, payload=group)
-        context.response = SingleGroupResponse(group=group)
+        property = Property(url=property_request.url,
+                            title=property_request.title,
+                            price=property_request.price,
+                            full_name=user_groups.name)
+        self.__property_repo.create(group_id=group.id, property=property)
+        context.response = PropertyCreatedResponse(property=property)
 
 
 class ValidatePropertyRequestCommand:
