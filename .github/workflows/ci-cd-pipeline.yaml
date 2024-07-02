@@ -83,8 +83,6 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-test.txt
           python -m unittest
-        env:
-          AWS_DEFAULT_REGION: "eu-west-2"
       - name: setup aws cli
         uses: aws-actions/configure-aws-credentials@v1
         with:

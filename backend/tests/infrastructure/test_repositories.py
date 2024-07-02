@@ -22,7 +22,7 @@ class DynamoDbTestCase(TestCase):
 
     def _set_up_table(self):
         table_name = 'flatini-test'
-        self.__dynamo = boto3.resource('dynamodb')
+        self.__dynamo = boto3.resource('dynamodb', region_name="eu-west-2")
         self._dynamo_client_wrapper = DynamoDbWrapper(dynamo_client=self.__dynamo, tablename=table_name)
         self.__dynamo.create_table(TableName=table_name,
                                    KeySchema=[
