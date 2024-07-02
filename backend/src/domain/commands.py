@@ -15,7 +15,8 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error
-from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
+    GetGroupCodeResponse, SingleGroupPropertiesResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 
@@ -160,7 +161,7 @@ class FetchGroupByIdCommand:
         try:
             group = self.__group_repo.get(_id=group_id)
             context.set_var(GROUP, group)
-            context.response = SingleGroupResponse(group=group)
+            context.response = SingleGroupPropertiesResponse(group_properties=group)
         except GroupNotFoundException:
             context.error_capsules.append(GroupNotFoundError(message=f"group {group_id} not found"))
 
