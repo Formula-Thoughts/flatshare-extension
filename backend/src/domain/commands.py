@@ -78,7 +78,7 @@ class FetchUserGroupsCommand:
             groups = []
             for group_id in user_groups.groups:
                 groups.append(self.__group_repo.get(_id=group_id))
-            context.response = ListUserGroupsResponse(groups=groups)
+            context.response = ListUserGroupsResponse(group_properties_list=groups)
             context.set_var(USER_GROUPS, groups)
         except UserGroupsNotFoundException:
             context.error_capsules.append(

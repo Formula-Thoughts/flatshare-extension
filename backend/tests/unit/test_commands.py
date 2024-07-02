@@ -28,7 +28,8 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error
-from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, GetGroupCodeResponse
+from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
+    GetGroupCodeResponse, SingleGroupPropertiesResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -275,7 +276,7 @@ class TestFetchUserGroupsCommand(TestCase):
 
         # assert
         with self.subTest("assert response is set to groups"):
-            self.assertEqual(context.response, ListUserGroupsResponse(groups=groups))
+            self.assertEqual(context.response, ListUserGroupsResponse(group_properties_list=groups))
 
         # assert
         with self.subTest("assert groups is set as context var"):
@@ -438,7 +439,7 @@ class TestFetchGroupByIdCommand(TestCase):
 
     def test_run(self):
         # arrange
-        group = AutoFixture().create(dto=Group)
+        group = AutoFixture().create(dto=GroupProperties)
         group_id = "1234"
         context = ApplicationContext(variables={GROUP_ID: group_id})
         self.__group_repo.get = MagicMock(return_value=group)
@@ -460,7 +461,7 @@ class TestFetchGroupByIdCommand(TestCase):
 
         # assert
         with self.subTest(msg="group was set as response"):
-            self.assertEqual(context.response, SingleGroupResponse(group=group))
+            self.assertEqual(context.response, SingleGroupPropertiesResponse(group_properties=group))
 
     def test_run_if_group_not_found(self):
         # arrange
