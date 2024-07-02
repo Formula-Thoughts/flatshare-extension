@@ -271,7 +271,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /groups/{group_id}/flats
+            Path: /groups/{group_id}/properties
             Method: post
             ApiId: !Ref FlatiniHttpApi
         AddUserToGroup:
@@ -287,7 +287,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /groups/{group_id}/flats/{flat_id}
+            Path: /groups/{group_id}/properties/{flat_id}
             Method: delete
             ApiId: !Ref FlatiniHttpApi
       Role: !GetAtt FlatiniAppRole.Arn
