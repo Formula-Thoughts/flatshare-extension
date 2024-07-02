@@ -30,7 +30,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     property_price_required_error, property_url_required_error, property_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
-from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 USER_POOL = "test_user_pool"
@@ -1007,14 +1007,11 @@ class TestDeletePropertyCommand(TestCase):
             GROUP: group,
             PROPERTY_ID: property_id
         })
-        self.__property_repo.delete = MagicMock()
+        self.__property_repo.delete = Mock()
+        self.__property_repo.delete.side_effect = [PropertyNotFoundException()]
 
         # act
         self.__sut.run(context=context)
-
-        # assert
-        with self.subTest(msg="property was deleted once"):
-            self.__property_repo.delete.assert_not_called()
 
         # assert
         with self.subTest(msg="property not found error was added"):

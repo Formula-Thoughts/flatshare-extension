@@ -17,7 +17,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     property_price_required_error, property_url_required_error, property_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
-from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
 
 
 class SetGroupRequestCommand:
@@ -223,15 +223,12 @@ class DeletePropertyCommand:
         self.__property_repo = property_repo
 
     def run(self, context: ApplicationContext):
-        property_id = context.get_var(name=PROPERTY_ID, _type=str)
-        group = context.get_var(name=GROUP, _type=Group)
-
-        if property_id not in map(lambda x: x.id, group.properties):
-            context.error_capsules.append(PropertyNotFoundError(message=f"property {property_id} not found"))
-            return
-
-        group.properties = list(filter(lambda x: x.id != property_id, group.properties))
-        context.response = SingleGroupResponse(group=group)
+        try:
+            property_id = context.get_var(name=PROPERTY_ID, _type=str)
+            group = context.get_var(name=GROUP, _type=Group)
+            self.__property_repo.delete(group_id=group.id, property_id=property_id)
+        except PropertyNotFoundException:
+            context.error_capsules.append(PropertyNotFoundError())
 
 
 class AddCurrentUserToGroupCommand:
