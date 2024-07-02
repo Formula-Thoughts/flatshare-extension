@@ -76,6 +76,7 @@ class GetUserGroupByIdSequenceBuilder(FluentSequenceBuilder):
         self.__validate_if_group_belongs_to_user = validate_if_group_belongs_to_user
         self.__validate_if_user_belongs_to_at_least_one_group_command = validate_if_user_belongs_to_at_least_one_group_command
 
+
     def build(self):
         self._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command)\
             ._add_command(command=self.__validate_if_group_belongs_to_user)\
