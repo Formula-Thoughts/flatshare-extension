@@ -5,7 +5,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId
 from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
-    GroupAlreadyExistsException, UserGroupAlreadyExistsException
+    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException
 
 
 class DynamoDbPropertyRepo:
@@ -27,10 +27,15 @@ class DynamoDbPropertyRepo:
         property.id = property.id.split(":")[1]
 
     def delete(self, group_id: GroupId, property_id: PropertyId) -> None:
-        self.__dynamo_wrapper.delete_item(key={
-            "id": f"property:{property_id}",
-            "partition_key": f"group:{group_id}"
-        }, condition_expression=Attr('etag').exists())
+        try:
+            self.__dynamo_wrapper.delete_item(key={
+                "id": f"property:{property_id}",
+                "partition_key": f"group:{group_id}"
+            }, condition_expression=Attr('etag').exists())
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == CONDITIONAL_CHECK_FAILED:
+                raise PropertyNotFoundException()
 
     @staticmethod
     def __partition_key_gen(property: Property, group: GroupId) -> None:
