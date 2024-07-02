@@ -13,7 +13,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
-    Property, GroupProperties
+    Property, GroupProperties, IPropertyRepo
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM
@@ -29,7 +29,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
-    GetGroupCodeResponse, SingleGroupPropertiesResponse
+    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -502,8 +502,8 @@ class TestSetPropertyRequestCommand(TestCase):
 class TestCreatePropertyCommand(TestCase):
 
     def setUp(self):
-        self.__sqs_message_publisher: SQSEventPublisher = Mock()
-        self.__sut = CreatePropertyCommand(sqs_message_publisher=self.__sqs_message_publisher)
+        self.__property_repo: IPropertyRepo = Mock()
+        self.__sut = CreatePropertyCommand(property_repo=self.__property_repo)
 
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
     def test_run(self, _):
@@ -511,43 +511,31 @@ class TestCreatePropertyCommand(TestCase):
         group = AutoFixture().create(dto=Group)
         user_groups = AutoFixture().create(dto=UserGroups)
         property = AutoFixture().create(dto=CreatePropertyRequest)
-        properties = AutoFixture().create_many(dto=Property, ammount=3)
-        group.properties = properties
         context = ApplicationContext(variables={
             CREATE_PROPERTY_REQUEST: property,
             GROUP: group,
             USER_GROUPS: user_groups
         })
-        self.__sqs_message_publisher.send_sqs_message = MagicMock()
+        expected_property = Property(url=property.url,
+                                     title=property.title,
+                                     price=property.price,
+                                     full_name=user_groups.name)
+        self.__property_repo.create = MagicMock()
 
         # act
         self.__sut.run(context=context)
-        captor = Captor()
 
         # assert
-        with self.subTest(msg="sqs bus is called once"):
-            self.__sqs_message_publisher.send_sqs_message.assert_called_once()
+        with self.subTest(msg="property is created once"):
+            self.__property_repo.create.assert_called_once()
 
         # assert
-        with self.subTest(msg="sqs bus is called with valid params"):
-            self.__sqs_message_publisher.send_sqs_message.assert_called_with(message_group_id=group.id, payload=captor)
+        with self.subTest(msg="property is created with correct property"):
+            self.__property_repo.create.assert_called_with(group_id=group.id, property=expected_property)
 
         # assert
         with self.subTest(msg="response is set to updated group"):
-            self.assertEqual(context.response, SingleGroupResponse(group=group))
-
-        # assert
-        with self.subTest(msg="correct number of properties are sent"):
-            self.assertEqual(len(captor.arg.properties), 4)
-
-        # assert
-        with self.subTest(msg="correct property params are set"):
-            self.assertEqual(captor.arg.properties[-1], Property(id=UUID_EXAMPLE,
-                                                                 url=property.url,
-                                                                 price=property.price,
-                                                                 title=property.title,
-                                                                 full_name=user_groups.name))
-
+            self.assertEqual(context.response, PropertyCreatedResponse(property=expected_property))
 
 @ddt
 class TestValidatePropertyRequestCommand(TestCase):

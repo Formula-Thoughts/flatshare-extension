@@ -7,7 +7,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
-    Property, GroupProperties
+    Property, GroupProperties, IPropertyRepo
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM
@@ -185,8 +185,8 @@ class SetPropertyRequestCommand:
 
 class CreatePropertyCommand:
 
-    def __init__(self, sqs_message_publisher: SQSEventPublisher):
-        self.__sqs_message_publisher = sqs_message_publisher
+    def __init__(self, property_repo: IPropertyRepo):
+        self.__property_repo = property_repo
 
     def run(self, context: ApplicationContext):
         group = context.get_var(name=GROUP, _type=Group)

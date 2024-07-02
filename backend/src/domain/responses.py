@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core import Group, GroupProperties
+from src.core import Group, GroupProperties, Property
 
 
 @dataclass(unsafe_hash=True)
@@ -16,6 +16,11 @@ class CreatedGroupResponse:
 @dataclass(unsafe_hash=True)
 class SingleGroupResponse:
     group: Group = None
+
+
+@dataclass(unsafe_hash=True)
+class PropertyCreatedResponse:
+    property: Property = None
     
     
 @dataclass(unsafe_hash=True)
