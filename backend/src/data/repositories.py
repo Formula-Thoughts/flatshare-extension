@@ -27,7 +27,10 @@ class DynamoDbPropertyRepo:
         property.id = property.id.split(":")[1]
 
     def delete(self, group_id: GroupId, property_id: PropertyId) -> None:
-        ...
+        self.__dynamo_wrapper.delete_item(key={
+            "id": f"property:{property_id}",
+            "partition_key": f"group:{group_id}"
+        })
 
     @staticmethod
     def __partition_key_gen(property: Property, group: GroupId) -> None:
