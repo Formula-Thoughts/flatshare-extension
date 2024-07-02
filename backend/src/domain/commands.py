@@ -219,8 +219,8 @@ class ValidatePropertyRequestCommand:
 
 class DeletePropertyCommand:
 
-    def __init__(self, sqs_event_publisher: SQSEventPublisher):
-        self.__sqs_event_publisher = sqs_event_publisher
+    def __init__(self, property_repo: IPropertyRepo):
+        self.__property_repo = property_repo
 
     def run(self, context: ApplicationContext):
         property_id = context.get_var(name=PROPERTY_ID, _type=str)
@@ -231,7 +231,6 @@ class DeletePropertyCommand:
             return
 
         group.properties = list(filter(lambda x: x.id != property_id, group.properties))
-        self.__sqs_event_publisher.send_sqs_message(message_group_id=group.id, payload=group)
         context.response = SingleGroupResponse(group=group)
 
 

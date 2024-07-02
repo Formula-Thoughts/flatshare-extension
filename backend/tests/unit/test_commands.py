@@ -16,7 +16,7 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
     Property, GroupProperties, IPropertyRepo
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM
+    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     UpdateGroupAsyncCommand, UpsertGroupBackgroundCommand, UpsertUserGroupsBackgroundCommand, \
     CreateUserGroupsAsyncCommand, FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
@@ -583,13 +583,6 @@ class TestValidatePropertyRequestCommand(TestCase):
             self.assertEqual(context.error_capsules[0], error)
 
 
-class TestDeletePropertyCommand(TestCase):
-
-    def setUp(self):
-        self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = DeletePropertyCommand(sqs_event_publisher=self.__sqs_event_publisher)
-
-
 class TestAddCurrentUserToGroupCommand(TestCase):
 
     def setUp(self):
@@ -973,3 +966,56 @@ class TestUpdateGroupCommand(TestCase):
         # assert
         with self.subTest(msg="group response is set"):
             self.assertEqual(context.response, SingleGroupResponse(group=expected_group_from_update))
+
+
+class TestDeletePropertyCommand(TestCase):
+
+    def setUp(self):
+        self.__property_repo: IPropertyRepo = Mock()
+        self.__sut = DeletePropertyCommand(property_repo=self.__property_repo)
+
+    def test_run(self):
+        # arrange
+        property_id = str(uuid.uuid4())
+        group = AutoFixture().create(dto=Group)
+        context = ApplicationContext(variables={
+            GROUP: group,
+            "property_id": property_id
+        })
+        self.__property_repo.delete = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="property was deleted once"):
+            self.__property_repo.delete.assert_called_once()
+
+        # assert
+        with self.subTest(msg="property was deleted with correct property"):
+            self.__property_repo.delete.assert_called_with(group_id=group.id, property_id=property_id)
+
+        # assert
+        with self.subTest(msg="response is set to empty"):
+            self.assertEqual(context.response, None)
+
+    def test_run_when_property_is_not_found(self):
+        # arrange
+        property_id = str(uuid.uuid4())
+        group = AutoFixture().create(dto=Group)
+        context = ApplicationContext(variables={
+            GROUP: group,
+            PROPERTY_ID: property_id
+        })
+        self.__property_repo.delete = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="property was deleted once"):
+            self.__property_repo.delete.assert_not_called()
+
+        # assert
+        with self.subTest(msg="property not found error was added"):
+            self.assertEqual(context.error_capsules[0], PropertyNotFoundError())
