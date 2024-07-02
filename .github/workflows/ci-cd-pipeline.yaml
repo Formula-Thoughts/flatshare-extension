@@ -5,20 +5,21 @@ on:
     branches: [main, prod-ready]
 jobs:
   # Determines the environment to deploy the backend to
-  set-env:
+  setenv:
     runs-on: ubuntu-latest
     outputs:
-      env: ${{ steps.setvars.outputs.env }}
+      env: ${{ steps.setenvstep.outputs.env }}
     # Deploys to staging/prod environment depending on branch name
     steps:
       - name: determine env
+        id: setenvstep
         run: |
           if [[ "${{github.base_ref}}" == "main" || "${{github.ref}}" == "refs/heads/main" ]]; then
-            echo "::set-output name=env::staging"
+            echo "env=staging" >> "$GITHUB_OUTPUT"
           fi
           
           if [[ "${{github.base_ref}}" == "prod-ready" || "${{github.ref}}" == "refs/heads/prod-ready" ]]; then
-            echo "::set-output name=env::prod"
+            echo "env=prod" >> "$GITHUB_OUTPUT"
           fi
   # Change detection for filtering jobs
   changes:
@@ -66,7 +67,7 @@ jobs:
       - run: aws cloudfront create-invalidation --distribution-id ${{secrets.DISTRIBUTION_ID}} --paths "/*"
 
   backend:
-    needs: changes
+    needs: [changes, setenv]
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -92,4 +93,4 @@ jobs:
       - name: build and deploy to aws
         run: |
           cd backend && sh clean_build.sh
-          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{needs.init.outputs.name}} --s3-bucket flatini-api-${{needs.init.outputs.name}}-s3 --s3-prefix flatini --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
+          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{needs.setenv.outputs.env}} --s3-bucket flatini-api-${{needs.setenv.outputs.env}}-s3 --s3-prefix flatini --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
