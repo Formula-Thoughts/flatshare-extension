@@ -71,3 +71,6 @@ class DynamoDbWrapper:
         return self.__table.query(KeyConditionExpression=key_condition_expression,
                                   FilterExpression=filter_expression,
                                   ExpressionAttributeValues=expression_attribute_values)
+
+    def delete_item(self, key: dict):
+        self.__table.delete_item(Key=key)

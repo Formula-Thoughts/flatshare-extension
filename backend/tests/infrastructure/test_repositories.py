@@ -506,3 +506,37 @@ class TestGroupRepo(DynamoDbTestCase):
         with self.subTest(msg="assert conflict is raised"):
             with self.assertRaises(expected_exception=ConflictException):
                 sut_call()
+
+
+class TestPropertyRepo(DynamoDbTestCase):
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_get_group_properties(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbPropertyRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                   object_mapper=object_mapper,
+                                   object_hasher=object_hasher)
+        property = AutoFixture().create(dto=Property)
+        group_id = str(uuid.uuid4())
+        sut.create(group_id=group_id, property=property)
+
+        # act
+        sut.delete(group_id=group_id, property_id=property.id)
+
+        items = self._dynamo_client_wrapper.query(
+            key_condition_expression="partition_key = :partition_key and id = :id",
+            expression_attribute_values={
+                ":id": f"property:{property.id}",
+                ":partition_key": f"group:{group_id}"
+            })["Items"]
+
+        # assert
+        with self.subTest(msg="assert property is not found"):
+            self.assertEqual(len(items), 0)

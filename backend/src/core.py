@@ -16,6 +16,7 @@ def uuid4_str():
 GroupParticipantName = str
 GroupId = str
 UserId = str
+PropertyId = str
 
 
 @dataclass(unsafe_hash=True)
@@ -82,6 +83,9 @@ class IGroupRepo(Protocol):
 
 class IPropertyRepo(Protocol):
     def create(self, group_id: GroupId, property: Property) -> None:
+        ...
+
+    def delete(self, group_id: GroupId, property_id: PropertyId) -> None:
         ...
 
 

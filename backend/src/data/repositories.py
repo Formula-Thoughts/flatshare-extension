@@ -2,7 +2,7 @@ from boto3.dynamodb.conditions import Attr, Key, ConditionExpressionBuilder, Or
 from botocore.exceptions import ClientError
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties
+from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId
 from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException
@@ -25,6 +25,9 @@ class DynamoDbPropertyRepo:
         self.__dynamo_wrapper.put(item=prop_dict,
                                   condition_expression=Attr('etag').not_exists())
         property.id = property.id.split(":")[1]
+
+    def delete(self, group_id: GroupId, property_id: PropertyId) -> None:
+        ...
 
     @staticmethod
     def __partition_key_gen(property: Property, group: GroupId) -> None:
