@@ -156,6 +156,7 @@ class FetchGroupByIdCommand:
     def __init__(self, group_repo: IGroupRepo):
         self.__group_repo = group_repo
 
+
     def run(self, context: ApplicationContext):
         group_id = context.get_var(name=GROUP_ID, _type=str)
         try:
