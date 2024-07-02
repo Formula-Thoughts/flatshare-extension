@@ -9,6 +9,7 @@ on:
         options:
         - staging
         - prod
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -23,6 +24,6 @@ jobs:
           aws-region: eu-west-2
       - name: build and deploy to aws
         run: |
-          echo "deploying to ${{ github.event.inputs.env }} environment"
+          echo "deploying to ${{ github.event.inputs.name }} environment"
           cd backend && sh clean_build.sh
-          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{ github.event.inputs.env }} --s3-bucket flatini-api-staging-s3 --s3-prefix flatini --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
+          sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{ github.event.inputs.name }} --s3-bucket flatini-api-staging-s3 --s3-prefix flatini --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
