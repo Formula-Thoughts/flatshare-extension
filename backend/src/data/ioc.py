@@ -13,7 +13,8 @@ dynamo = boto3.resource('dynamodb')
 
 def register_data_dependencies(container: Container):
     (container.register_factory(service=CognitoClientWrapper, factory=lambda: CognitoClientWrapper(client=cognito))
-     .register_factory(service=DynamoDbWrapper, factory=lambda: DynamoDbWrapper(tablename=os.environ['DYNAMODB_TABLE'], dynamo_client=dynamo))
+     .register_factory(service=DynamoDbWrapper,
+                       factory=lambda: DynamoDbWrapper(tablename=os.environ['DYNAMODB_TABLE'], dynamo_client=dynamo))
      .register(service=ObjectHasher)
      .register(service=IUserGroupsRepo, implementation=DynamoDbUserGroupsRepo)
      .register(service=IGroupRepo, implementation=DynamoDbGroupRepo)

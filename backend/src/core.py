@@ -108,31 +108,11 @@ class IValidateGroupCommand(Command, Protocol):
     pass
 
 
-class IUpdateGroupAsyncCommand(Command, Protocol):
-    pass
-
-
-class ICreateGroupAsyncCommand(Command, Protocol):
-    pass
-
-
 class ICreateGroupCommand(Command, Protocol):
     pass
 
 
-class ICreateUserGroupsAsyncCommand(Command, Protocol):
-    pass
-
-
 class ICreateUserGroupsCommand(Command, Protocol):
-    pass
-
-
-class IUpsertGroupBackgroundCommand(Command, Protocol):
-    pass
-
-
-class IUpsertUserGroupsBackgroundCommand(Command, Protocol):
     pass
 
 
@@ -221,14 +201,6 @@ class IDeletePropertySequenceBuilder(SequenceBuilder, Protocol):
 
 
 class IAddUserToGroupSequenceBuilder(SequenceBuilder, Protocol):
-    pass
-
-
-class IUpsertGroupBackgroundSequenceBuilder(SequenceBuilder, Protocol):
-    pass
-
-
-class IUpsertUserGroupsBackgroundSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
 

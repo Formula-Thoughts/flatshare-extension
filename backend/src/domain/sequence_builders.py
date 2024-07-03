@@ -1,13 +1,11 @@
 from formula_thoughts_web.application import FluentSequenceBuilder
 
-from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGroupAsyncCommand, \
-    IUpsertGroupBackgroundCommand, ICreateUserGroupsAsyncCommand, IUpsertUserGroupsBackgroundCommand, \
+from src.core import ISetGroupRequestCommand, IValidateGroupCommand, \
     IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOneGroupCommand, IValidateIfGroupBelongsToUserCommand, \
     IFetchGroupByIdCommand, IGetUserGroupByIdSequenceBuilder, ISetPropertyRequestCommand, ICreatePropertyCommand, \
-    IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddUserToGroupSequenceBuilder, \
-    IAddCurrentUserToGroupCommand, \
+    IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddCurrentUserToGroupCommand, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
-    ICreateGroupAsyncCommand, IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, \
+    IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, \
     ICreateGroupCommand, ICreateUserGroupsCommand, IUpdateGroupCommand
 
 
@@ -28,32 +26,12 @@ class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        self._add_command(command=self.__set_group_request)\
-            ._add_command(command=self.__validate_group)\
-            ._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command)\
-            ._add_command(command=self.__validate_if_group_belongs_to_user)\
-            ._add_command(command=self.__fetch_group_by_id)\
+        self._add_command(command=self.__set_group_request) \
+            ._add_command(command=self.__validate_group) \
+            ._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command) \
+            ._add_command(command=self.__validate_if_group_belongs_to_user) \
+            ._add_command(command=self.__fetch_group_by_id) \
             ._add_command(command=self.__update_group)
-
-
-class UpsertGroupBackgroundSequenceBuilder(FluentSequenceBuilder):
-
-    def __init__(self, upsert_background_command: IUpsertGroupBackgroundCommand):
-        self.__upsert_background_command = upsert_background_command
-        super().__init__()
-
-    def build(self):
-        self._add_command(command=self.__upsert_background_command)
-
-
-class UpsertUserGroupsBackgroundSequenceBuilder(FluentSequenceBuilder):
-
-    def __init__(self, upsert_background_command: IUpsertUserGroupsBackgroundCommand):
-        self.__upsert_background_command = upsert_background_command
-        super().__init__()
-
-    def build(self):
-        self._add_command(command=self.__upsert_background_command)
 
 
 class FetchUserGroupsSequenceBuilder(FluentSequenceBuilder):
@@ -68,7 +46,8 @@ class FetchUserGroupsSequenceBuilder(FluentSequenceBuilder):
 
 class GetUserGroupByIdSequenceBuilder(FluentSequenceBuilder):
 
-    def __init__(self, validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
+    def __init__(self,
+                 validate_if_user_belongs_to_at_least_one_group_command: IValidateIfUserBelongsToAtLeastOneGroupCommand,
                  validate_if_group_belongs_to_user: IValidateIfGroupBelongsToUserCommand,
                  fetch_group_by_id_command: IFetchGroupByIdCommand):
         super().__init__()
@@ -76,10 +55,9 @@ class GetUserGroupByIdSequenceBuilder(FluentSequenceBuilder):
         self.__validate_if_group_belongs_to_user = validate_if_group_belongs_to_user
         self.__validate_if_user_belongs_to_at_least_one_group_command = validate_if_user_belongs_to_at_least_one_group_command
 
-
     def build(self):
-        self._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command)\
-            ._add_command(command=self.__validate_if_group_belongs_to_user)\
+        self._add_command(command=self.__validate_if_user_belongs_to_at_least_one_group_command) \
+            ._add_command(command=self.__validate_if_group_belongs_to_user) \
             ._add_command(command=self.__fetch_group_by_id_command)
 
 
@@ -97,9 +75,9 @@ class CreatePropertySequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        self._add_command(self.__set_create_property_request)\
-            ._add_sequence_builder(self.__get_user_group_by_id)\
-            ._add_command(self.__validate_property)\
+        self._add_command(self.__set_create_property_request) \
+            ._add_sequence_builder(self.__get_user_group_by_id) \
+            ._add_command(self.__validate_property) \
             ._add_command(self.__create_property)
 
 
@@ -113,7 +91,7 @@ class DeletePropertySequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        self._add_sequence_builder(sequence_builder=self.__get_user_group_by_id)\
+        self._add_sequence_builder(sequence_builder=self.__get_user_group_by_id) \
             ._add_command(command=self.__delete_property)
 
 
@@ -135,11 +113,11 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
         super().__init__()
 
     def build(self):
-        self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists)\
-            ._add_command(command=self.__set_group_id_from_code)\
-            ._add_command(command=self.__get_group_by_id)\
-            ._add_command(command=self.__validate_user_is_not_participant)\
-            ._add_command(command=self.__add_current_user_to_group_command)\
+        self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists) \
+            ._add_command(command=self.__set_group_id_from_code) \
+            ._add_command(command=self.__get_group_by_id) \
+            ._add_command(command=self.__validate_user_is_not_participant) \
+            ._add_command(command=self.__add_current_user_to_group_command) \
             ._add_command(command=self.__create_user_groups)
 
 
@@ -152,7 +130,7 @@ class GetCodeForGroupSequenceBuilder(FluentSequenceBuilder):
         self.__get_code_from_group_id = get_code_from_group_id
 
     def build(self):
-        self._add_sequence_builder(sequence_builder=self.__get_group_by_id_sequence)\
+        self._add_sequence_builder(sequence_builder=self.__get_group_by_id_sequence) \
             ._add_command(command=self.__get_code_from_group_id)
 
 
@@ -167,8 +145,8 @@ class CreateGroupSequenceBuilder(FluentSequenceBuilder):
         self.__create_user_groups = create_user_groups
 
     def build(self):
-        self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists)\
-            ._add_command(command=self.__create_group)\
+        self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists) \
+            ._add_command(command=self.__create_group) \
             ._add_command(command=self.__create_user_groups)
 
 
@@ -181,5 +159,5 @@ class FetchUserGroupIfExistsSequenceBuilder(FluentSequenceBuilder):
         self.__validate_user_belongs_to_at_least_one_group = validate_user_belongs_to_at_least_one_group
 
     def build(self):
-        self._add_command(command=self.__validate_user_belongs_to_at_least_one_group)\
+        self._add_command(command=self.__validate_user_belongs_to_at_least_one_group) \
             ._add_command(command=self.__fetch_auth_claims_if_user_has_no_group)

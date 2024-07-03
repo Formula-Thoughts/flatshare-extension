@@ -1,4 +1,4 @@
-from boto3.dynamodb.conditions import Attr, Key, ConditionExpressionBuilder, Or
+from boto3.dynamodb.conditions import Attr
 from botocore.exceptions import ClientError
 from formula_thoughts_web.crosscutting import ObjectMapper
 
@@ -80,8 +80,9 @@ class DynamoDbGroupRepo:
             prev_etag = group.etag
             self.__id_setter(group=group, group_id=group_id)
             group.etag = self.__object_hasher.hash(object=group)
-            self.__dynamo_wrapper.put(item=self.__object_mapper.map_to_dict(_from=group, to=Group, preserve_decimal=True),
-                                      condition_expression=Attr('etag').eq(prev_etag))
+            self.__dynamo_wrapper.put(
+                item=self.__object_mapper.map_to_dict(_from=group, to=Group, preserve_decimal=True),
+                condition_expression=Attr('etag').eq(prev_etag))
             group.id = group_id
         except ClientError as e:
             code = e.response['Error']['Code']
@@ -204,7 +205,6 @@ class DynamoDbUserGroupsRepo:
                 raise ConflictException()
             else:
                 raise DataException(f"dynamo error: {e.response['Error']['Code']}")
-
 
     @staticmethod
     def __partition_key_gen(user_groups: UserGroups):

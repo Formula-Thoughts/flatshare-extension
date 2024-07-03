@@ -24,7 +24,8 @@ class ObjectHasher:
 
     def hash(self, object) -> str:
         dhash = hashlib.md5()
-        json = self.__serializer.serialize(data=self.__object_mapper.map_to_dict(_from=object, to=type(object), preserve_decimal=True))
+        json = self.__serializer.serialize(
+            data=self.__object_mapper.map_to_dict(_from=object, to=type(object), preserve_decimal=True))
         encoded = json.encode()
         dhash.update(encoded)
         return dhash.hexdigest()

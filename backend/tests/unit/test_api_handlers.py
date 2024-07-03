@@ -45,9 +45,9 @@ class TestCreatePropertyApiHandler(TestCase):
     def test_route_key_matches_expected(self):
         # arrange
         sut = CreatePropertyApiHandler(sequence=Mock(),
-                                   command_pipeline=Mock(),
-                                   deserializer=Mock(),
-                                   logger=Mock())
+                                       command_pipeline=Mock(),
+                                       deserializer=Mock(),
+                                       logger=Mock())
 
         # act
         route_key = sut.route_key
@@ -62,9 +62,9 @@ class TestDeletePropertyApiHandler(TestCase):
     def test_route_key_matches_expected(self):
         # arrange
         sut = DeletePropertyApiHandler(sequence=Mock(),
-                                   command_pipeline=Mock(),
-                                   deserializer=Mock(),
-                                   logger=Mock())
+                                       command_pipeline=Mock(),
+                                       deserializer=Mock(),
+                                       logger=Mock())
 
         # act
         route_key = sut.route_key

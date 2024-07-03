@@ -21,8 +21,8 @@ class SingleGroupResponse:
 @dataclass(unsafe_hash=True)
 class PropertyCreatedResponse:
     property: Property = None
-    
-    
+
+
 @dataclass(unsafe_hash=True)
 class SingleGroupPropertiesResponse:
     group_properties: GroupProperties = None

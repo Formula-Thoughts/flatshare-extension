@@ -4,7 +4,6 @@ import uuid
 
 from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
-from formula_thoughts_web.events import SQSEventPublisher, EVENT
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
     Property, GroupProperties, IPropertyRepo
@@ -50,22 +49,6 @@ class ValidateGroupCommand:
             context.error_capsules.append(invalid_price_error)
 
 
-class UpdateGroupAsyncCommand:
-
-    def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
-        self.__sqs_event_publisher = sqs_event_publisher
-
-    def run(self, context: ApplicationContext) -> None:
-        group_request = context.get_var(UPSERT_GROUP_REQUEST, UpsertGroupRequest)
-        group_from_store = context.get_var(GROUP, Group)
-        group = Group(id=group_from_store.id,
-                      participants=group_from_store.participants,
-                      price_limit=group_request.price_limit,
-                      locations=group_request.locations)
-        context.response = SingleGroupResponse(group=group)
-        self.__sqs_event_publisher.send_sqs_message(message_group_id=group_from_store.id, payload=group)
-
-
 class FetchUserGroupsCommand:
 
     def __init__(self, group_repo: IGroupRepo,
@@ -98,44 +81,6 @@ class ValidateIfUserBelongsToAtLeastOneGroupCommand:
             context.set_var(USER_GROUPS, user_groups)
         except UserGroupsNotFoundException:
             context.set_var(USER_BELONGS_TO_AT_LEAST_ONE_GROUP, False)
-
-
-class CreateUserGroupsAsyncCommand:
-
-    def __init__(self, sqs_event_publisher: SQSEventPublisher) -> None:
-        self.__sqs_event_publisher = sqs_event_publisher
-
-    def run(self, context: ApplicationContext) -> None:
-        check_if_user_group_exists = context.get_var(name=USER_BELONGS_TO_AT_LEAST_ONE_GROUP, _type=bool)
-        user_groups = UserGroups(id=context.auth_user_id,
-                                 groups=[context.get_var(GROUP_ID, str)])
-        if check_if_user_group_exists:
-            current_user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
-            user_groups.groups = current_user_groups.groups + user_groups.groups
-            user_groups.name = current_user_groups.name
-        else:
-            user_groups.name = context.get_var(name=FULLNAME_CLAIM, _type=str)
-            context.set_var(name=USER_GROUPS, value=user_groups)
-        self.__sqs_event_publisher.send_sqs_message(message_group_id=context.auth_user_id,
-                                                    payload=user_groups)
-
-
-class UpsertGroupBackgroundCommand:
-
-    def __init__(self, group_repo: IGroupRepo):
-        self.__group_repo = group_repo
-
-    def run(self, context: ApplicationContext) -> None:
-        self.__group_repo.create(group=context.get_var(EVENT, Group))
-
-
-class UpsertUserGroupsBackgroundCommand:
-
-    def __init__(self, user_groups_repo: IUserGroupsRepo):
-        self.__user_groups_repo = user_groups_repo
-
-    def run(self, context: ApplicationContext) -> None:
-        self.__user_groups_repo.create(user_groups=context.get_var(EVENT, UserGroups))
 
 
 class ValidateIfGroupBelongsToUserCommand:
@@ -277,21 +222,6 @@ class ValidateUserIsNotParticipantCommand:
         if fullname in group.participants:
             context.error_capsules.append(user_already_part_of_group_error)
             return
-
-
-class CreateGroupAsyncCommand:
-
-    def __init__(self, sqs_publisher: SQSEventPublisher):
-        self.__sqs_publisher = sqs_publisher
-
-    def run(self, context: ApplicationContext):
-        group_id = str(uuid.uuid4())
-        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
-        group = Group(id=group_id,
-                      participants=[fullname])
-        context.response = CreatedGroupResponse(group=group)
-        context.set_var(name=GROUP_ID, value=group_id)
-        self.__sqs_publisher.send_sqs_message(message_group_id=group_id, payload=group)
 
 
 class CreateGroupCommand:
