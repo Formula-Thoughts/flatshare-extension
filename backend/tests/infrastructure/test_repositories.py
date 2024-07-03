@@ -13,7 +13,7 @@ from moto import mock_aws
 from src.core import Group, UserGroups, Property, GroupProperties
 from src.data import DynamoDbWrapper, ObjectHasher
 from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
-    DynamoDbPropertyRepo
+    DynamoDbPropertyRepo, DynamoDbRedFlagRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException
 
@@ -562,3 +562,18 @@ class TestPropertyRepo(DynamoDbTestCase):
         with self.subTest(msg="assert property is not found"):
             with self.assertRaises(expected_exception=PropertyNotFoundException):
                 sut_call()
+
+
+class TestRedFlagsRepo(DynamoDbTestCase):
+
+    def test_create(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
+
+        # act
+
