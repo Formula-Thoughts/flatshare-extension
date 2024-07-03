@@ -125,7 +125,7 @@ class AddUserToGroupSequenceBuilder(FluentSequenceBuilder):
                  get_group_by_id: IFetchGroupByIdCommand,
                  validate_user_is_not_participant: IValidateUserIsNotParticipantCommand,
                  add_current_user_to_group_command: IAddCurrentUserToGroupCommand,
-                 create_user_groups: ICreateUserGroupsAsyncCommand):
+                 create_user_groups: ICreateUserGroupsCommand):
         self.__fetch_user_group_if_exists = fetch_user_group_if_exists
         self.__create_user_groups = create_user_groups
         self.__validate_user_is_not_participant = validate_user_is_not_participant

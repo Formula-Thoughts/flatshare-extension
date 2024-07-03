@@ -161,7 +161,7 @@ class TestAddUserToGroupSequenceBuilder(TestCase):
         self.__get_group_by_id: IFetchGroupByIdCommand = Mock()
         self.__add_current_user_to_group_command: IAddCurrentUserToGroupCommand = Mock()
         self.__validate_user_is_not_participant: IValidateUserIsNotParticipantCommand = Mock()
-        self.__create_user_groups: ICreateUserGroupsAsyncCommand = Mock()
+        self.__create_user_groups: ICreateUserGroupsCommand = Mock()
         self.__fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder = Mock()
         self.__sut = AddUserToGroupSequenceBuilder(get_group_by_id=self.__get_group_by_id,
                                                    add_current_user_to_group_command=self.__add_current_user_to_group_command,
