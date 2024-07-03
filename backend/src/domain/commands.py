@@ -227,6 +227,7 @@ class DeletePropertyCommand:
             property_id = context.get_var(name=PROPERTY_ID, _type=str)
             group = context.get_var(name=GROUP, _type=Group)
             self.__property_repo.delete(group_id=group.id, property_id=property_id)
+            context.response = None
         except PropertyNotFoundException:
             context.error_capsules.append(PropertyNotFoundError())
 
