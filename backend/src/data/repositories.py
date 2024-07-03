@@ -116,13 +116,14 @@ class DynamoDbGroupRepo:
     def add_participant(self, participant: GroupParticipantName, group: Group) -> None:
         try:
             group.participants.append(participant)
+            old_etag = group.etag
             new_hash = self.__object_hasher.hash(object=group)
             self.__dynamo_wrapper.update_item(key={
                 "id": f"group:{group.id}",
                 "partition_key": f"group:{group.id}"
             },
                 update_expression="SET participants = list_append(participants, :i) SET etag = :j",
-                condition_expression=Attr("etag").eq(group.etag),
+                condition_expression=Attr("etag").eq(old_etag),
                 expression_attribute_values={
                     ':i': [participant],
                     ':j': new_hash
