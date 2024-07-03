@@ -5,7 +5,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId
 from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
-    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException
+    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, DataException
 
 
 class DynamoDbPropertyRepo:
@@ -36,6 +36,8 @@ class DynamoDbPropertyRepo:
             code = e.response['Error']['Code']
             if code == CONDITIONAL_CHECK_FAILED:
                 raise PropertyNotFoundException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     @staticmethod
     def __partition_key_gen(property: Property, group: GroupId) -> None:
@@ -69,6 +71,8 @@ class DynamoDbGroupRepo:
             code = e.response['Error']['Code']
             if code == CONDITIONAL_CHECK_FAILED:
                 raise GroupAlreadyExistsException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def update(self, group: Group) -> None:
         try:
@@ -83,6 +87,8 @@ class DynamoDbGroupRepo:
             code = e.response['Error']['Code']
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def get(self, _id: str) -> GroupProperties:
         items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key",
@@ -122,7 +128,7 @@ class DynamoDbGroupRepo:
                 "id": f"group:{group.id}",
                 "partition_key": f"group:{group.id}"
             },
-                update_expression="SET participants = list_append(participants, :i) SET etag = :j",
+                update_expression="SET participants = list_append(participants, :i), etag = :j",
                 condition_expression=Attr("etag").eq(old_etag),
                 expression_attribute_values={
                     ':i': [participant],
@@ -133,7 +139,7 @@ class DynamoDbGroupRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
             else:
-                raise Exception(f"{e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     @staticmethod
     def __partition_key_gen(group: Group, group_id):
@@ -175,6 +181,8 @@ class DynamoDbUserGroupsRepo:
             code = e.response['Error']['Code']
             if code == CONDITIONAL_CHECK_FAILED:
                 raise UserGroupAlreadyExistsException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
         try:
@@ -194,6 +202,8 @@ class DynamoDbUserGroupsRepo:
             code = e.response['Error']['Code']
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
 
     @staticmethod

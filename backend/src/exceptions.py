@@ -20,3 +20,7 @@ class UserGroupAlreadyExistsException(Exception):
 
 class ConflictException(Exception):
     pass
+
+
+class DataException(Exception):
+    pass
