@@ -17,6 +17,10 @@ class PropertyNotFoundError(Error):
     ...
 
 
+class RedFlagNotFoundError(Error):
+    ...
+
+
 current_user_already_added_to_group = InvalidGroupDataError(message="current user already added to group")
 
 invalid_price_error = InvalidGroupDataError(message="price has to be greater than 0")

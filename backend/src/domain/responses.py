@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core import Group, GroupProperties, Property
+from src.core import Group, GroupProperties, Property, AnonymousRedFlag
 
 
 @dataclass(unsafe_hash=True)
@@ -31,3 +31,18 @@ class SingleGroupPropertiesResponse:
 @dataclass(unsafe_hash=True)
 class ListUserGroupsResponse:
     group_properties_list: list[GroupProperties] = None
+
+
+@dataclass(unsafe_hash=True)
+class SingleRedFlagResponse:
+    red_flag: AnonymousRedFlag = None
+
+
+@dataclass(unsafe_hash=True)
+class CreatedRedFlagResponse:
+    red_flag: AnonymousRedFlag = None
+
+
+@dataclass(unsafe_hash=True)
+class ListRedFlagsResponse:
+    red_flags: list[AnonymousRedFlag] = None

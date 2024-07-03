@@ -1,9 +1,11 @@
 from formula_thoughts_web.abstractions import ApiRequestHandler
 from formula_thoughts_web.ioc import Container
 
-from src.domain.errors import InvalidGroupDataError, UserGroupsNotFoundError, GroupNotFoundError, PropertyNotFoundError
+from src.domain.errors import InvalidGroupDataError, UserGroupsNotFoundError, GroupNotFoundError, PropertyNotFoundError, \
+    RedFlagNotFoundError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
-    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
+    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
+    CreatedRedFlagResponse, ListRedFlagsResponse
 from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreatePropertyApiHandler, \
     DeletePropertyApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
     CreateGroupApiHandler
@@ -26,7 +28,11 @@ def register_web_dependencies(container: Container):
         SingleGroupResponse: 200,
         SingleGroupPropertiesResponse: 200,
         PropertyCreatedResponse: 201,
+        SingleRedFlagResponse: 200,
+        CreatedRedFlagResponse: 201,
+        ListRedFlagsResponse: 200,
         UserGroupsNotFoundError: 404,
         GroupNotFoundError: 404,
-        PropertyNotFoundError: 404
+        PropertyNotFoundError: 404,
+        RedFlagNotFoundError: 404
     }))
