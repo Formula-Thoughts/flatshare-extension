@@ -1,6 +1,7 @@
 import typing
 import uuid
 from dataclasses import dataclass, field
+from datetime import datetime
 from decimal import Decimal
 from typing import Protocol
 
@@ -47,6 +48,26 @@ class Group(Entity):
     participants: list[GroupParticipantName] = field(default_factory=lambda: [])
     price_limit: Decimal = None
     locations: list[str] = field(default_factory=lambda: [])
+
+
+@dataclass(unsafe_hash=True)
+class AnonymousRedFlag(Entity):
+    """
+    response model to anonymize the other voters
+    """
+    id: str = None
+    body: str = None
+    votes: int = None
+    voted_by_me: bool = None
+    date: datetime = None
+
+
+@dataclass(unsafe_hash=True)
+class RedFlag(Entity):
+    id: str = field(default_factory=uuid4_str)
+    body: str = None
+    votes: list[UserId] = field(default_factory=lambda: [])
+    date: datetime = None
 
 
 @dataclass(unsafe_hash=True)
