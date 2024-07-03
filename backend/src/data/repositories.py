@@ -131,6 +131,8 @@ class DynamoDbGroupRepo:
             code = e.response['Error']['Code']
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
+            else:
+                raise Exception(f"{e.response['Error']['Code']}")
 
     @staticmethod
     def __partition_key_gen(group: Group, group_id):
