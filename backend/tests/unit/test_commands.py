@@ -586,49 +586,39 @@ class TestValidatePropertyRequestCommand(TestCase):
 class TestAddCurrentUserToGroupCommand(TestCase):
 
     def setUp(self):
-        self.__sqs_event_publisher: SQSEventPublisher = Mock()
-        self.__sut = AddCurrentUserToGroupCommand(sqs_event_publisher=self.__sqs_event_publisher)
+        self.__group_repo: IGroupRepo = Mock()
+        self.__sut = AddCurrentUserToGroupCommand(group_repo=self.__group_repo)
 
     def test_run(self):
         # arrange
         fullname = "full name"
-        group = AutoFixture().create(dto=Group)
-        length_of_properties_before_delete = len(group.participants)
+        group = AutoFixture().create(dto=GroupProperties)
+        expected_group = Group(etag=group.etag,
+                               id=group.id,
+                               participants=group.participants,
+                               price_limit=group.price_limit,
+                               locations=group.locations)
         context = ApplicationContext(variables={
             GROUP: group,
             FULLNAME_CLAIM: fullname
         })
-        self.__sqs_event_publisher.send_sqs_message = MagicMock()
+        self.__group_repo.add_participant = MagicMock()
 
         # act
         self.__sut.run(context=context)
 
-        captor = Captor()
-
         # assert
         with self.subTest(msg="assert sqs is called once"):
-            self.__sqs_event_publisher.send_sqs_message.assert_called_once()
+            self.__group_repo.add_participant.assert_called_once()
 
         # assert
         with self.subTest(msg="assert sqs is called with correct args"):
-            self.__sqs_event_publisher.send_sqs_message.assert_called_with(message_group_id=group.id,
-                                                                           payload=captor)
-
-        # assert
-        with self.subTest(msg="assert user is append to group"):
-            self.assertEqual(len(captor.arg.participants), length_of_properties_before_delete + 1)
-
-        # assert
-        with self.subTest(msg="assert correct user is added to group"):
-            self.assertEqual(captor.arg.participants[-1], fullname)
-
-        # assert
-        with self.subTest(msg="assert group published matches"):
-            self.assertEqual(captor.arg, group)
+            self.__group_repo.add_participant.assert_called_with(participant=fullname,
+                                                                 group=expected_group)
 
         # assert
         with self.subTest(msg="assert response is set"):
-            self.assertEqual(context.response, SingleGroupResponse(group=group))
+            self.assertEqual(context.response, SingleGroupResponse(group=expected_group))
 
 
 class TestSetGroupIdFromCodeCommand(TestCase):
