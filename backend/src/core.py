@@ -58,6 +58,7 @@ class AnonymousRedFlag(Entity):
     """
     id: str = None
     body: str = None
+    property_url: str = None
     votes: int = None
     voted_by_me: bool = None
     date: datetime = None
@@ -67,6 +68,7 @@ class AnonymousRedFlag(Entity):
 class RedFlag(Entity):
     id: str = field(default_factory=uuid4_str)
     body: str = None
+    property_url: str = None
     votes: list[UserId] = field(default_factory=lambda: [])
     date: datetime = None
 

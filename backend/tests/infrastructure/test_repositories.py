@@ -10,7 +10,7 @@ from autofixture import AutoFixture
 from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, ObjectMapper
 from moto import mock_aws
 
-from src.core import Group, UserGroups, Property, GroupProperties
+from src.core import Group, UserGroups, Property, GroupProperties, RedFlag
 from src.data import DynamoDbWrapper, ObjectHasher
 from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo, DynamoDbRedFlagRepo
@@ -574,6 +574,18 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
                                   object_mapper=object_mapper,
                                   object_hasher=object_hasher)
+        red_flag = AutoFixture().create(dto=RedFlag)
+        sut.create(red_flag=red_flag)
 
         # act
+        red_flags = sut.get_by_url(property_url=red_flag.property_url)
+
+        # assert
+        with self.subTest(msg="assert 1 red flag is received"):
+            self.assertEqual(len(red_flags), 0)
+
+        # assert
+        with self.subTest(msg="assert correct red flag is received"):
+            self.assertEqual(red_flags[0], red_flag)
+
 
