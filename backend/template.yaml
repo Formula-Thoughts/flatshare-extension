@@ -287,7 +287,7 @@ Resources:
           Properties:
             Auth:
               Authorizer: UserAuth
-            Path: /groups/{group_id}/properties/{flat_id}
+            Path: /groups/{group_id}/properties/{property_id}
             Method: delete
             ApiId: !Ref FlatiniHttpApi
       Role: !GetAtt FlatiniAppRole.Arn
