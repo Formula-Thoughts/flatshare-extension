@@ -595,6 +595,7 @@ class TestAddCurrentUserToGroupCommand(TestCase):
         group = AutoFixture().create(dto=GroupProperties)
         expected_group = Group(etag=group.etag,
                                id=group.id,
+                               partition_key=group.partition_key,
                                participants=group.participants,
                                price_limit=group.price_limit,
                                locations=group.locations)
@@ -608,11 +609,11 @@ class TestAddCurrentUserToGroupCommand(TestCase):
         self.__sut.run(context=context)
 
         # assert
-        with self.subTest(msg="assert sqs is called once"):
+        with self.subTest(msg="assert add user is called once"):
             self.__group_repo.add_participant.assert_called_once()
 
         # assert
-        with self.subTest(msg="assert sqs is called with correct args"):
+        with self.subTest(msg="assert add user is called with correct args"):
             self.__group_repo.add_participant.assert_called_with(participant=fullname,
                                                                  group=expected_group)
 

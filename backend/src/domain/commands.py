@@ -239,8 +239,14 @@ class AddCurrentUserToGroupCommand:
 
     def run(self, context: ApplicationContext):
         fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
-        group = context.get_var(name=GROUP, _type=Group)
-
+        group_properties = context.get_var(name=GROUP, _type=GroupProperties)
+        group = Group(etag=group_properties.etag,
+                      partition_key=group_properties.partition_key,
+                      id=group_properties.id,
+                      participants=group_properties.participants,
+                      price_limit=group_properties.price_limit,
+                      locations=group_properties.locations)
+        self.__group_repo.add_participant(participant=fullname, group=group)
         context.response = SingleGroupResponse(group=group)
 
 
