@@ -18,6 +18,7 @@ GroupParticipantName = str
 GroupId = str
 UserId = str
 PropertyId = str
+PropertyUrl = str
 
 
 @dataclass(unsafe_hash=True)
@@ -118,6 +119,18 @@ class IUserGroupsRepo(Protocol):
         ...
 
     def get(self, _id: str) -> UserGroups:
+        ...
+
+
+class IRedFlagRepo(Protocol):
+
+    def create(self, red_flag: RedFlag) -> None:
+        ...
+
+    def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
+        ...
+
+    def add_voter(self, user_id: UserId) -> None:
         ...
 
 

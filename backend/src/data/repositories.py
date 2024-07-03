@@ -2,7 +2,8 @@ from boto3.dynamodb.conditions import Attr
 from botocore.exceptions import ClientError
 from formula_thoughts_web.crosscutting import ObjectMapper
 
-from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId
+from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId, UserId, \
+    PropertyUrl, RedFlag
 from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, DataException
@@ -209,3 +210,22 @@ class DynamoDbUserGroupsRepo:
     @staticmethod
     def __partition_key_gen(user_groups: UserGroups):
         user_groups.partition_key = f"user_group:{user_groups.id}"
+
+
+class DynamoDbRedFlagRepo:
+
+    def __init__(self, dynamo_wrapper: DynamoDbWrapper,
+                 object_mapper: ObjectMapper,
+                 object_hasher: ObjectHasher):
+        self.__object_hasher = object_hasher
+        self.__object_mapper = object_mapper
+        self.__dynamo_wrapper = dynamo_wrapper
+
+    def create(self, red_flag: RedFlag) -> None:
+        ...
+
+    def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
+        ...
+
+    def add_voter(self, user_id: UserId) -> None:
+        ...
