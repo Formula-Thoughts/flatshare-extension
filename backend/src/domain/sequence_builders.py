@@ -195,4 +195,6 @@ class GetRedFlagsSequenceBuilder(FluentSequenceBuilder):
         self.__validate_get_red_flags_request = validate_get_red_flags_request
 
     def build(self):
-        pass
+        self._add_command(command=self.__validate_get_red_flags_request) \
+            ._add_command(command=self.__get_red_flags) \
+            ._add_command(command=self.__set_red_flags_response)
