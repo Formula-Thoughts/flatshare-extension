@@ -45,4 +45,6 @@ user_already_part_of_group_error = InvalidGroupDataError(message="user is alread
 
 red_flag_property_url_required_error = InvalidRedFlagDataError(message="property url field is a required attribute")
 
+red_flag_property_url_param_required_error = InvalidRedFlagDataError(message="property url parameter is required")
+
 red_flag_body_required_error = InvalidRedFlagDataError(message="body field is a required attribute")

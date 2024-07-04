@@ -230,7 +230,7 @@ class IValidateRedFlagRequestCommand(Command, Protocol):
     pass
 
 
-class IValidateGetRedFlagsRequest(Command, Protocol):
+class IValidateGetRedFlagsRequestCommand(Command, Protocol):
     pass
 
 

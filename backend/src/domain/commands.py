@@ -366,3 +366,9 @@ class GetRedFlagsCommand:
         property_url = context.get_var(name=PROPERTY_URL, _type=str)
         red_flags = self.__red_flag_repo.get_by_url(property_url=property_url)
         context.set_var(name=RED_FLAGS, value=red_flags)
+
+
+class ValidateGetRedFlagsRequestCommand:
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

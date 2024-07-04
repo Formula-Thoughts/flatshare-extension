@@ -24,7 +24,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
-    GetRedFlagsCommand
+    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -1002,3 +1002,37 @@ class TestGetRedFlagsCommand(TestCase):
         # assert
         with self.subTest(msg="assert red flags are fetched with correct property url"):
             self.assertEqual(context.get_var(name=RED_FLAGS, _type=list[RedFlag]), red_flags)
+
+
+class TestValidateGetRedFlagsRequestCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateGetRedFlagsRequestCommand()
+
+    def test_run_when_property_is_set(self):
+        # arrange
+        property_url = "http://example.com"
+        context = ApplicationContext(variables={
+            "property_url": property_url
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert no errors are set"):
+            self.assertEqual(len(context.error_capsules), 0)
+
+    def test_run_when_property_is_not_set(self):
+        # arrange
+        property_url = "http://example.com"
+        context = ApplicationContext(variables={
+            "property_url": property_url
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert property url is required error is set"):
+            self.assertEqual(context.error_capsules, [InvalidRedFlagDataError("property url parameter is required")])
