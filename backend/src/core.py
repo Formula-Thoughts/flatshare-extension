@@ -264,3 +264,7 @@ class IAddUserToGroupSequenceBuilder(SequenceBuilder, Protocol):
 
 class IFetchUserGroupIfExistsSequenceBuilder(SequenceBuilder, Protocol):
     pass
+
+
+class ICreateRedFlagSequenceBuilder(SequenceBuilder, Protocol):
+    pass
