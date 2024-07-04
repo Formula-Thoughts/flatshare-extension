@@ -19,6 +19,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidateUserIsNotParticipantCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand, \
     CreateUserGroupsCommand, CreateGroupCommand, UpdateGroupCommand, CreateRedFlagCommand, SetRedFlagRequestCommand, \
     ValidateRedFlagRequestCommand
+from src.domain.helpers import RedFlagMappingHelper
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
@@ -69,4 +70,5 @@ def register_domain_dependencies(container: Container):
      .register(service=ICreateGroupSequenceBuilder,
                implementation=CreateGroupSequenceBuilder)
      .register(service=IFetchUserGroupIfExistsSequenceBuilder,
-               implementation=FetchUserGroupIfExistsSequenceBuilder))
+               implementation=FetchUserGroupIfExistsSequenceBuilder)
+     .register(service=RedFlagMappingHelper))
