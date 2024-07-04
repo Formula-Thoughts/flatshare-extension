@@ -1025,10 +1025,7 @@ class TestValidateGetRedFlagsRequestCommand(TestCase):
 
     def test_run_when_property_is_not_set(self):
         # arrange
-        property_url = "http://example.com"
-        context = ApplicationContext(variables={
-            "property_url": property_url
-        })
+        context = ApplicationContext(variables={})
 
         # act
         self.__sut.run(context=context)
