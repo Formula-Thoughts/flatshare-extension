@@ -222,6 +222,14 @@ class ISetAnonymousRedFlagCommand(Command, Protocol):
     pass
 
 
+class ISetRedFlagRequestCommand(Command, Protocol):
+    pass
+
+
+class IValidateRedFlagRequestCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
