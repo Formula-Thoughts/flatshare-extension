@@ -335,3 +335,9 @@ class ValidateRedFlagRequestCommand:
 
         if red_flag_request.property_url is None:
             context.error_capsules.append(red_flag_property_url_required_error)
+
+
+class SetAnonymousRedFlagCommand:
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

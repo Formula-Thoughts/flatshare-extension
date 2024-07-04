@@ -12,23 +12,23 @@ from formula_thoughts_web.abstractions import ApplicationContext, Error
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
-    Property, GroupProperties, IPropertyRepo, IRedFlagRepo, CreateRedFlagRequest, RedFlag
+    Property, GroupProperties, IPropertyRepo, IRedFlagRepo, CreateRedFlagRequest, RedFlag, AnonymousRedFlag
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID, CREATE_RED_FLAG_REQUEST
+    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID, CREATE_RED_FLAG_REQUEST, RED_FLAG
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUserCommand, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
-    CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand
+    CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetAnonymousRedFlagCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagDataError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
-    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
+    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -935,3 +935,34 @@ class TestValidateRedFlagRequestCommand(TestCase):
         # assert
         with self.subTest(msg="missing body error is set"):
             self.assertEqual(context.error_capsules[0], InvalidRedFlagDataError(message="body field is a required attribute"))
+
+
+class TestSetAnonymousRedFlagCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = SetAnonymousRedFlagCommand()
+
+    def test_run_when_user_has_not_voted(self):
+        # arrange
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        red_flag.votes = [user, "12345", "123346"]
+        context = ApplicationContext(variables={
+            RED_FLAG: red_flag
+        }, auth_user_id=user)
+
+        # act
+        self.__sut.run(context=context)
+
+        # arrange
+        with self.subTest(msg="response is set to red flag"):
+            self.assertEqual(context.response, SingleRedFlagResponse(red_flag=AnonymousRedFlag(
+                etag=red_flag.etag,
+                partition_key=red_flag.partition_key,
+                id=red_flag.id,
+                body=red_flag.body,
+                property_url=red_flag.property_url,
+                votes=3,
+                voted_by_me=True,
+                date=red_flag.date
+            )))
