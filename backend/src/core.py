@@ -230,6 +230,14 @@ class IValidateRedFlagRequestCommand(Command, Protocol):
     pass
 
 
+class IGetRedFlagsCommand(Command, Protocol):
+    pass
+
+
+class ISetAnonymousRedFlagsCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
