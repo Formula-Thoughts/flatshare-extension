@@ -15,7 +15,8 @@ from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
-    property_price_required_error, property_url_required_error, property_title_required_error
+    property_price_required_error, property_url_required_error, property_title_required_error, \
+    red_flag_body_required_error, red_flag_property_url_required_error
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
@@ -327,4 +328,10 @@ class SetRedFlagRequestCommand:
 class ValidateRedFlagRequestCommand:
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        red_flag_request = context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest)
+
+        if red_flag_request.body is None:
+            context.error_capsules.append(red_flag_body_required_error)
+
+        if red_flag_request.property_url is None:
+            context.error_capsules.append(red_flag_property_url_required_error)

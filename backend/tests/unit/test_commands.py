@@ -26,7 +26,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
-    property_price_required_error, property_url_required_error, property_title_required_error
+    property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
@@ -915,7 +915,7 @@ class TestValidateRedFlagRequestCommand(TestCase):
 
         # assert
         with self.subTest(msg="missing url error is set"):
-            self.assertEqual(context.error_capsules[0], Error(message="property url field is a required attribute"))
+            self.assertEqual(context.error_capsules[0], InvalidRedFlagError(message="property url field is a required attribute"))
 
     def test_run_when_body_is_missing(self):
         # arrange
@@ -934,4 +934,4 @@ class TestValidateRedFlagRequestCommand(TestCase):
 
         # assert
         with self.subTest(msg="missing body error is set"):
-            self.assertEqual(context.error_capsules[0], Error(message="body field is a required attribute"))
+            self.assertEqual(context.error_capsules[0], InvalidRedFlagError(message="body field is a required attribute"))
