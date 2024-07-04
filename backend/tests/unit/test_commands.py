@@ -29,7 +29,8 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagDataError
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
-    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse
+    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
+    CreatedRedFlagResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -948,22 +949,23 @@ class TestSetAnonymousRedFlagCommand(TestCase):
         # arrange
         user = "1234"
         red_flag = AutoFixture().create(dto=RedFlag)
+        anonymous_red_flag = AutoFixture().create(dto=AnonymousRedFlag)
         context = ApplicationContext(variables={
             RED_FLAG: red_flag
         }, auth_user_id=user)
+        self.__red_flag_mapper.map_to_anonymous = MagicMock(return_value=anonymous_red_flag)
 
         # act
         self.__sut.run(context=context)
 
         # arrange
-        with self.subTest(msg="response is set to red flag"):
-            self.assertEqual(context.response, SingleRedFlagResponse(red_flag=AnonymousRedFlag(
-                etag=red_flag.etag,
-                partition_key=red_flag.partition_key,
-                id=red_flag.id,
-                body=red_flag.body,
-                property_url=red_flag.property_url,
-                votes=3,
-                voted_by_me=True,
-                date=red_flag.date
-            )))
+        with self.subTest(msg="response is set to created red flag"):
+            self.assertEqual(context.response, CreatedRedFlagResponse(red_flag=anonymous_red_flag))
+
+        # arrange
+        with self.subTest(msg="response is set to created red flag"):
+            self.__red_flag_mapper.map_to_anonymous.assert_called_once()
+
+        # arrange
+        with self.subTest(msg="response is set to created red flag"):
+            self.__red_flag_mapper.map_to_anonymous.assert_called_with(current_user=user, red_flag=red_flag)
