@@ -317,13 +317,19 @@ class CreateRedFlagCommand:
 
 class SetRedFlagRequestCommand:
 
-    def __init__(self, object_mapper: ObjectMapper):
+    def __init__(self, object_mapper: ObjectMapper,
+                 logger: Logger):
+        self.__logger = logger
         self.__object_mapper = object_mapper
 
     def run(self, context: ApplicationContext) -> None:
         create_red_flag_request = self.__object_mapper.map_from_dict(_from=context.body,
                                                                      to=CreateRedFlagRequest)
-        context.set_var(name=CREATE_RED_FLAG_REQUEST, value=create_red_flag_request)
+        context.set_var(CREATE_RED_FLAG_REQUEST, create_red_flag_request)
+        self.__logger.add_global_properties(properties={
+            "property_url": create_red_flag_request.property_url,
+            "body": create_red_flag_request.body
+        })
 
 
 class ValidateRedFlagRequestCommand:

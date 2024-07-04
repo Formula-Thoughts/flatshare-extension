@@ -863,7 +863,7 @@ class TestSetRedFlagRequestCommand(TestCase):
 
     def setUp(self) -> None:
         self.__object_mapper = ObjectMapper()
-        self.__sut = SetRedFlagRequestCommand(object_mapper=self.__object_mapper)
+        self.__sut = SetRedFlagRequestCommand(object_mapper=self.__object_mapper, logger=Mock())
 
     def test_run(self):
         # arrange
