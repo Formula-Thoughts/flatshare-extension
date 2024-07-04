@@ -6,7 +6,8 @@ from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId,
     PropertyUrl, RedFlag
 from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
-    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, DataException
+    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, DataException, \
+    RedFlagAlreadyExistsException
 
 
 class DynamoDbPropertyRepo:
@@ -222,11 +223,18 @@ class DynamoDbRedFlagRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def create(self, red_flag: RedFlag) -> None:
-        self.__partition_key_gen(red_flag=red_flag)
-        red_flag.etag = self.__object_hasher.hash(object=red_flag)
-        item = self.__object_mapper.map_to_dict(_from=red_flag, to=RedFlag)
-        self.__dynamo_wrapper.put(item=item,
-                                  condition_expression=Attr('etag').not_exists())
+        try:
+            self.__partition_key_gen(red_flag=red_flag)
+            red_flag.etag = self.__object_hasher.hash(object=red_flag)
+            item = self.__object_mapper.map_to_dict(_from=red_flag, to=RedFlag)
+            self.__dynamo_wrapper.put(item=item,
+                                      condition_expression=Attr('etag').not_exists())
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == CONDITIONAL_CHECK_FAILED:
+                raise RedFlagAlreadyExistsException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
         items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key",
