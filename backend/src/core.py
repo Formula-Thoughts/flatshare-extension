@@ -91,6 +91,12 @@ class CreatePropertyRequest:
     url: str = None
 
 
+@dataclass(unsafe_hash=True)
+class CreateRedFlagRequest:
+    body: str = None
+    property_url: str = None
+
+
 class IGroupRepo(Protocol):
     def create(self, group: Group) -> None:
         ...

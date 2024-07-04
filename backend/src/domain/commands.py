@@ -6,7 +6,7 @@ from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
-    Property, GroupProperties, IPropertyRepo
+    Property, GroupProperties, IPropertyRepo, IRedFlagRepo
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM
@@ -293,3 +293,12 @@ class UpdateGroupCommand:
                                 locations=group_request.locations)
         self.__group_repo.update(group=group_to_update)
         context.response = SingleGroupResponse(group=group_to_update)
+
+
+class CreateRedFlagCommand:
+
+    def __init__(self, red_flag_repo: IRedFlagRepo):
+        self.__red_flag_repo = red_flag_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

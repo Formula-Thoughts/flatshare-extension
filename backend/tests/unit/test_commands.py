@@ -11,16 +11,17 @@ from formula_thoughts_web.abstractions import ApplicationContext
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
-    Property, GroupProperties, IPropertyRepo
+    Property, GroupProperties, IPropertyRepo, IRedFlagRepo, CreateRedFlagRequest, RedFlag
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID
+    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID, CREATE_RED_FLAG_REQUEST
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUserCommand, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
-    FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand
+    FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
+    CreateRedFlagCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -816,3 +817,37 @@ class TestDeletePropertyCommand(TestCase):
         # assert
         with self.subTest(msg="property not found error was added"):
             self.assertEqual(context.error_capsules[0], PropertyNotFoundError())
+
+
+class TestCreateRedFlagCommand(TestCase):
+
+    def setUp(self):
+        self.__red_flag_repo: IRedFlagRepo = Mock()
+        self.__sut = CreateRedFlagCommand(red_flag_repo=self.__red_flag_repo)
+
+    @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
+    def test_run(self, _):
+        # arrange
+        create_red_flag_request = AutoFixture().create(dto=CreateRedFlagRequest)
+        context = ApplicationContext(variables={
+            CREATE_RED_FLAG_REQUEST: create_red_flag_request
+        })
+        self.__red_flag_repo.create = MagicMock()
+        expected_red_flag = RedFlag(id=UUID_EXAMPLE,
+                                    body=create_red_flag_request.body,
+                                    property_url=create_red_flag_request.property_url)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="red flag is created once"):
+            self.__red_flag_repo.create.assert_called_once()
+
+        # assert
+        with self.subTest(msg="correct red flag is created"):
+            self.__red_flag_repo.create.assert_called_with(red_flag=expected_red_flag)
+
+        # assert
+        with self.subTest(msg="red flag variable is set"):
+            self.assertEqual(context.get_var(name="red_flag", _type=RedFlag), expected_red_flag)
