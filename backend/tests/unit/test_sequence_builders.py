@@ -7,12 +7,13 @@ from src.core import IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOne
     IValidatePropertyRequestCommand, IDeletePropertyCommand, IAddCurrentUserToGroupCommand, ISetGroupIdFromCodeCommand, \
     IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
-    ICreateGroupCommand
+    ICreateGroupCommand, ISetRedFlagRequestCommand, IValidateRedFlagRequestCommand, ICreateRedFlagCommand, \
+    ISetCreatedAnonymousRedFlagCommand
 from src.domain.sequence_builders import FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
     GetCodeForGroupSequenceBuilder, \
-    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder
+    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder
 
 
 class TestFetchUserGroupsSequenceBuilder(TestCase):
@@ -186,4 +187,29 @@ class TestFetchUserGroupIfExistsSequenceBuilder(TestCase):
         self.assertEqual(self.__sut.components, [
             self.__validate_user_belongs_to_one_group,
             self.__fetch_auth_claims_if_user_has_no_group
+        ])
+
+
+class TestCreateRedFlagSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__set_red_flag_request: ISetRedFlagRequestCommand = Mock()
+        self.__validate_red_flag_request: IValidateRedFlagRequestCommand = Mock()
+        self.__create_red_flag_command: ICreateRedFlagCommand = Mock()
+        self.__set_red_flag_response: ISetCreatedAnonymousRedFlagCommand = Mock()
+        self.__sut = CreateRedFlagSequenceBuilder(set_red_flag_request=self.__set_red_flag_request,
+                                                  validate_red_flag_request=self.__validate_red_flag_request,
+                                                  create_red_flag_command=self.__create_red_flag_command,
+                                                  set_red_flag_response=self.__set_red_flag_response)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__set_red_flag_request,
+            self.__validate_red_flag_request,
+            self.__create_red_flag_command,
+            self.__set_red_flag_response
         ])
