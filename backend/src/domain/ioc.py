@@ -10,7 +10,8 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IValidateUserIsNotParticipantCommand, ICreateGroupSequenceBuilder, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
     ICreateGroupCommand, IUpdateGroupCommand, ICreateRedFlagCommand, ISetRedFlagRequestCommand, \
-    IValidateRedFlagRequestCommand, ISetCreatedAnonymousRedFlagCommand, ICreateRedFlagSequenceBuilder
+    IValidateRedFlagRequestCommand, ISetCreatedAnonymousRedFlagCommand, ICreateRedFlagSequenceBuilder, \
+    IGetRedFlagsCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUserCommand, \
     FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, \
@@ -18,7 +19,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
     ValidateUserIsNotParticipantCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand, \
     CreateUserGroupsCommand, CreateGroupCommand, UpdateGroupCommand, CreateRedFlagCommand, SetRedFlagRequestCommand, \
-    ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand
+    ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, GetRedFlagsCommand
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
@@ -59,6 +60,8 @@ def register_domain_dependencies(container: Container):
                implementation=ValidateRedFlagRequestCommand)
      .register(service=ISetCreatedAnonymousRedFlagCommand,
                implementation=SetCreatedAnonymousRedFlagCommand)
+     .register(service=IGetRedFlagsCommand,
+               implementation=GetRedFlagsCommand)
      .register(service=IGetUserGroupByIdSequenceBuilder,
                implementation=GetUserGroupByIdSequenceBuilder)
      .register(service=ICreatePropertySequenceBuilder,
