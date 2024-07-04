@@ -311,3 +311,12 @@ class CreateRedFlagCommand:
         self.__red_flag_repo.create(red_flag=red_flag)
         context.set_var(name=RED_FLAG,
                         value=red_flag)
+
+
+class SetRedFlagRequestCommand:
+
+    def __init__(self, object_mapper: ObjectMapper):
+        self.__object_mapper = object_mapper
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

@@ -22,7 +22,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
-    CreateRedFlagCommand
+    CreateRedFlagCommand, SetRedFlagRequestCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -855,3 +855,25 @@ class TestCreateRedFlagCommand(TestCase):
         # assert
         with self.subTest(msg="red flag variable is set"):
             self.assertEqual(context.get_var(name="red_flag", _type=RedFlag), expected_red_flag)
+
+
+class TestSetRedFlagRequestCommand(TestCase):
+
+    def setUp(self) -> None:
+        self.__object_mapper = ObjectMapper()
+        self.__sut = SetRedFlagRequestCommand(object_mapper=self.__object_mapper)
+
+    def test_run(self):
+        # arrange
+        create_red_flag_request = AutoFixture().create(dto=CreateRedFlagRequest)
+        context = ApplicationContext(body=self.__object_mapper.map_to_dict(_from=create_red_flag_request,
+                                                                           to=CreateRedFlagRequest),
+                                     variables={})
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="red flag request is set"):
+            self.assertEqual(context.get_var(name="create_red_flag_request", _type=CreateRedFlagRequest),
+                             create_red_flag_request)
