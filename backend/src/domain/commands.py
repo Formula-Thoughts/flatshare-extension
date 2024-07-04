@@ -20,7 +20,8 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     red_flag_body_required_error, red_flag_property_url_required_error, red_flag_property_url_param_required_error
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
-    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, CreatedRedFlagResponse
+    GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, CreatedRedFlagResponse, \
+    ListRedFlagsResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
 
 
@@ -381,4 +382,9 @@ class SetAnonymousRedFlagsCommand:
         self.__red_flag_mapping_helper = red_flag_mapping_helper
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        red_flags = context.get_var(name=RED_FLAGS, _type=list[RedFlag])
+        anonymous_red_flags = []
+        for red_flag in red_flags:
+            anonymous_red_flags.append(self.__red_flag_mapping_helper.map_to_anonymous(current_user=context.auth_user_id,
+                                                                                       red_flag=red_flag))
+        context.response = ListRedFlagsResponse(red_flags=anonymous_red_flags)
