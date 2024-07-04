@@ -9,14 +9,14 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IGetCodeForGroupSequenceBuilder, \
     IValidateUserIsNotParticipantCommand, ICreateGroupSequenceBuilder, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
-    ICreateGroupCommand, IUpdateGroupCommand
+    ICreateGroupCommand, IUpdateGroupCommand, ICreateRedFlagCommand
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUserCommand, \
     FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, \
     DeletePropertyCommand, \
     AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, GetCodeFromGroupIdCommand, \
     ValidateUserIsNotParticipantCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand, \
-    CreateUserGroupsCommand, CreateGroupCommand, UpdateGroupCommand
+    CreateUserGroupsCommand, CreateGroupCommand, UpdateGroupCommand, CreateRedFlagCommand
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
@@ -48,6 +48,8 @@ def register_domain_dependencies(container: Container):
                implementation=ValidateIfGroupBelongsToUserCommand)
      .register(service=IValidateIfUserBelongsToAtLeastOneGroupCommand,
                implementation=ValidateIfUserBelongsToAtLeastOneGroupCommand)
+     .register(service=ICreateRedFlagCommand,
+               implementation=CreateRedFlagCommand)
      .register(service=IGetUserGroupByIdSequenceBuilder,
                implementation=GetUserGroupByIdSequenceBuilder)
      .register(service=ICreatePropertySequenceBuilder,
