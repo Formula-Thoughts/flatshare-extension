@@ -11,7 +11,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
     ICreateGroupCommand, IUpdateGroupCommand, ICreateRedFlagCommand, ISetRedFlagRequestCommand, \
     IValidateRedFlagRequestCommand, ISetCreatedAnonymousRedFlagCommand, ICreateRedFlagSequenceBuilder, \
-    IGetRedFlagsCommand, IValidateGetRedFlagsRequestCommand, ISetAnonymousRedFlagsCommand
+    IGetRedFlagsCommand, IValidateGetRedFlagsRequestCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagsSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUserCommand, \
     FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, \
@@ -26,7 +26,8 @@ from src.domain.sequence_builders import UpdateGroupSequenceBuilder, FetchUserGr
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
     GetCodeForGroupSequenceBuilder, \
-    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder
+    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder, \
+    GetRedFlagsSequenceBuilder
 
 
 def register_domain_dependencies(container: Container):
@@ -83,4 +84,6 @@ def register_domain_dependencies(container: Container):
                implementation=FetchUserGroupIfExistsSequenceBuilder)
      .register(service=ICreateRedFlagSequenceBuilder,
                implementation=CreateRedFlagSequenceBuilder)
+     .register(service=IGetRedFlagsSequenceBuilder,
+               implementation=GetRedFlagsSequenceBuilder)
      .register(service=RedFlagMappingHelper))
