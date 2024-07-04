@@ -208,6 +208,14 @@ class IValidateUserIsNotParticipantCommand(Command, Protocol):
     pass
 
 
+class ICreateRedFlagCommand(Command, Protocol):
+    pass
+
+
+class ISetAnonymousRedFlagCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
