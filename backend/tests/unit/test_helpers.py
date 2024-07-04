@@ -23,7 +23,7 @@ class TestRedFlagMappingHelper(TestCase):
 
         # arrange
         with self.subTest(msg="response is set to red flag"):
-            self.assertEqual(returned_red_flag, SingleRedFlagResponse(red_flag=AnonymousRedFlag(
+            self.assertEqual(returned_red_flag, AnonymousRedFlag(
                 etag=red_flag.etag,
                 partition_key=red_flag.partition_key,
                 id=red_flag.id,
@@ -32,7 +32,7 @@ class TestRedFlagMappingHelper(TestCase):
                 votes=3,
                 voted_by_me=True,
                 date=red_flag.date
-            )))
+            ))
 
     def test_map_to_anonymous_when_user_has_not_voted(self):
         # arrange
@@ -45,7 +45,7 @@ class TestRedFlagMappingHelper(TestCase):
 
         # arrange
         with self.subTest(msg="response is set to red flag"):
-            self.assertEqual(returned_red_flag, SingleRedFlagResponse(red_flag=AnonymousRedFlag(
+            self.assertEqual(returned_red_flag, AnonymousRedFlag(
                 etag=red_flag.etag,
                 partition_key=red_flag.partition_key,
                 id=red_flag.id,
@@ -54,4 +54,4 @@ class TestRedFlagMappingHelper(TestCase):
                 votes=2,
                 voted_by_me=False,
                 date=red_flag.date
-            )))
+            ))
