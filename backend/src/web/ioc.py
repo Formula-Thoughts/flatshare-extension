@@ -8,19 +8,21 @@ from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, S
     CreatedRedFlagResponse, ListRedFlagsResponse
 from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreatePropertyApiHandler, \
     DeletePropertyApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
-    CreateGroupApiHandler
+    CreateGroupApiHandler, CreateRedFlagApiHandler
 
 
 def register_web_dependencies(container: Container):
-    (container.register(service=ApiRequestHandler, implementation=UpdateGroupApiHandler)
-    .register(service=ApiRequestHandler, implementation=CreateGroupApiHandler)
-    .register(service=ApiRequestHandler, implementation=FetchUserGroupsApiHandler)
-    .register(service=ApiRequestHandler, implementation=CreatePropertyApiHandler)
-    .register(service=ApiRequestHandler, implementation=DeletePropertyApiHandler)
-    .register(service=ApiRequestHandler, implementation=AddCurrentUserToGroupApiHandler)
-    .register(service=ApiRequestHandler, implementation=GetCodeForGroupApiHandler)
-    .register(service=ApiRequestHandler, implementation=GetUserGroupByIdApiHandler)
-    .register_status_code_mappings(mappings={
+    (container
+     .register(service=ApiRequestHandler, implementation=UpdateGroupApiHandler)
+     .register(service=ApiRequestHandler, implementation=CreateGroupApiHandler)
+     .register(service=ApiRequestHandler, implementation=FetchUserGroupsApiHandler)
+     .register(service=ApiRequestHandler, implementation=CreatePropertyApiHandler)
+     .register(service=ApiRequestHandler, implementation=DeletePropertyApiHandler)
+     .register(service=ApiRequestHandler, implementation=AddCurrentUserToGroupApiHandler)
+     .register(service=ApiRequestHandler, implementation=GetCodeForGroupApiHandler)
+     .register(service=ApiRequestHandler, implementation=GetUserGroupByIdApiHandler)
+     .register(service=ApiRequestHandler, implementation=CreateRedFlagApiHandler)
+     .register_status_code_mappings(mappings={
         CreatedGroupResponse: 201,
         ListUserGroupsResponse: 200,
         GetGroupCodeResponse: 200,

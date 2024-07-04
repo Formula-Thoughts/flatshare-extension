@@ -290,6 +290,14 @@ Resources:
             Path: /groups/{group_id}/properties/{property_id}
             Method: delete
             ApiId: !Ref FlatiniHttpApi
+        CreateRedFlag:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: UserAuth
+            Path: /red-flags
+            Method: post
+            ApiId: !Ref FlatiniHttpApi
       Role: !GetAtt FlatiniAppRole.Arn
 
   FlatiniApiGatewayInvoke:
