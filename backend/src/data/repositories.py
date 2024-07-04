@@ -222,10 +222,22 @@ class DynamoDbRedFlagRepo:
         self.__dynamo_wrapper = dynamo_wrapper
 
     def create(self, red_flag: RedFlag) -> None:
-        ...
+        self.__partition_key_gen(red_flag=red_flag)
+        red_flag.etag = self.__object_hasher.hash(object=red_flag)
+        item = self.__object_mapper.map_to_dict(_from=red_flag, to=RedFlag)
+        self.__dynamo_wrapper.put(item=item,
+                                  condition_expression=Attr('etag').not_exists())
 
     def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
-        ...
+        items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key",
+                                            expression_attribute_values={
+                                                ':partition_key': f"red_flag:{property_url}"
+                                            })["Items"]
+        return list(map(lambda x: self.__object_mapper.map_from_dict(_from=x, to=RedFlag), items))
 
     def add_voter(self, user_id: UserId) -> None:
         ...
+
+    @staticmethod
+    def __partition_key_gen(red_flag: RedFlag):
+        red_flag.partition_key = f"red_flag:{red_flag.property_url}"

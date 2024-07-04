@@ -566,6 +566,11 @@ class TestPropertyRepo(DynamoDbTestCase):
 
 class TestRedFlagsRepo(DynamoDbTestCase):
 
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
     def test_create(self):
         # arrange
         self._set_up_table()
@@ -582,7 +587,7 @@ class TestRedFlagsRepo(DynamoDbTestCase):
 
         # assert
         with self.subTest(msg="assert 1 red flag is received"):
-            self.assertEqual(len(red_flags), 0)
+            self.assertEqual(len(red_flags), 1)
 
         # assert
         with self.subTest(msg="assert correct red flag is received"):
