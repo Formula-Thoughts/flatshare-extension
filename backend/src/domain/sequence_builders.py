@@ -177,4 +177,7 @@ class CreateRedFlagSequenceBuilder(FluentSequenceBuilder):
         self.__set_red_flag_request = set_red_flag_request
 
     def build(self):
-        pass
+        self._add_command(command=self.__set_red_flag_request) \
+            ._add_command(command=self.__validate_red_flag_request) \
+            ._add_command(command=self.__create_red_flag_command) \
+            ._add_command(command=self.__set_red_flag_response)
