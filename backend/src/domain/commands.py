@@ -11,7 +11,8 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
     Property, GroupProperties, IPropertyRepo, IRedFlagRepo, RedFlag, CreateRedFlagRequest
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
-    CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM, RED_FLAG, CREATE_RED_FLAG_REQUEST
+    CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM, RED_FLAG, CREATE_RED_FLAG_REQUEST, PROPERTY_URL, \
+    RED_FLAGS
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -362,4 +363,6 @@ class GetRedFlagsCommand:
         self.__red_flag_repo = red_flag_repo
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        property_url = context.get_var(name=PROPERTY_URL, _type=str)
+        red_flags = self.__red_flag_repo.get_by_url(property_url=property_url)
+        context.set_var(name=RED_FLAGS, value=red_flags)
