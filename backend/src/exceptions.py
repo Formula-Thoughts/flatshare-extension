@@ -24,3 +24,7 @@ class ConflictException(Exception):
 
 class DataException(Exception):
     pass
+
+
+class RedFlagAlreadyExistsException(Exception):
+    pass

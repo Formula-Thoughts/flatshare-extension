@@ -15,7 +15,8 @@ from src.data import DynamoDbWrapper, ObjectHasher
 from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo, DynamoDbRedFlagRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException, \
-    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException
+    GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, \
+    RedFlagAlreadyExistsException
 
 
 class DynamoDbTestCase(TestCase):
@@ -592,5 +593,29 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert correct red flag is received"):
             self.assertEqual(red_flags[0], red_flag)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_create_when_already_exists(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
+        red_flag = AutoFixture().create(dto=RedFlag)
+        sut.create(red_flag=red_flag)
+
+        # act
+        sut_call = lambda: sut.create(red_flag=red_flag)
+
+        # assert
+        with self.subTest(msg="assert red flag already exists error is thrown"):
+            with self.assertRaises(expected_exception=RedFlagAlreadyExistsException):
+                sut_call()
 
 
