@@ -22,11 +22,12 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
-    CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetAnonymousRedFlagCommand
+    CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagDataError
+from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
@@ -940,13 +941,13 @@ class TestValidateRedFlagRequestCommand(TestCase):
 class TestSetAnonymousRedFlagCommand(TestCase):
 
     def setUp(self):
-        self.__sut = SetAnonymousRedFlagCommand()
+        self.__red_flag_mapper: RedFlagMappingHelper = Mock()
+        self.__sut = SetCreatedAnonymousRedFlagCommand(red_flag_mapping_helper=self.__red_flag_mapper)
 
-    def test_run_when_user_has_not_voted(self):
+    def test_run(self):
         # arrange
         user = "1234"
         red_flag = AutoFixture().create(dto=RedFlag)
-        red_flag.votes = [user, "12345", "123346"]
         context = ApplicationContext(variables={
             RED_FLAG: red_flag
         }, auth_user_id=user)

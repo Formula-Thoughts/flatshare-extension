@@ -218,7 +218,7 @@ class ICreateRedFlagCommand(Command, Protocol):
     pass
 
 
-class ISetAnonymousRedFlagCommand(Command, Protocol):
+class ISetCreatedAnonymousRedFlagCommand(Command, Protocol):
     pass
 
 

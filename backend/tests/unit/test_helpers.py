@@ -19,7 +19,7 @@ class TestRedFlagMappingHelper(TestCase):
         red_flag.votes = [user, "12345", "123346"]
 
         # act
-        returned_red_flag = self.__sut.map_to_anonymous(red_flag=red_flag)
+        returned_red_flag = self.__sut.map_to_anonymous(current_user=user, red_flag=red_flag)
 
         # arrange
         with self.subTest(msg="response is set to red flag"):
@@ -36,11 +36,12 @@ class TestRedFlagMappingHelper(TestCase):
 
     def test_map_to_anonymous_when_user_has_not_voted(self):
         # arrange
+        user = "1234"
         red_flag = AutoFixture().create(dto=RedFlag)
         red_flag.votes = ["12345", "123346"]
 
         # act
-        returned_red_flag = self.__sut.map_to_anonymous(red_flag=red_flag)
+        returned_red_flag = self.__sut.map_to_anonymous(current_user=user, red_flag=red_flag)
 
         # arrange
         with self.subTest(msg="response is set to red flag"):
