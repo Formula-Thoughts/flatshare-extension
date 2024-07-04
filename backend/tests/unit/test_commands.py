@@ -24,7 +24,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
-    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand
+    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand, SetAnonymousRedFlagsCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -32,7 +32,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
-    CreatedRedFlagResponse
+    CreatedRedFlagResponse, ListRedFlagsResponse
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
@@ -1033,3 +1033,38 @@ class TestValidateGetRedFlagsRequestCommand(TestCase):
         # assert
         with self.subTest(msg="assert property url is required error is set"):
             self.assertEqual(context.error_capsules, [InvalidRedFlagDataError("property url parameter is required")])
+
+
+class TestSetAnonymousRedFlagsCommand(TestCase):
+
+    def setUp(self):
+        self.__red_flag_mapping_helper: RedFlagMappingHelper = Mock()
+        self.__sut = SetAnonymousRedFlagsCommand(red_flag_mapping_helper=self.__red_flag_mapping_helper)
+
+    def test_run(self):
+        # arrange
+        user = "1234"
+        red_flags = AutoFixture().create_many(dto=RedFlag, ammount=5)
+        anonymous_red_flags = AutoFixture().create_many(dto=AnonymousRedFlag, ammount=5)
+        context = ApplicationContext(variables={
+            RED_FLAGS: red_flags
+        }, auth_user_id=user)
+        self.__red_flag_mapping_helper.map_to_anonymous = Mock()
+        self.__red_flag_mapping_helper.map_to_anonymous.side_effect = anonymous_red_flags
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert red flag mapper was called 5 times"):
+            self.__red_flag_mapping_helper.map_to_anonymous.assert_has_calls([
+                call(current_user=user, red_flag=red_flags[0]),
+                call(current_user=user, red_flag=red_flags[1]),
+                call(current_user=user, red_flag=red_flags[2]),
+                call(current_user=user, red_flag=red_flags[3]),
+                call(current_user=user, red_flag=red_flags[4])
+            ])
+
+        # assert
+        with self.subTest(msg="assert red flags response was set"):
+            self.assertEqual(context.response, ListRedFlagsResponse(red_flags=anonymous_red_flags))

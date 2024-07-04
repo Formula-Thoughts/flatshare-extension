@@ -373,3 +373,12 @@ class ValidateGetRedFlagsRequestCommand:
     def run(self, context: ApplicationContext) -> None:
         if PROPERTY_URL not in context.variables:
             context.error_capsules.append(red_flag_property_url_param_required_error)
+
+
+class SetAnonymousRedFlagsCommand:
+
+    def __init__(self, red_flag_mapping_helper: RedFlagMappingHelper):
+        self.__red_flag_mapping_helper = red_flag_mapping_helper
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
