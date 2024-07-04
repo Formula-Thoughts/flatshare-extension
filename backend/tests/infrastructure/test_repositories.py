@@ -618,4 +618,25 @@ class TestRedFlagsRepo(DynamoDbTestCase):
             with self.assertRaises(expected_exception=RedFlagAlreadyExistsException):
                 sut_call()
 
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_get_when_none_exist(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
+
+        # act
+        red_flags = sut.get_by_url(property_url="")
+
+        # assert
+        with self.subTest(msg="assert red flags are empty"):
+            self.assertEqual(len(red_flags), 0)
+
 
