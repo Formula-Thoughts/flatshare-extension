@@ -280,3 +280,7 @@ class IFetchUserGroupIfExistsSequenceBuilder(SequenceBuilder, Protocol):
 
 class ICreateRedFlagSequenceBuilder(SequenceBuilder, Protocol):
     pass
+
+
+class IGetRedFlagsSequenceBuilder(SequenceBuilder, Protocol):
+    pass

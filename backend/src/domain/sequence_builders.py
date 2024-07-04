@@ -7,7 +7,8 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, \
     ISetGroupIdFromCodeCommand, IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, \
     ICreateGroupCommand, ICreateUserGroupsCommand, IUpdateGroupCommand, ISetRedFlagRequestCommand, \
-    IValidateRedFlagRequestCommand, ICreateRedFlagCommand, ISetCreatedAnonymousRedFlagCommand
+    IValidateRedFlagRequestCommand, ICreateRedFlagCommand, ISetCreatedAnonymousRedFlagCommand, \
+    IValidateGetRedFlagsRequestCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -181,3 +182,17 @@ class CreateRedFlagSequenceBuilder(FluentSequenceBuilder):
             ._add_command(command=self.__validate_red_flag_request) \
             ._add_command(command=self.__create_red_flag_command) \
             ._add_command(command=self.__set_red_flag_response)
+
+
+class GetRedFlagsSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand,
+                 get_red_flags: IGetRedFlagsCommand,
+                 set_red_flags_response: ISetAnonymousRedFlagsCommand):
+        super().__init__()
+        self.__set_red_flags_response = set_red_flags_response
+        self.__get_red_flags = get_red_flags
+        self.__validate_get_red_flags_request = validate_get_red_flags_request
+
+    def build(self):
+        pass

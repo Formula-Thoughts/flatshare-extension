@@ -8,12 +8,14 @@ from src.core import IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOne
     IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
     ICreateGroupCommand, ISetRedFlagRequestCommand, IValidateRedFlagRequestCommand, ICreateRedFlagCommand, \
-    ISetCreatedAnonymousRedFlagCommand
+    ISetCreatedAnonymousRedFlagCommand, IValidateGetRedFlagsRequestCommand, IGetRedFlagsCommand, \
+    ISetAnonymousRedFlagsCommand
 from src.domain.sequence_builders import FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
     GetCodeForGroupSequenceBuilder, \
-    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder
+    CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder, \
+    GetRedFlagsSequenceBuilder
 
 
 class TestFetchUserGroupsSequenceBuilder(TestCase):
@@ -212,4 +214,26 @@ class TestCreateRedFlagSequenceBuilder(TestCase):
             self.__validate_red_flag_request,
             self.__create_red_flag_command,
             self.__set_red_flag_response
+        ])
+
+
+class TestGetRedFlagsSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand = Mock()
+        self.__get_red_flags: IGetRedFlagsCommand = Mock()
+        self.__set_red_flags_response: ISetAnonymousRedFlagsCommand = Mock()
+        self.__sut = GetRedFlagsSequenceBuilder(validate_get_red_flags_request=self.__validate_get_red_flags_request,
+                                                get_red_flags=self.__get_red_flags,
+                                                set_red_flags_response=self.__set_red_flags_response)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__validate_get_red_flags_request,
+            self.__get_red_flags,
+            self.__set_red_flags_response
         ])
