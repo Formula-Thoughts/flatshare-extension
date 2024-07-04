@@ -4,7 +4,7 @@ from formula_thoughts_web.web import ApiRequestHandlerBase
 
 from src.core import IUpdateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreatePropertySequenceBuilder, \
     IDeletePropertySequenceBuilder, IAddUserToGroupSequenceBuilder, IGetCodeForGroupSequenceBuilder, \
-    IGetUserGroupByIdSequenceBuilder, ICreateGroupSequenceBuilder
+    IGetUserGroupByIdSequenceBuilder, ICreateGroupSequenceBuilder, ICreateRedFlagSequenceBuilder
 
 
 class UpdateGroupApiHandler(ApiRequestHandlerBase):
@@ -105,6 +105,19 @@ class GetUserGroupByIdApiHandler(ApiRequestHandlerBase):
                  deserializer: Deserializer,
                  logger: Logger):
         super().__init__(route_key='GET /groups/{group_id}',
+                         sequence=sequence,
+                         command_pipeline=command_pipeline,
+                         deserializer=deserializer,
+                         logger=logger)
+
+
+class CreateRedFlagApiHandler(ApiRequestHandlerBase):
+
+    def __init__(self, sequence: ICreateRedFlagSequenceBuilder,
+                 command_pipeline: TopLevelSequenceRunner,
+                 deserializer: Deserializer,
+                 logger: Logger):
+        super().__init__(route_key='POST /red-flags',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,

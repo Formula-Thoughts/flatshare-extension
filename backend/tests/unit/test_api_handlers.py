@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreatePropertyApiHandler, \
     DeletePropertyApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
-    CreateGroupApiHandler
+    CreateGroupApiHandler, CreateRedFlagApiHandler
 
 
 class TestUpdateGroupHandler(TestCase):
@@ -140,3 +140,20 @@ class TestCreateGroupApiHandler(TestCase):
         # assert
         with self.subTest(msg="route key matches"):
             self.assertEqual(route_key, "POST /groups")
+
+
+class TestCreateRedFlagApiHandler(TestCase):
+
+    def test_route_key_matches_expected(self):
+        # arrange
+        sut = CreateRedFlagApiHandler(sequence=Mock(),
+                                      command_pipeline=Mock(),
+                                      deserializer=Mock(),
+                                      logger=Mock())
+
+        # act
+        route_key = sut.route_key
+
+        # assert
+        with self.subTest(msg="route key matches"):
+            self.assertEqual(route_key, "POST /red-flags")
