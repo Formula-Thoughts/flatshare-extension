@@ -15,14 +15,16 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
     Property, GroupProperties, IPropertyRepo, IRedFlagRepo, CreateRedFlagRequest, RedFlag, AnonymousRedFlag
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
-    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID, CREATE_RED_FLAG_REQUEST, RED_FLAG
+    CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID, CREATE_RED_FLAG_REQUEST, RED_FLAG, PROPERTY_URL, \
+    RED_FLAGS
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUserCommand, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
-    CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand
+    CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
+    GetRedFlagsCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -969,3 +971,34 @@ class TestSetAnonymousRedFlagCommand(TestCase):
         # arrange
         with self.subTest(msg="response is set to created red flag"):
             self.__red_flag_mapper.map_to_anonymous.assert_called_with(current_user=user, red_flag=red_flag)
+
+
+class TestGetRedFlagsCommand(TestCase):
+
+    def setUp(self):
+        self.__red_flag_repo: IRedFlagRepo = Mock()
+        self.__sut = GetRedFlagsCommand(red_flag_repo=self.__red_flag_repo)
+
+    def test_run(self):
+        # arrange
+        property_url = "http://example.com"
+        red_flags = AutoFixture().create_many(dto=RedFlag, ammount=5)
+        self.__red_flag_repo.get_by_url = MagicMock(return_value=red_flags)
+        context = ApplicationContext(variables={
+            PROPERTY_URL: property_url
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert red flags are fetched once"):
+            self.__red_flag_repo.get_by_url.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert red flags are fetched with correct property url"):
+            self.__red_flag_repo.get_by_url.assert_called_with(property_url=property_url)
+
+        # assert
+        with self.subTest(msg="assert red flags are fetched with correct property url"):
+            self.assertEqual(context.get_var(name=RED_FLAGS, _type=list[RedFlag]), red_flags)
