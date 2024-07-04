@@ -8,7 +8,7 @@ from uuid import UUID
 
 from autofixture import AutoFixture
 from ddt import ddt, data
-from formula_thoughts_web.abstractions import ApplicationContext
+from formula_thoughts_web.abstractions import ApplicationContext, Error
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
@@ -22,7 +22,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidatePropertyRequestCommand, DeletePropertyCommand, AddCurrentUserToGroupCommand, SetGroupIdFromCodeCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
-    CreateRedFlagCommand, SetRedFlagRequestCommand
+    CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -877,3 +877,61 @@ class TestSetRedFlagRequestCommand(TestCase):
         with self.subTest(msg="red flag request is set"):
             self.assertEqual(context.get_var(name="create_red_flag_request", _type=CreateRedFlagRequest),
                              create_red_flag_request)
+
+
+class TestValidateRedFlagRequestCommand(TestCase):
+
+    def setUp(self) -> None:
+        self.__sut = ValidateRedFlagRequestCommand()
+
+    def test_run_when_valid(self):
+        # arrange
+        create_red_flag_request = AutoFixture().create(dto=CreateRedFlagRequest)
+        context = ApplicationContext(variables={
+            CREATE_RED_FLAG_REQUEST: create_red_flag_request
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="no errors are set"):
+            self.assertEqual(len(context.error_capsules), 0)
+
+    def test_run_when_url_is_missing(self):
+        # arrange
+        create_red_flag_request = AutoFixture().create(dto=CreateRedFlagRequest)
+        create_red_flag_request.property_url = None
+        context = ApplicationContext(variables={
+            CREATE_RED_FLAG_REQUEST: create_red_flag_request
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="1 error is set"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="missing url error is set"):
+            self.assertEqual(context.error_capsules[0], Error(message="property url field is a required attribute"))
+
+    def test_run_when_body_is_missing(self):
+        # arrange
+        create_red_flag_request = AutoFixture().create(dto=CreateRedFlagRequest)
+        create_red_flag_request.body = None
+        context = ApplicationContext(variables={
+            CREATE_RED_FLAG_REQUEST: create_red_flag_request
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="1 error is set"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="missing body error is set"):
+            self.assertEqual(context.error_capsules[0], Error(message="body field is a required attribute"))

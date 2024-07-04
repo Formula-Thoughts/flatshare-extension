@@ -322,3 +322,9 @@ class SetRedFlagRequestCommand:
         create_red_flag_request = self.__object_mapper.map_from_dict(_from=context.body,
                                                                      to=CreateRedFlagRequest)
         context.set_var(name=CREATE_RED_FLAG_REQUEST, value=create_red_flag_request)
+
+
+class ValidateRedFlagRequestCommand:
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
