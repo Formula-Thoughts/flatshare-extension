@@ -1,3 +1,4 @@
+import datetime
 import os
 import uuid
 from decimal import Decimal
@@ -31,6 +32,7 @@ from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, S
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
+UTC_NOW = datetime.datetime.fromisoformat("2024-07-04T11:09:39+00:00")
 USER_POOL = "test_user_pool"
 
 
@@ -826,7 +828,8 @@ class TestCreateRedFlagCommand(TestCase):
         self.__sut = CreateRedFlagCommand(red_flag_repo=self.__red_flag_repo)
 
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
-    def test_run(self, _):
+    @patch('formula_thoughts_web.crosscutting.utc_now', return_value=UTC_NOW)
+    def test_run(self, *_):
         # arrange
         create_red_flag_request = AutoFixture().create(dto=CreateRedFlagRequest)
         context = ApplicationContext(variables={
@@ -835,7 +838,8 @@ class TestCreateRedFlagCommand(TestCase):
         self.__red_flag_repo.create = MagicMock()
         expected_red_flag = RedFlag(id=UUID_EXAMPLE,
                                     body=create_red_flag_request.body,
-                                    property_url=create_red_flag_request.property_url)
+                                    property_url=create_red_flag_request.property_url,
+                                    date=UTC_NOW)
 
         # act
         self.__sut.run(context=context)

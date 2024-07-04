@@ -1,15 +1,17 @@
 import base64
+import datetime
 import os
 import uuid
 
+import formula_thoughts_web.crosscutting
 from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
-    Property, GroupProperties, IPropertyRepo, IRedFlagRepo
+    Property, GroupProperties, IPropertyRepo, IRedFlagRepo, RedFlag, CreateRedFlagRequest
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
-    CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM
+    CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM, RED_FLAG, CREATE_RED_FLAG_REQUEST
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -301,4 +303,8 @@ class CreateRedFlagCommand:
         self.__red_flag_repo = red_flag_repo
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        red_flag_request = context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest)
+        red_flag = RedFlag(body=red_flag_request.body, property_url=red_flag_request.property_url,
+                           date=formula_thoughts_web.crosscutting.utc_now())
+        self.__red_flag_repo.create(red_flag=red_flag)
+        context.set_var(name=RED_FLAG, value=red_flag)
