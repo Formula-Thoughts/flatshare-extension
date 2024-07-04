@@ -25,7 +25,7 @@ class RedFlagNotFoundError(Error):
     ...
 
 
-class InvalidRedFlagError(Error):
+class InvalidRedFlagDataError(Error):
     ...
 
 
@@ -43,6 +43,6 @@ code_required_error = InvalidGroupDataError(message="code parameter is required 
 
 user_already_part_of_group_error = InvalidGroupDataError(message="user is already added to group")
 
-red_flag_property_url_required_error = InvalidRedFlagError(message="property url field is a required attribute")
+red_flag_property_url_required_error = InvalidRedFlagDataError(message="property url field is a required attribute")
 
-red_flag_body_required_error = InvalidRedFlagError(message="body field is a required attribute")
+red_flag_body_required_error = InvalidRedFlagDataError(message="body field is a required attribute")

@@ -2,7 +2,7 @@ from formula_thoughts_web.abstractions import ApiRequestHandler
 from formula_thoughts_web.ioc import Container
 
 from src.domain.errors import InvalidGroupDataError, UserGroupsNotFoundError, GroupNotFoundError, PropertyNotFoundError, \
-    RedFlagNotFoundError
+    RedFlagNotFoundError, InvalidPropertyDataError, InvalidRedFlagDataError
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
     CreatedRedFlagResponse, ListRedFlagsResponse
@@ -21,7 +21,6 @@ def register_web_dependencies(container: Container):
     .register(service=ApiRequestHandler, implementation=GetCodeForGroupApiHandler)
     .register(service=ApiRequestHandler, implementation=GetUserGroupByIdApiHandler)
     .register_status_code_mappings(mappings={
-        InvalidGroupDataError: 400,
         CreatedGroupResponse: 201,
         ListUserGroupsResponse: 200,
         GetGroupCodeResponse: 200,
@@ -31,6 +30,9 @@ def register_web_dependencies(container: Container):
         SingleRedFlagResponse: 200,
         CreatedRedFlagResponse: 201,
         ListRedFlagsResponse: 200,
+        InvalidGroupDataError: 400,
+        InvalidPropertyDataError: 400,
+        InvalidRedFlagDataError: 400,
         UserGroupsNotFoundError: 404,
         GroupNotFoundError: 404,
         PropertyNotFoundError: 404,
