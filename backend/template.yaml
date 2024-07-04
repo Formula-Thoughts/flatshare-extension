@@ -298,7 +298,7 @@ Resources:
             Path: /red-flags
             Method: post
             ApiId: !Ref FlatiniHttpApi
-        GetRedFlag:
+        GetRedFlags:
           Type: HttpApi
           Properties:
             Auth:
