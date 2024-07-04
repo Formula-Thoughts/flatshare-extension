@@ -298,6 +298,14 @@ Resources:
             Path: /red-flags
             Method: post
             ApiId: !Ref FlatiniHttpApi
+        GetRedFlag:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: UserAuth
+            Path: /red-flags
+            Method: get
+            ApiId: !Ref FlatiniHttpApi
       Role: !GetAtt FlatiniAppRole.Arn
 
   FlatiniApiGatewayInvoke:
