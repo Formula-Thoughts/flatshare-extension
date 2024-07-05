@@ -17,6 +17,7 @@ def uuid4_str():
 GroupParticipantName = str
 GroupId = str
 UserId = str
+RedFlagId = str
 PropertyId = str
 PropertyUrl = str
 
@@ -136,6 +137,9 @@ class IRedFlagRepo(Protocol):
         ...
 
     def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
+        ...
+
+    def get_by_id(self, _id: RedFlagId) -> None:
         ...
 
     def add_voter(self, user_id: UserId) -> None:

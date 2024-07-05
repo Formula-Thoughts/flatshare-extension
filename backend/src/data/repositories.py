@@ -3,7 +3,7 @@ from botocore.exceptions import ClientError
 from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId, UserId, \
-    PropertyUrl, RedFlag
+    PropertyUrl, RedFlag, RedFlagId
 from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, DataException, \
@@ -244,6 +244,9 @@ class DynamoDbRedFlagRepo:
         return list(map(lambda x: self.__object_mapper.map_from_dict(_from=x, to=RedFlag), items))
 
     def add_voter(self, user_id: UserId) -> None:
+        ...
+
+    def get_by_id(self, _id: RedFlagId) -> None:
         ...
 
     @staticmethod
