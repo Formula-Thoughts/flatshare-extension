@@ -251,10 +251,25 @@ class DynamoDbRedFlagRepo:
         self.__id_re_setter(red_flag=red_flag)
         return red_flag
 
-    def add_voter(self, user_id: UserId) -> None:
-        ...
+    def add_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
+        prev_etag = red_flag.etag
+        self.__id_setter(red_flag=red_flag)
+        red_flag.votes.append(user_id)
+        etag = self.__object_hasher.hash(red_flag)
+        red_flag.etag = etag
+        self.__dynamo_wrapper.update_item(key={
+            "id": red_flag.id,
+            "partition_key": f"red_flag"
+        },
+            update_expression="SET votes = list_append(votes, :i) SET etag = :j",
+            condition_expression=Attr("etag").eq(prev_etag),
+            expression_attribute_values={
+                ':i': [user_id],
+                ':j': etag
+            })
+        self.__id_re_setter(red_flag)
 
-    def remove_voter(self, user_id: UserId) -> None:
+    def remove_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
         ...
 
     def get(self, property_url: PropertyUrl, _id: RedFlagId) -> RedFlag:

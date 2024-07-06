@@ -142,10 +142,10 @@ class IRedFlagRepo(Protocol):
     def get(self, property_url: PropertyUrl, _id: RedFlagId) -> RedFlag:
         ...
 
-    def add_voter(self, user_id: UserId) -> None:
+    def add_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
         ...
 
-    def remove_voter(self, user_id: UserId) -> None:
+    def remove_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
         ...
 
 

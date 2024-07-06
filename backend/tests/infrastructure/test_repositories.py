@@ -702,7 +702,8 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         expected_red_flag = deepcopy(red_flag)
         user = "1234"
         expected_red_flag.votes.append(user)
-        sut.add_voter(user)
+        sut.add_voter(user, red_flag)
+        expected_red_flag.etag = red_flag.etag
 
         # act
         returned_red_flag = sut.get(red_flag.property_url, red_flag.id)
