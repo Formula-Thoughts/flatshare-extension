@@ -417,3 +417,9 @@ class SetAnonymousRedFlagCommand:
             red_flag=self.__red_flag_mapping_helper.map_to_anonymous(current_user=context.auth_user_id,
                                                                      red_flag=context.get_var(name=RED_FLAG,
                                                                                               _type=RedFlag)))
+
+
+class ValidateAlreadyVotedCommand:
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

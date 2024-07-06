@@ -25,12 +25,12 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
     GetRedFlagsCommand, ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
-    SetAnonymousRedFlagCommand
+    SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagDataError, \
-    RedFlagNotFoundError
+    RedFlagNotFoundError, InvalidVotingStatusError
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
@@ -1154,3 +1154,40 @@ class TestSetAnonymousRedFlagCommand(TestCase):
         # arrange
         with self.subTest(msg="response is set to created red flag"):
             self.__red_flag_mapping_helper.map_to_anonymous.assert_called_with(current_user=user, red_flag=red_flag)
+
+
+class TestValidateAlreadyVotedCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateAlreadyVotedCommand()
+
+    def test_run_when_user_has_already_voted(self):
+        # arrange
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        red_flag.votes.append(user)
+        context = ApplicationContext(variables={
+            RED_FLAG: red_flag
+        }, auth_user_id=user)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert no error is added"):
+            self.assertEqual(context.error_capsules, [])
+
+    def test_run_when_user_has_not_already_voted(self):
+        # arrange
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        context = ApplicationContext(variables={
+            RED_FLAG: red_flag
+        }, auth_user_id=user)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert no error is added"):
+            self.assertEqual(context.error_capsules, [InvalidVotingStatusError(message="current user has not voted")])
