@@ -18,7 +18,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error, \
     red_flag_body_required_error, red_flag_property_url_required_error, red_flag_property_url_param_required_error, \
-    RedFlagNotFoundError, user_has_not_voted_error
+    RedFlagNotFoundError, user_has_not_voted_error, user_has_already_voted_error
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, CreatedRedFlagResponse, \
@@ -430,4 +430,6 @@ class ValidateAlreadyVotedCommand:
 class ValidateNotVotedCommand:
 
     def run(self, context: ApplicationContext) -> None:
-        ...
+        red_flag = context.get_var(name=RED_FLAG, _type=RedFlag)
+        if context.auth_user_id in red_flag.votes:
+            context.error_capsules.append(user_has_already_voted_error)
