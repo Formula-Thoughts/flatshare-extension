@@ -3,7 +3,8 @@ from unittest.mock import Mock
 
 from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreatePropertyApiHandler, \
     DeletePropertyApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
-    CreateGroupApiHandler, CreateRedFlagApiHandler, GetRedFlagsApiHandler, CreateVoteForRedFlagApiHandler
+    CreateGroupApiHandler, CreateRedFlagApiHandler, GetRedFlagsApiHandler, CreateVoteForRedFlagApiHandler, \
+    DeleteVoteForRedFlagApiHandler
 
 
 class TestUpdateGroupHandler(TestCase):
@@ -191,3 +192,20 @@ class TestCreateVoteForRedFlagApiHandler(TestCase):
         # assert
         with self.subTest(msg="route key matches"):
             self.assertEqual(route_key, "POST /red-flags/{red_flag_id}/votes")
+
+
+class TestDeleteVoteForRedFlagApiHandler(TestCase):
+
+    def test_route_key_matches_expected(self):
+        # arrange
+        sut = DeleteVoteForRedFlagApiHandler(sequence=Mock(),
+                                             command_pipeline=Mock(),
+                                             deserializer=Mock(),
+                                             logger=Mock())
+
+        # act
+        route_key = sut.route_key
+
+        # assert
+        with self.subTest(msg="route key matches"):
+            self.assertEqual(route_key, "DELETE /red-flags/{red_flag_id}/votes")

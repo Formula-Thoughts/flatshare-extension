@@ -5,7 +5,7 @@ from formula_thoughts_web.web import ApiRequestHandlerBase
 from src.core import IUpdateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreatePropertySequenceBuilder, \
     IDeletePropertySequenceBuilder, IAddUserToGroupSequenceBuilder, IGetCodeForGroupSequenceBuilder, \
     IGetUserGroupByIdSequenceBuilder, ICreateGroupSequenceBuilder, ICreateRedFlagSequenceBuilder, \
-    IGetRedFlagsSequenceBuilder, ICreateVoteForRedFlagSequenceBuilder
+    IGetRedFlagsSequenceBuilder, ICreateVoteForRedFlagSequenceBuilder, IDeleteVoteForRedFlagSequenceBuilder
 
 
 class UpdateGroupApiHandler(ApiRequestHandlerBase):
@@ -145,6 +145,19 @@ class CreateVoteForRedFlagApiHandler(ApiRequestHandlerBase):
                  deserializer: Deserializer,
                  logger: Logger):
         super().__init__(route_key='POST /red-flags/{red_flag_id}/votes',
+                         sequence=sequence,
+                         command_pipeline=command_pipeline,
+                         deserializer=deserializer,
+                         logger=logger)
+
+
+class DeleteVoteForRedFlagApiHandler(ApiRequestHandlerBase):
+
+    def __init__(self, sequence: IDeleteVoteForRedFlagSequenceBuilder,
+                 command_pipeline: TopLevelSequenceRunner,
+                 deserializer: Deserializer,
+                 logger: Logger):
+        super().__init__(route_key='DELETE /red-flags/{red_flag_id}/votes',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,
