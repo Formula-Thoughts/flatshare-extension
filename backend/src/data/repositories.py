@@ -198,7 +198,7 @@ class DynamoDbUserGroupsRepo:
                 "id": user_groups.id,
                 "partition_key": f"user_group:{user_groups.id}"
             },
-                update_expression="SET groups = list_append(groups, :i) SET etag = :j",
+                update_expression="SET groups = list_append(groups, :i), etag = :j",
                 condition_expression=Attr("etag").eq(prev_etag),
                 expression_attribute_values={
                     ':i': [group],
@@ -265,7 +265,7 @@ class DynamoDbRedFlagRepo:
                 "id": red_flag.id,
                 "partition_key": f"red_flag"
             },
-                update_expression="SET votes = list_append(votes, :i) SET etag = :j",
+                update_expression="SET votes = list_append(votes, :i), etag = :j",
                 condition_expression=Attr("etag").eq(prev_etag),
                 expression_attribute_values={
                     ':i': [user_id],
@@ -291,7 +291,7 @@ class DynamoDbRedFlagRepo:
                 "id": red_flag.id,
                 "partition_key": f"red_flag"
             },
-                update_expression="SET votes = :votes SET etag = :j",
+                update_expression="SET votes = :votes, etag = :j",
                 condition_expression=Attr("etag").eq(prev_etag),
                 expression_attribute_values={
                     ':votes': red_flag.votes,
