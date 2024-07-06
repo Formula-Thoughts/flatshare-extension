@@ -265,6 +265,10 @@ class IValidateNotVotedCommand(Command, Protocol):
     pass
 
 
+class ICreateVoteCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

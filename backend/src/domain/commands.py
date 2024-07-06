@@ -433,3 +433,12 @@ class ValidateNotVotedCommand:
         red_flag = context.get_var(name=RED_FLAG, _type=RedFlag)
         if context.auth_user_id in red_flag.votes:
             context.error_capsules.append(user_has_already_voted_error)
+
+
+class CreateVoteCommand:
+
+    def __init__(self, red_flag_repo: IRedFlagRepo):
+        self.__red_flag_repo = red_flag_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
