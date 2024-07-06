@@ -9,7 +9,8 @@ from src.core import IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOne
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
     ICreateGroupCommand, ISetRedFlagRequestCommand, IValidateRedFlagRequestCommand, ICreateRedFlagCommand, \
     ISetCreatedAnonymousRedFlagCommand, IValidatePropertyUrlCommand, IGetRedFlagsCommand, \
-    ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand
+    ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand, \
+    IValidateNotVotedCommand
 from src.domain.sequence_builders import FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
@@ -245,10 +246,12 @@ class TestCreateVoteForRedFlagSequenceBuilder(TestCase):
         self.__validate_get_red_flags_request: IValidatePropertyUrlCommand = Mock()
         self.__get_red_flag_by_id: IGetRedFlagByIdCommand = Mock()
         self.__set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand = Mock()
+        self.__validate_not_voted: IValidateNotVotedCommand = Mock()
         self.__sut = CreateVoteForRedFlagSequenceBuilder(
             validate_get_red_flags_request=self.__validate_get_red_flags_request,
             get_red_flag_by_id=self.__get_red_flag_by_id,
-            set_anonymous_red_flag_response=self.__set_anonymous_red_flag_response)
+            set_anonymous_red_flag_response=self.__set_anonymous_red_flag_response,
+            validate_not_voted=self.__validate_not_voted)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -258,6 +261,7 @@ class TestCreateVoteForRedFlagSequenceBuilder(TestCase):
         self.assertEqual(self.__sut.components, [
             self.__validate_get_red_flags_request,
             self.__get_red_flag_by_id,
+            self.__validate_not_voted,
             self.__set_anonymous_red_flag_response
         ])
 
