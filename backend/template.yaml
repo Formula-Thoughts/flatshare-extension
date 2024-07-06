@@ -314,6 +314,14 @@ Resources:
             Path: /red-flags/{red_flag_id}/votes
             Method: post
             ApiId: !Ref FlatiniHttpApi
+        DeleteVoteForRedFlag:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: UserAuth
+            Path: /red-flags/{red_flag_id}/votes
+            Method: delete
+            ApiId: !Ref FlatiniHttpApi
       Role: !GetAtt FlatiniAppRole.Arn
 
   FlatiniApiGatewayInvoke:
