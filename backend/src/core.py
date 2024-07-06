@@ -250,6 +250,10 @@ class IGetRedFlagByIdCommand(Command, Protocol):
     pass
 
 
+class ISetAnonymousRedFlagCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
@@ -291,4 +295,8 @@ class ICreateRedFlagSequenceBuilder(SequenceBuilder, Protocol):
 
 
 class IGetRedFlagsSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class ICreateVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
     pass

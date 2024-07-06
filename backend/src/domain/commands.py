@@ -405,3 +405,12 @@ class GetRedFlagByIdCommand:
             context.set_var(name=RED_FLAG, value=red_flag)
         except RedFlagNotFoundException:
             context.error_capsules.append(RedFlagNotFoundError())
+
+
+class SetAnonymousRedFlagCommand:
+
+    def __init__(self, red_flag_mapping_helper: RedFlagMappingHelper):
+        self.__red_flag_mapping_helper = red_flag_mapping_helper
+
+    def run(self, context: ApplicationContext) -> None:
+        ...

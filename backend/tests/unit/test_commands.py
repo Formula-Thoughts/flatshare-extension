@@ -24,7 +24,8 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
-    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand
+    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
+    SetAnonymousRedFlagCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -943,7 +944,7 @@ class TestValidateRedFlagRequestCommand(TestCase):
             self.assertEqual(context.error_capsules[0], InvalidRedFlagDataError(message="body field is a required attribute"))
 
 
-class TestSetAnonymousRedFlagCommand(TestCase):
+class TestSetCreatedAnonymousRedFlagCommand(TestCase):
 
     def setUp(self):
         self.__red_flag_mapper: RedFlagMappingHelper = Mock()
@@ -1121,3 +1122,35 @@ class TestGetRedFlagByIdCommand(TestCase):
         # arrange
         with self.subTest(msg="red flag not found error is set"):
             self.assertEqual(context.error_capsules, [RedFlagNotFoundError()])
+
+
+class TestSetAnonymousRedFlagCommand(TestCase):
+
+    def setUp(self):
+        self.__red_flag_mapping_helper = Mock()
+        self.__sut = SetAnonymousRedFlagCommand(red_flag_mapping_helper=self.__red_flag_mapping_helper)
+
+    def test_run(self):
+        # arrange
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        anonymous_red_flag = AutoFixture().create(dto=AnonymousRedFlag)
+        context = ApplicationContext(variables={
+            RED_FLAG: red_flag
+        }, auth_user_id=user)
+        self.__red_flag_mapping_helper.map_to_anonymous = MagicMock(return_value=anonymous_red_flag)
+
+        # act
+        self.__sut.run(context=context)
+
+        # arrange
+        with self.subTest(msg="response is set to created red flag"):
+            self.assertEqual(context.response, SingleRedFlagResponse(red_flag=anonymous_red_flag))
+
+        # arrange
+        with self.subTest(msg="response is set to created red flag"):
+            self.__red_flag_mapping_helper.map_to_anonymous.assert_called_once()
+
+        # arrange
+        with self.subTest(msg="response is set to created red flag"):
+            self.__red_flag_mapping_helper.map_to_anonymous.assert_called_with(current_user=user, red_flag=red_flag)
