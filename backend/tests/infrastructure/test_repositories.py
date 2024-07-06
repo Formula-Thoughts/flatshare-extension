@@ -1,6 +1,6 @@
 import os
 import uuid
-from copy import copy
+from copy import copy, deepcopy
 from decimal import Decimal
 from unittest import TestCase
 from unittest.mock import patch
@@ -683,3 +683,34 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         with self.subTest(msg="assert red flag not found is raised"):
             with self.assertRaises(expected_exception=RedFlagNotFoundException):
                 sut_call()
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_add_voter(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
+        red_flag = AutoFixture().create(dto=RedFlag)
+        sut.create(red_flag)
+        expected_red_flag = deepcopy(red_flag)
+        user = "1234"
+        expected_red_flag.votes.append(user)
+        sut.add_voter(user)
+
+        # act
+        returned_red_flag = sut.get(red_flag.property_url, red_flag.id)
+
+        # assert
+        with self.subTest(msg="returned red flag equals expected"):
+            self.assertEqual(expected_red_flag, returned_red_flag)
+
+        # assert
+        with self.subTest(msg="propagated object equals expected"):
+            self.assertEqual(expected_red_flag, red_flag)

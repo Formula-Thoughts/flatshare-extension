@@ -254,6 +254,9 @@ class DynamoDbRedFlagRepo:
     def add_voter(self, user_id: UserId) -> None:
         ...
 
+    def remove_voter(self, user_id: UserId) -> None:
+        ...
+
     def get(self, property_url: PropertyUrl, _id: RedFlagId) -> RedFlag:
         items = self.__dynamo_wrapper.query(
             key_condition_expression="partition_key = :partition_key AND id = :id",

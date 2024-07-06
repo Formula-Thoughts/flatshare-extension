@@ -145,6 +145,9 @@ class IRedFlagRepo(Protocol):
     def add_voter(self, user_id: UserId) -> None:
         ...
 
+    def remove_voter(self, user_id: UserId) -> None:
+        ...
+
 
 class ISetGroupRequestCommand(Command, Protocol):
     pass
