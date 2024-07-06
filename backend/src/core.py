@@ -254,6 +254,14 @@ class ISetAnonymousRedFlagCommand(Command, Protocol):
     pass
 
 
+class IValidateAlreadyVotedCommand(Command, Protocol):
+    pass
+
+
+class IValidateNotVotedCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

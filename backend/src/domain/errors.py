@@ -29,6 +29,10 @@ class InvalidRedFlagDataError(Error):
     ...
 
 
+class InvalidVotingStatusError(Error):
+    ...
+
+
 current_user_already_added_to_group = InvalidGroupDataError(message="current user already added to group")
 
 invalid_price_error = InvalidGroupDataError(message="price has to be greater than 0")
@@ -48,3 +52,7 @@ red_flag_property_url_required_error = InvalidRedFlagDataError(message="property
 red_flag_property_url_param_required_error = InvalidRedFlagDataError(message="property url parameter is required")
 
 red_flag_body_required_error = InvalidRedFlagDataError(message="body field is a required attribute")
+
+user_has_already_voted_error = InvalidVotingStatusError(message="current user has already voted")
+
+user_has_not_voted_error = InvalidVotingStatusError(message="current user has not voted")
