@@ -825,7 +825,7 @@ class TestDeletePropertyCommand(TestCase):
 
         # assert
         with self.subTest(msg="property not found error was added"):
-            self.assertEqual(context.error_capsules[0], PropertyNotFoundError(message=f"property {property_id} not found"))
+            self.assertEqual(context.error_capsules[0], PropertyNotFoundError(message=f"property {property_id} for {group.id} not found"))
 
 
 class TestCreateRedFlagCommand(TestCase):

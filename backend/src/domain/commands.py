@@ -176,13 +176,13 @@ class DeletePropertyCommand:
         self.__property_repo = property_repo
 
     def run(self, context: ApplicationContext):
+        property_id = context.get_var(name=PROPERTY_ID, _type=str)
+        group = context.get_var(name=GROUP, _type=Group)
         try:
-            property_id = context.get_var(name=PROPERTY_ID, _type=str)
-            group = context.get_var(name=GROUP, _type=Group)
             self.__property_repo.delete(group_id=group.id, property_id=property_id)
             context.response = None
         except PropertyNotFoundException:
-            context.error_capsules.append(PropertyNotFoundError())
+            context.error_capsules.append(PropertyNotFoundError(message=f"property {property_id} for {group.id} not found"))
 
 
 class AddCurrentUserToGroupCommand:
@@ -398,13 +398,13 @@ class GetRedFlagByIdCommand:
         self.__red_flag_repo = red_flag_repo
 
     def run(self, context: ApplicationContext) -> None:
+        _id = context.get_var(name=RED_FLAG_ID, _type=str)
+        property_url = context.get_var(name=PROPERTY_URL, _type=str)
         try:
-            _id = context.get_var(name=RED_FLAG_ID, _type=str)
-            property_url = context.get_var(name=PROPERTY_URL, _type=str)
             red_flag = self.__red_flag_repo.get(property_url=property_url, _id=_id)
             context.set_var(name=RED_FLAG, value=red_flag)
         except RedFlagNotFoundException:
-            context.error_capsules.append(RedFlagNotFoundError())
+            context.error_capsules.append(RedFlagNotFoundError(message=f"red flag {property_url}:{_id} not found"))
 
 
 class SetAnonymousRedFlagCommand:
