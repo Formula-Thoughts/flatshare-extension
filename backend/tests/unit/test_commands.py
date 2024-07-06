@@ -24,7 +24,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
-    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand, SetAnonymousRedFlagsCommand
+    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -1068,3 +1068,36 @@ class TestSetAnonymousRedFlagsCommand(TestCase):
         # assert
         with self.subTest(msg="assert red flags response was set"):
             self.assertEqual(context.response, ListRedFlagsResponse(red_flags=anonymous_red_flags))
+
+
+class TestGetRedFlagByIdCommand(TestCase):
+
+    def setUp(self):
+        self.__red_flag_repo: IRedFlagRepo = Mock()
+        self.__sut = GetRedFlagByIdCommand(red_flag_repo=self.__red_flag_repo)
+
+    def test_run(self):
+        # arrange
+        red_flag_id = "123566"
+        property_url = "https://www.reddit.com/r/"
+        context = ApplicationContext(variables={
+            "red_flag_id": red_flag_id,
+            PROPERTY_URL: property_url
+        })
+        red_flag = AutoFixture().create(dto=RedFlag)
+        self.__red_flag_repo.get = MagicMock(return_value=red_flag)
+
+        # act
+        self.__sut.run(context=context)
+
+        # arrange
+        with self.subTest(msg="assert repo is called once"):
+            self.__red_flag_repo.get.assert_called_once()
+
+        # arrange
+        with self.subTest(msg="assert repo is called once"):
+            self.__red_flag_repo.get.assert_called_with(property_url=property_url, _id=red_flag_id)
+
+        # arrange
+        with self.subTest(msg="red flag variable is set"):
+            self.assertEqual(context.get_var(name=RED_FLAG, _type=RedFlag), red_flag)

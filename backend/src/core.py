@@ -246,6 +246,10 @@ class ISetAnonymousRedFlagsCommand(Command, Protocol):
     pass
 
 
+class IGetRedFlagByIdCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

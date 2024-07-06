@@ -388,3 +388,12 @@ class SetAnonymousRedFlagsCommand:
             anonymous_red_flags.append(self.__red_flag_mapping_helper.map_to_anonymous(current_user=context.auth_user_id,
                                                                                        red_flag=red_flag))
         context.response = ListRedFlagsResponse(red_flags=anonymous_red_flags)
+
+
+class GetRedFlagByIdCommand:
+
+    def __init__(self, red_flag_repo: IRedFlagRepo):
+        self.__red_flag_repo = red_flag_repo
+
+    def run(self, context: ApplicationContext) -> None:
+        ...
