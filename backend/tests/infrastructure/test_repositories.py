@@ -163,10 +163,12 @@ class TestUserGroupRepo(DynamoDbTestCase):
                                      object_hasher=object_hasher)
         user_groups = AutoFixture().create(dto=UserGroups)
         sut.create(user_groups=user_groups)
+        old_etag = user_groups.etag
         group_to_add = str(uuid.uuid4())
 
         # act
         sut.add_group(group=str(uuid.uuid4()), user_groups=user_groups)
+        user_groups.etag = old_etag
         sut_call = lambda: sut.add_group(group=group_to_add, user_groups=user_groups)
 
         # assert
@@ -438,12 +440,11 @@ class TestGroupRepo(DynamoDbTestCase):
         sut.create(group=group)
         participant_to_add = "Bob Marley"
         sut.add_participant(participant=participant_to_add, group=group)
-        group_hash = object_hasher.hash(group)
 
         # act
         group_properties = sut.get(_id=group_id)
 
-        expected_group_properties = GroupProperties(etag=group_hash,
+        expected_group_properties = GroupProperties(etag=group.etag,
                                                     partition_key=f"group:{group_id}",
                                                     id=group_id,
                                                     participants=group.participants,
@@ -498,7 +499,9 @@ class TestGroupRepo(DynamoDbTestCase):
                                 object_hasher=object_hasher)
         group = AutoFixture().create(dto=Group)
         sut.create(group=group)
+        old_etag = group.etag
         sut.add_participant(participant="Aidan Gannon", group=group)
+        group.etag = old_etag
 
         # act
         sut_call = lambda: sut.add_participant(participant="Dom Farr", group=group)
