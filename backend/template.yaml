@@ -306,6 +306,14 @@ Resources:
             Path: /red-flags
             Method: get
             ApiId: !Ref FlatiniHttpApi
+        CreateVoteForRedFlag:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: UserAuth
+            Path: /red-flags/{red_flag_id}/votes
+            Method: post
+            ApiId: !Ref FlatiniHttpApi
       Role: !GetAtt FlatiniAppRole.Arn
 
   FlatiniApiGatewayInvoke:

@@ -8,7 +8,7 @@ from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, S
     CreatedRedFlagResponse, ListRedFlagsResponse
 from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreatePropertyApiHandler, \
     DeletePropertyApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
-    CreateGroupApiHandler, CreateRedFlagApiHandler, GetRedFlagsApiHandler
+    CreateGroupApiHandler, CreateRedFlagApiHandler, GetRedFlagsApiHandler, CreateVoteForRedFlagApiHandler
 
 
 def register_web_dependencies(container: Container):
@@ -23,6 +23,7 @@ def register_web_dependencies(container: Container):
      .register(service=ApiRequestHandler, implementation=GetUserGroupByIdApiHandler)
      .register(service=ApiRequestHandler, implementation=CreateRedFlagApiHandler)
      .register(service=ApiRequestHandler, implementation=GetRedFlagsApiHandler)
+     .register(service=ApiRequestHandler, implementation=CreateVoteForRedFlagApiHandler)
      .register_status_code_mappings(mappings={
         CreatedGroupResponse: 201,
         ListUserGroupsResponse: 200,
