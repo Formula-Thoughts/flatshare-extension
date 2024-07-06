@@ -16,7 +16,7 @@ from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, Use
 from src.data import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID, CREATE_RED_FLAG_REQUEST, RED_FLAG, PROPERTY_URL, \
-    RED_FLAGS
+    RED_FLAGS, RED_FLAG_ID
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, \
     ValidateIfGroupBelongsToUserCommand, FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, \
@@ -28,12 +28,14 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
-    property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagDataError
+    property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagDataError, \
+    RedFlagNotFoundError
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
     CreatedRedFlagResponse, ListRedFlagsResponse
-from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException, \
+    RedFlagNotFoundException
 
 UUID_EXAMPLE = "723f9ec2-fec1-4616-9cf2-576ee632822d"
 UTC_NOW = datetime.datetime.fromisoformat("2024-07-04T11:09:39+00:00")
@@ -1101,3 +1103,21 @@ class TestGetRedFlagByIdCommand(TestCase):
         # arrange
         with self.subTest(msg="red flag variable is set"):
             self.assertEqual(context.get_var(name=RED_FLAG, _type=RedFlag), red_flag)
+
+    def test_run_when_not_found(self):
+        # arrange
+        red_flag_id = "123566"
+        property_url = "https://www.reddit.com/r/"
+        context = ApplicationContext(variables={
+            RED_FLAG_ID: red_flag_id,
+            PROPERTY_URL: property_url
+        })
+        red_flag = AutoFixture().create(dto=RedFlag)
+        self.__red_flag_repo.get = MagicMock(side_effect=RedFlagNotFoundException())
+
+        # act
+        self.__sut.run(context=context)
+
+        # arrange
+        with self.subTest(msg="red flag not found error is set"):
+            self.assertEqual(context.error_capsules, RedFlagNotFoundError())
