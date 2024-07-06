@@ -825,7 +825,7 @@ class TestDeletePropertyCommand(TestCase):
 
         # assert
         with self.subTest(msg="property not found error was added"):
-            self.assertEqual(context.error_capsules[0], PropertyNotFoundError())
+            self.assertEqual(context.error_capsules[0], PropertyNotFoundError(message=f"property {property_id} not found"))
 
 
 class TestCreateRedFlagCommand(TestCase):
@@ -1121,7 +1121,7 @@ class TestGetRedFlagByIdCommand(TestCase):
 
         # arrange
         with self.subTest(msg="red flag not found error is set"):
-            self.assertEqual(context.error_capsules, [RedFlagNotFoundError()])
+            self.assertEqual(context.error_capsules, [RedFlagNotFoundError(message=f"red flag {property_url}:{red_flag_id} not found")])
 
 
 class TestSetAnonymousRedFlagCommand(TestCase):
