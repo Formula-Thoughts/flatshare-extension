@@ -5,7 +5,7 @@ import uuid
 
 import formula_thoughts_web.crosscutting
 from formula_thoughts_web.abstractions import ApplicationContext, Logger
-from formula_thoughts_web.crosscutting import ObjectMapper
+from formula_thoughts_web.crosscutting import ObjectMapper, base64decode, base64encode
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
     Property, GroupProperties, IPropertyRepo, IRedFlagRepo, RedFlag, CreateRedFlagRequest
@@ -208,7 +208,7 @@ class SetGroupIdFromCodeCommand:
     def run(self, context: ApplicationContext):
         try:
             code = context.get_var(name=CODE, _type=str)
-            group_id = base64.b64decode(code).decode('utf-8')
+            group_id = base64decode(code)
             context.set_var(name=GROUP_ID, value=str(group_id))
         except KeyError:
             context.error_capsules.append(code_required_error)
@@ -218,7 +218,7 @@ class GetCodeFromGroupIdCommand:
 
     def run(self, context: ApplicationContext):
         group_id = context.get_var(name=GROUP_ID, _type=str)
-        code = base64.b64encode(group_id.encode('utf-8')).decode('utf-8')
+        code = base64encode(group_id)
         context.response = GetGroupCodeResponse(code=code)
 
 

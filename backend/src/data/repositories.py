@@ -1,6 +1,6 @@
 from boto3.dynamodb.conditions import Attr
 from botocore.exceptions import ClientError
-from formula_thoughts_web.crosscutting import ObjectMapper
+from formula_thoughts_web.crosscutting import ObjectMapper, base64encode
 
 from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId, UserId, \
     PropertyUrl, RedFlag, RedFlagId
@@ -242,7 +242,7 @@ class DynamoDbRedFlagRepo:
         items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key AND begins_with(id, :property_url)",
                                             expression_attribute_values={
                                                 ':partition_key': "red_flag",
-                                                ':property_url': property_url
+                                                ':property_url': base64encode(property_url)
                                             })["Items"]
         return list(map(self.__map_back_item, items))
 
@@ -259,7 +259,7 @@ class DynamoDbRedFlagRepo:
             key_condition_expression="partition_key = :partition_key AND id = :id",
             expression_attribute_values={
                 ':partition_key': "red_flag",
-                ':id': f"{property_url}:{_id}"
+                ':id': f"{base64encode(property_url)}:{_id}"
             })["Items"]
         if len(items) == 0:
             raise RedFlagNotFoundException()
@@ -273,7 +273,7 @@ class DynamoDbRedFlagRepo:
 
     @staticmethod
     def __id_setter(red_flag: RedFlag):
-        red_flag.id = f"{red_flag.property_url}:{red_flag.id}"
+        red_flag.id = f"{base64encode(red_flag.property_url)}:{red_flag.id}"
 
     @staticmethod
     def __id_re_setter(red_flag: RedFlag):
