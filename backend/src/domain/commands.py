@@ -454,4 +454,4 @@ class DeleteVoteCommand:
     def run(self, context: ApplicationContext) -> None:
         red_flag = context.get_var(name=RED_FLAG, _type=RedFlag)
         user = context.auth_user_id
-        self.__red_flag_repo.add_voter(user_id=user, red_flag=red_flag)
+        self.__red_flag_repo.remove_voter(user_id=user, red_flag=red_flag)
