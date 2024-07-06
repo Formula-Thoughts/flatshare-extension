@@ -1120,4 +1120,4 @@ class TestGetRedFlagByIdCommand(TestCase):
 
         # arrange
         with self.subTest(msg="red flag not found error is set"):
-            self.assertEqual(context.error_capsules, RedFlagNotFoundError())
+            self.assertEqual(context.error_capsules, [RedFlagNotFoundError()])

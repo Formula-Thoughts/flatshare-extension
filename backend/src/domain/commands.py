@@ -17,12 +17,14 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error, \
-    red_flag_body_required_error, red_flag_property_url_required_error, red_flag_property_url_param_required_error
+    red_flag_body_required_error, red_flag_property_url_required_error, red_flag_property_url_param_required_error, \
+    RedFlagNotFoundError
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, CreatedRedFlagResponse, \
     ListRedFlagsResponse
-from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException
+from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, PropertyNotFoundException, \
+    RedFlagNotFoundException
 
 
 class SetGroupRequestCommand:
@@ -396,7 +398,10 @@ class GetRedFlagByIdCommand:
         self.__red_flag_repo = red_flag_repo
 
     def run(self, context: ApplicationContext) -> None:
-        _id = context.get_var(name=RED_FLAG_ID, _type=str)
-        property_url = context.get_var(name=PROPERTY_URL, _type=str)
-        red_flag = self.__red_flag_repo.get(property_url=property_url, _id=_id)
-        context.set_var(name=RED_FLAG, value=red_flag)
+        try:
+            _id = context.get_var(name=RED_FLAG_ID, _type=str)
+            property_url = context.get_var(name=PROPERTY_URL, _type=str)
+            red_flag = self.__red_flag_repo.get(property_url=property_url, _id=_id)
+            context.set_var(name=RED_FLAG, value=red_flag)
+        except RedFlagNotFoundException:
+            context.error_capsules.append(RedFlagNotFoundError())
