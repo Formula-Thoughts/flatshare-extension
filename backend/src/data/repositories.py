@@ -280,7 +280,30 @@ class DynamoDbRedFlagRepo:
                 raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def remove_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
-        ...
+        try:
+            prev_etag = red_flag.etag
+            self.__id_setter(red_flag=red_flag)
+            index_to_remove_at = red_flag.votes.index(user_id)
+            red_flag.votes.remove(user_id)
+            etag = self.__object_hasher.hash(red_flag)
+            red_flag.etag = etag
+            self.__dynamo_wrapper.update_item(key={
+                "id": red_flag.id,
+                "partition_key": f"red_flag"
+            },
+                update_expression="SET votes = :votes SET etag = :j",
+                condition_expression=Attr("etag").eq(prev_etag),
+                expression_attribute_values={
+                    ':votes': red_flag.votes,
+                    ':j': etag
+                })
+            self.__id_re_setter(red_flag)
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == CONDITIONAL_CHECK_FAILED:
+                raise ConflictException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def get(self, property_url: PropertyUrl, _id: RedFlagId) -> RedFlag:
         items = self.__dynamo_wrapper.query(

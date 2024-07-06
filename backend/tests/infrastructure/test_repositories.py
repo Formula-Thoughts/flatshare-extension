@@ -796,6 +796,7 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         user = "1234"
         red_flag = AutoFixture().create(dto=RedFlag)
         red_flag.votes.append(user)
+        red_flag.votes.append(user)
         sut.create(red_flag)
         old_etag = red_flag.etag
         sut.remove_voter(user, red_flag)
