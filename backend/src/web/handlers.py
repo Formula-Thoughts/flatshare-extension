@@ -5,7 +5,7 @@ from formula_thoughts_web.web import ApiRequestHandlerBase
 from src.core import IUpdateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreatePropertySequenceBuilder, \
     IDeletePropertySequenceBuilder, IAddUserToGroupSequenceBuilder, IGetCodeForGroupSequenceBuilder, \
     IGetUserGroupByIdSequenceBuilder, ICreateGroupSequenceBuilder, ICreateRedFlagSequenceBuilder, \
-    IGetRedFlagsSequenceBuilder
+    IGetRedFlagsSequenceBuilder, ICreateVoteForRedFlagSequenceBuilder
 
 
 class UpdateGroupApiHandler(ApiRequestHandlerBase):
@@ -125,13 +125,26 @@ class CreateRedFlagApiHandler(ApiRequestHandlerBase):
                          logger=logger)
 
 
-class GetRedFlagApiHandler(ApiRequestHandlerBase):
+class GetRedFlagsApiHandler(ApiRequestHandlerBase):
 
     def __init__(self, sequence: IGetRedFlagsSequenceBuilder,
                  command_pipeline: TopLevelSequenceRunner,
                  deserializer: Deserializer,
                  logger: Logger):
         super().__init__(route_key='GET /red-flags',
+                         sequence=sequence,
+                         command_pipeline=command_pipeline,
+                         deserializer=deserializer,
+                         logger=logger)
+
+
+class CreateVoteForRedFlagApiHandler(ApiRequestHandlerBase):
+
+    def __init__(self, sequence: ICreateVoteForRedFlagSequenceBuilder,
+                 command_pipeline: TopLevelSequenceRunner,
+                 deserializer: Deserializer,
+                 logger: Logger):
+        super().__init__(route_key='POST /red-flags/{red_flag_id}/votes',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,
