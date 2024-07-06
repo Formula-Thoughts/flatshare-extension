@@ -25,7 +25,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
     GetRedFlagsCommand, ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
-    SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand
+    SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand, ValidateNotVotedCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -1189,5 +1189,42 @@ class TestValidateAlreadyVotedCommand(TestCase):
         self.__sut.run(context=context)
 
         # assert
-        with self.subTest(msg="assert no error is added"):
+        with self.subTest(msg="assert voting error is added"):
             self.assertEqual(context.error_capsules, [InvalidVotingStatusError(message="current user has not voted")])
+
+
+class TestValidateNotVotedCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateNotVotedCommand()
+
+    def test_run_when_user_has_already_voted(self):
+        # arrange
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        red_flag.votes.append(user)
+        context = ApplicationContext(variables={
+            RED_FLAG: red_flag
+        }, auth_user_id=user)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert voting error is added"):
+            self.assertEqual(context.error_capsules, [InvalidVotingStatusError(message="current user has already voted")])
+
+    def test_run_when_user_has_not_already_voted(self):
+        # arrange
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        context = ApplicationContext(variables={
+            RED_FLAG: red_flag
+        }, auth_user_id=user)
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert no error is added"):
+            self.assertEqual(context.error_capsules, [])
