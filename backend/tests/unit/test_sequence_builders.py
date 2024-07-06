@@ -10,7 +10,7 @@ from src.core import IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOne
     ICreateGroupCommand, ISetRedFlagRequestCommand, IValidateRedFlagRequestCommand, ICreateRedFlagCommand, \
     ISetCreatedAnonymousRedFlagCommand, IValidatePropertyUrlCommand, IGetRedFlagsCommand, \
     ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand, \
-    IValidateNotVotedCommand, ICreateVoteCommand
+    IValidateNotVotedCommand, ICreateVoteCommand, IDeleteVoteCommand
 from src.domain.sequence_builders import FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
@@ -276,11 +276,13 @@ class TestDeleteVoteForRedFlagSequenceBuilder(TestCase):
         self.__get_red_flag_by_id: IGetRedFlagByIdCommand = Mock()
         self.__set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand = Mock()
         self.__validate_user_already_voted: IValidateAlreadyVotedCommand = Mock()
+        self.__down_vote_command: IDeleteVoteCommand = Mock()
         self.__sut = DeleteVoteForRedFlagSequenceBuilder(
             validate_get_red_flags_request=self.__validate_get_red_flags_request,
             get_red_flag_by_id=self.__get_red_flag_by_id,
             set_anonymous_red_flag_response=self.__set_anonymous_red_flag_response,
-            validate_user_already_voted=self.__validate_user_already_voted)
+            validate_user_already_voted=self.__validate_user_already_voted,
+            down_vote_command=self.__down_vote_command)
 
     def test_build_should_run_commands_in_order(self):
         # act
@@ -291,5 +293,6 @@ class TestDeleteVoteForRedFlagSequenceBuilder(TestCase):
             self.__validate_get_red_flags_request,
             self.__get_red_flag_by_id,
             self.__validate_user_already_voted,
+            self.__down_vote_command,
             self.__set_anonymous_red_flag_response
         ])

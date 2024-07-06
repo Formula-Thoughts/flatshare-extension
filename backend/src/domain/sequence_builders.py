@@ -9,7 +9,8 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, \
     ICreateGroupCommand, ICreateUserGroupsCommand, IUpdateGroupCommand, ISetRedFlagRequestCommand, \
     IValidateRedFlagRequestCommand, ICreateRedFlagCommand, ISetCreatedAnonymousRedFlagCommand, \
     IValidatePropertyUrlCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, \
-    ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand, IValidateNotVotedCommand, ICreateVoteCommand
+    ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand, IValidateNotVotedCommand, ICreateVoteCommand, \
+    IDeleteVoteCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -228,8 +229,10 @@ class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
     def __init__(self, validate_get_red_flags_request: IValidatePropertyUrlCommand,
                  get_red_flag_by_id: IGetRedFlagByIdCommand,
                  validate_user_already_voted: IValidateAlreadyVotedCommand,
+                 down_vote_command: IDeleteVoteCommand,
                  set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand):
         super().__init__()
+        self.__down_vote_command = down_vote_command
         self.__validate_user_already_voted = validate_user_already_voted
         self.__set_anonymous_red_flag_response = set_anonymous_red_flag_response
         self.__get_red_flag_by_id = get_red_flag_by_id
