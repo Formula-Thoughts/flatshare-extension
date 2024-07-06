@@ -746,3 +746,66 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         with self.subTest(msg="conflict error is raised"):
             with self.assertRaises(expected_exception=ConflictException):
                 sut_call()
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_remove_voter(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        red_flag.votes.append(user)
+        sut.create(red_flag)
+        expected_red_flag = deepcopy(red_flag)
+        expected_red_flag.votes.remove(user)
+        sut.remove_voter(user, red_flag)
+        expected_red_flag.etag = red_flag.etag
+
+        # act
+        returned_red_flag = sut.get(red_flag.property_url, red_flag.id)
+
+        # assert
+        with self.subTest(msg="returned red flag equals expected"):
+            self.assertEqual(expected_red_flag, returned_red_flag)
+
+        # assert
+        with self.subTest(msg="propagated object equals expected"):
+            self.assertEqual(expected_red_flag, red_flag)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_remove_voter_when_conflict(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
+        user = "1234"
+        red_flag = AutoFixture().create(dto=RedFlag)
+        red_flag.votes.append(user)
+        sut.create(red_flag)
+        old_etag = red_flag.etag
+        sut.remove_voter(user, red_flag)
+
+        # act
+        red_flag.etag = old_etag
+        sut_call = lambda: sut.remove_voter(user, red_flag)
+
+        # assert
+        with self.subTest(msg="conflict error is raised"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
+
