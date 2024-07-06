@@ -633,7 +633,7 @@ class TestRedFlagsRepo(DynamoDbTestCase):
                                   object_hasher=object_hasher)
 
         # act
-        red_flags = sut.get_by_url(property_url="")
+        red_flags = sut.get_by_url(property_url="fsda")
 
         # assert
         with self.subTest(msg="assert red flags are empty"):
@@ -656,7 +656,7 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         sut.create(red_flag=red_flag)
 
         # act
-        returned_red_flag = sut.get_by_id(_id=red_flag.id)
+        returned_red_flag = sut.get(property_url=red_flag.property_url, _id=red_flag.id)
 
         # assert
         with self.subTest(msg="assert red flag is returned"):

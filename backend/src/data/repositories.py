@@ -225,10 +225,12 @@ class DynamoDbRedFlagRepo:
     def create(self, red_flag: RedFlag) -> None:
         try:
             self.__partition_key_gen(red_flag=red_flag)
+            self.__id_setter(red_flag=red_flag)
             red_flag.etag = self.__object_hasher.hash(object=red_flag)
             item = self.__object_mapper.map_to_dict(_from=red_flag, to=RedFlag)
             self.__dynamo_wrapper.put(item=item,
                                       condition_expression=Attr('etag').not_exists())
+            self.__id_re_setter(red_flag=red_flag)
         except ClientError as e:
             code = e.response['Error']['Code']
             if code == CONDITIONAL_CHECK_FAILED:
@@ -237,18 +239,40 @@ class DynamoDbRedFlagRepo:
                 raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
-        items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key",
+        items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key AND begins_with(id, :property_url)",
                                             expression_attribute_values={
-                                                ':partition_key': f"red_flag:{property_url}"
+                                                ':partition_key': "red_flag",
+                                                ':property_url': property_url
                                             })["Items"]
-        return list(map(lambda x: self.__object_mapper.map_from_dict(_from=x, to=RedFlag), items))
+        return list(map(self.__map_back_item, items))
+
+    def __map_back_item(self, red_flag_dict: dict) -> RedFlag:
+        red_flag = self.__object_mapper.map_from_dict(_from=red_flag_dict, to=RedFlag)
+        self.__id_re_setter(red_flag=red_flag)
+        return red_flag
 
     def add_voter(self, user_id: UserId) -> None:
         ...
 
-    def get_by_id(self, _id: RedFlagId) -> None:
-        ...
+    def get(self, property_url: PropertyUrl, _id: RedFlagId) -> RedFlag:
+        items = self.__dynamo_wrapper.query(
+            key_condition_expression="partition_key = :partition_key AND id = :id",
+            expression_attribute_values={
+                ':partition_key': "red_flag",
+                ':id': f"{property_url}:{_id}"
+            })["Items"]
+        first_item = items[0]
+        red_flag = self.__map_back_item(red_flag_dict=first_item)
+        return red_flag
 
     @staticmethod
     def __partition_key_gen(red_flag: RedFlag):
-        red_flag.partition_key = f"red_flag:{red_flag.property_url}"
+        red_flag.partition_key = f"red_flag"
+
+    @staticmethod
+    def __id_setter(red_flag: RedFlag):
+        red_flag.id = f"{red_flag.property_url}:{red_flag.id}"
+
+    @staticmethod
+    def __id_re_setter(red_flag: RedFlag):
+        red_flag.id = red_flag.id.split(":")[1]

@@ -139,7 +139,7 @@ class IRedFlagRepo(Protocol):
     def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
         ...
 
-    def get_by_id(self, _id: RedFlagId) -> None:
+    def get(self, property_url: PropertyUrl, _id: RedFlagId) -> RedFlag:
         ...
 
     def add_voter(self, user_id: UserId) -> None:
