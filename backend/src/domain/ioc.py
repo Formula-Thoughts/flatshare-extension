@@ -12,7 +12,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     ICreateGroupCommand, IUpdateGroupCommand, ICreateRedFlagCommand, ISetRedFlagRequestCommand, \
     IValidateRedFlagRequestCommand, ISetCreatedAnonymousRedFlagCommand, ICreateRedFlagSequenceBuilder, \
     IGetRedFlagsCommand, IValidateGetRedFlagsRequestCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagsSequenceBuilder, \
-    IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand
+    IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand, ICreateVoteForRedFlagSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUserCommand, \
     FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, \
@@ -28,7 +28,7 @@ from src.domain.sequence_builders import UpdateGroupSequenceBuilder, FetchUserGr
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
     GetCodeForGroupSequenceBuilder, \
     CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder, \
-    GetRedFlagsSequenceBuilder
+    GetRedFlagsSequenceBuilder, CreateVoteForRedFlagSequenceBuilder
 
 
 def register_domain_dependencies(container: Container):
@@ -91,4 +91,6 @@ def register_domain_dependencies(container: Container):
                implementation=CreateRedFlagSequenceBuilder)
      .register(service=IGetRedFlagsSequenceBuilder,
                implementation=GetRedFlagsSequenceBuilder)
+     .register(service=ICreateVoteForRedFlagSequenceBuilder,
+               implementation=CreateVoteForRedFlagSequenceBuilder)
      .register(service=RedFlagMappingHelper))
