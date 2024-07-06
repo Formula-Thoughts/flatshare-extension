@@ -234,7 +234,7 @@ class IValidateRedFlagRequestCommand(Command, Protocol):
     pass
 
 
-class IValidateGetRedFlagsRequestCommand(Command, Protocol):
+class IValidatePropertyUrlCommand(Command, Protocol):
     pass
 
 

@@ -8,7 +8,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, \
     ICreateGroupCommand, ICreateUserGroupsCommand, IUpdateGroupCommand, ISetRedFlagRequestCommand, \
     IValidateRedFlagRequestCommand, ICreateRedFlagCommand, ISetCreatedAnonymousRedFlagCommand, \
-    IValidateGetRedFlagsRequestCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, \
+    IValidatePropertyUrlCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, \
     ISetAnonymousRedFlagCommand
 
 
@@ -187,7 +187,7 @@ class CreateRedFlagSequenceBuilder(FluentSequenceBuilder):
 
 class GetRedFlagsSequenceBuilder(FluentSequenceBuilder):
 
-    def __init__(self, validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand,
+    def __init__(self, validate_get_red_flags_request: IValidatePropertyUrlCommand,
                  get_red_flags: IGetRedFlagsCommand,
                  set_red_flags_response: ISetAnonymousRedFlagsCommand):
         super().__init__()
@@ -203,7 +203,7 @@ class GetRedFlagsSequenceBuilder(FluentSequenceBuilder):
 
 class CreateVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
 
-    def __init__(self, validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand,
+    def __init__(self, validate_get_red_flags_request: IValidatePropertyUrlCommand,
                  get_red_flag_by_id: IGetRedFlagByIdCommand,
                  set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand):
         super().__init__()
@@ -219,7 +219,7 @@ class CreateVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
 
 class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
 
-    def __init__(self, validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand,
+    def __init__(self, validate_get_red_flags_request: IValidatePropertyUrlCommand,
                  get_red_flag_by_id: IGetRedFlagByIdCommand,
                  set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand):
         super().__init__()

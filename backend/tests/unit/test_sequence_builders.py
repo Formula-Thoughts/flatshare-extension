@@ -8,7 +8,7 @@ from src.core import IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOne
     IGetCodeFromGroupIdCommand, IValidateUserIsNotParticipantCommand, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
     ICreateGroupCommand, ISetRedFlagRequestCommand, IValidateRedFlagRequestCommand, ICreateRedFlagCommand, \
-    ISetCreatedAnonymousRedFlagCommand, IValidateGetRedFlagsRequestCommand, IGetRedFlagsCommand, \
+    ISetCreatedAnonymousRedFlagCommand, IValidatePropertyUrlCommand, IGetRedFlagsCommand, \
     ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand
 from src.domain.sequence_builders import FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
@@ -220,7 +220,7 @@ class TestCreateRedFlagSequenceBuilder(TestCase):
 class TestGetRedFlagsSequenceBuilder(TestCase):
 
     def setUp(self):
-        self.__validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand = Mock()
+        self.__validate_get_red_flags_request: IValidatePropertyUrlCommand = Mock()
         self.__get_red_flags: IGetRedFlagsCommand = Mock()
         self.__set_red_flags_response: ISetAnonymousRedFlagsCommand = Mock()
         self.__sut = GetRedFlagsSequenceBuilder(validate_get_red_flags_request=self.__validate_get_red_flags_request,
@@ -242,7 +242,7 @@ class TestGetRedFlagsSequenceBuilder(TestCase):
 class TestCreateVoteForRedFlagSequenceBuilder(TestCase):
 
     def setUp(self):
-        self.__validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand = Mock()
+        self.__validate_get_red_flags_request: IValidatePropertyUrlCommand = Mock()
         self.__get_red_flag_by_id: IGetRedFlagByIdCommand = Mock()
         self.__set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand = Mock()
         self.__sut = CreateVoteForRedFlagSequenceBuilder(
@@ -265,7 +265,7 @@ class TestCreateVoteForRedFlagSequenceBuilder(TestCase):
 class TestDeleteVoteForRedFlagSequenceBuilder(TestCase):
 
     def setUp(self):
-        self.__validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand = Mock()
+        self.__validate_get_red_flags_request: IValidatePropertyUrlCommand = Mock()
         self.__get_red_flag_by_id: IGetRedFlagByIdCommand = Mock()
         self.__set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand = Mock()
         self.__sut = DeleteVoteForRedFlagSequenceBuilder(

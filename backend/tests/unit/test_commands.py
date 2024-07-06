@@ -24,7 +24,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     GetCodeFromGroupIdCommand, ValidateUserIsNotParticipantCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
-    GetRedFlagsCommand, ValidateGetRedFlagsRequestCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
+    GetRedFlagsCommand, ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
     SetAnonymousRedFlagCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
@@ -1007,10 +1007,10 @@ class TestGetRedFlagsCommand(TestCase):
             self.assertEqual(context.get_var(name=RED_FLAGS, _type=list[RedFlag]), red_flags)
 
 
-class TestValidateGetRedFlagsRequestCommand(TestCase):
+class TestIValidatePropertyUrlCommand(TestCase):
 
     def setUp(self):
-        self.__sut = ValidateGetRedFlagsRequestCommand()
+        self.__sut = ValidatePropertyUrlCommand()
 
     def test_run_when_property_is_set(self):
         # arrange

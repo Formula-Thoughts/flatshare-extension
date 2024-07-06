@@ -11,7 +11,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, ICreateUserGroupsCommand, \
     ICreateGroupCommand, IUpdateGroupCommand, ICreateRedFlagCommand, ISetRedFlagRequestCommand, \
     IValidateRedFlagRequestCommand, ISetCreatedAnonymousRedFlagCommand, ICreateRedFlagSequenceBuilder, \
-    IGetRedFlagsCommand, IValidateGetRedFlagsRequestCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagsSequenceBuilder, \
+    IGetRedFlagsCommand, IValidatePropertyUrlCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagsSequenceBuilder, \
     IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand, ICreateVoteForRedFlagSequenceBuilder, \
     IDeleteVoteForRedFlagSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
@@ -22,7 +22,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     ValidateUserIsNotParticipantCommand, FetchAuthUserClaimsIfUserDoesNotExistCommand, \
     CreateUserGroupsCommand, CreateGroupCommand, UpdateGroupCommand, CreateRedFlagCommand, SetRedFlagRequestCommand, \
     ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, GetRedFlagsCommand, \
-    ValidateGetRedFlagsRequestCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, SetAnonymousRedFlagCommand
+    ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, SetAnonymousRedFlagCommand
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.sequence_builders import UpdateGroupSequenceBuilder, FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
@@ -66,8 +66,8 @@ def register_domain_dependencies(container: Container):
                implementation=SetCreatedAnonymousRedFlagCommand)
      .register(service=IGetRedFlagsCommand,
                implementation=GetRedFlagsCommand)
-     .register(service=IValidateGetRedFlagsRequestCommand,
-               implementation=ValidateGetRedFlagsRequestCommand)
+     .register(service=IValidatePropertyUrlCommand,
+               implementation=ValidatePropertyUrlCommand)
      .register(service=ISetAnonymousRedFlagsCommand,
                implementation=SetAnonymousRedFlagsCommand)
      .register(service=IGetRedFlagByIdCommand,

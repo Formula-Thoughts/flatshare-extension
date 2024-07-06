@@ -371,7 +371,7 @@ class GetRedFlagsCommand:
         context.set_var(name=RED_FLAGS, value=red_flags)
 
 
-class ValidateGetRedFlagsRequestCommand:
+class ValidatePropertyUrlCommand:
 
     def run(self, context: ApplicationContext) -> None:
         if PROPERTY_URL not in context.variables:
