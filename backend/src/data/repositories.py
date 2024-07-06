@@ -39,7 +39,7 @@ class DynamoDbPropertyRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise PropertyNotFoundException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     @staticmethod
     def __partition_key_gen(property: Property, group: GroupId) -> None:
@@ -74,7 +74,7 @@ class DynamoDbGroupRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise GroupAlreadyExistsException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     def update(self, group: Group) -> None:
         try:
@@ -91,7 +91,7 @@ class DynamoDbGroupRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     def get(self, _id: str) -> GroupProperties:
         items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key",
@@ -143,7 +143,7 @@ class DynamoDbGroupRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     @staticmethod
     def __partition_key_gen(group: Group, group_id):
@@ -186,7 +186,7 @@ class DynamoDbUserGroupsRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise UserGroupAlreadyExistsException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
         try:
@@ -209,7 +209,7 @@ class DynamoDbUserGroupsRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     @staticmethod
     def __partition_key_gen(user_groups: UserGroups):
@@ -239,7 +239,7 @@ class DynamoDbRedFlagRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise RedFlagAlreadyExistsException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     def get_by_url(self, property_url: PropertyUrl) -> list[RedFlag]:
         items = self.__dynamo_wrapper.query(key_condition_expression="partition_key = :partition_key AND begins_with(id, :property_url)",
@@ -277,7 +277,7 @@ class DynamoDbRedFlagRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     def remove_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
         try:
@@ -303,7 +303,7 @@ class DynamoDbRedFlagRepo:
             if code == CONDITIONAL_CHECK_FAILED:
                 raise ConflictException()
             else:
-                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     def get(self, property_url: PropertyUrl, _id: RedFlagId) -> RedFlag:
         items = self.__dynamo_wrapper.query(
