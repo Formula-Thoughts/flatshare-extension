@@ -8,7 +8,8 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, \
     IFetchAuthUserClaimsIfUserDoesNotExistCommand, IFetchUserGroupIfExistsSequenceBuilder, \
     ICreateGroupCommand, ICreateUserGroupsCommand, IUpdateGroupCommand, ISetRedFlagRequestCommand, \
     IValidateRedFlagRequestCommand, ICreateRedFlagCommand, ISetCreatedAnonymousRedFlagCommand, \
-    IValidateGetRedFlagsRequestCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand
+    IValidateGetRedFlagsRequestCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, \
+    ISetAnonymousRedFlagCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -203,5 +204,12 @@ class GetRedFlagsSequenceBuilder(FluentSequenceBuilder):
 class CreateVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self, validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand,
-                 get_red_flag_by_id: IGetRedFlagByIdCommand):
+                 get_red_flag_by_id: IGetRedFlagByIdCommand,
+                 set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand):
         super().__init__()
+        self.__set_anonymous_red_flag_response = set_anonymous_red_flag_response
+        self.__get_red_flag_by_id = get_red_flag_by_id
+        self.__validate_get_red_flags_request = validate_get_red_flags_request
+
+    def build(self):
+        pass
