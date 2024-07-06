@@ -228,4 +228,6 @@ class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
         self.__validate_get_red_flags_request = validate_get_red_flags_request
 
     def build(self):
-        ...
+        self._add_command(command=self.__validate_get_red_flags_request) \
+            ._add_command(command=self.__get_red_flag_by_id) \
+            ._add_command(command=self.__set_anonymous_red_flag_response)
