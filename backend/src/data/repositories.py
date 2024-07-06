@@ -7,7 +7,7 @@ from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId,
 from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, DataException, \
-    RedFlagAlreadyExistsException
+    RedFlagAlreadyExistsException, RedFlagNotFoundException
 
 
 class DynamoDbPropertyRepo:
@@ -261,6 +261,8 @@ class DynamoDbRedFlagRepo:
                 ':partition_key': "red_flag",
                 ':id': f"{property_url}:{_id}"
             })["Items"]
+        if len(items) == 0:
+            raise RedFlagNotFoundException()
         first_item = items[0]
         red_flag = self.__map_back_item(red_flag_dict=first_item)
         return red_flag
