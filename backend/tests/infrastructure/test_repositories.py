@@ -16,7 +16,7 @@ from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo, DynamoDbRedFlagRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, \
-    RedFlagAlreadyExistsException
+    RedFlagAlreadyExistsException, RedFlagNotFoundException
 
 
 class DynamoDbTestCase(TestCase):
@@ -662,4 +662,24 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         with self.subTest(msg="assert red flag is returned"):
             self.assertEqual(returned_red_flag, red_flag)
 
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_get_by_id_when_not_found(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
 
+        # act
+        sut_call = lambda: sut.get(property_url="blah", _id="testid")
+
+        # assert
+        with self.subTest(msg="assert red flag not found is raised"):
+            with self.assertRaises(expected_exception=RedFlagNotFoundException):
+                sut_call()

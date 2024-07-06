@@ -28,3 +28,7 @@ class DataException(Exception):
 
 class RedFlagAlreadyExistsException(Exception):
     pass
+
+
+class RedFlagNotFoundException(Exception):
+    pass
