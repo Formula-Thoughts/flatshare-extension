@@ -25,7 +25,8 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchAuthUserClaimsIfUserDoesNotExistCommand, CreateGroupCommand, CreateUserGroupsCommand, UpdateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
     GetRedFlagsCommand, ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
-    SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand, ValidateNotVotedCommand, CreateVoteCommand
+    SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand, ValidateNotVotedCommand, CreateVoteCommand, \
+    DeleteVoteCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -1255,3 +1256,30 @@ class TestCreateVoteCommand(TestCase):
         # assert
         with self.subTest(msg="red flag is upvoted for user"):
             self.__red_flag_repo.add_voter.assert_called_with(user_id=user, red_flag=red_flag)
+
+
+class TestDeleteVoteCommand(TestCase):
+
+    def setUp(self):
+        self.__red_flag_repo: IRedFlagRepo = Mock()
+        self.__sut = DeleteVoteCommand(red_flag_repo=self.__red_flag_repo)
+
+    def test_run(self):
+        # arrange
+        red_flag = AutoFixture().create(dto=RedFlag)
+        user = "12345"
+        context = ApplicationContext(variables={
+            RED_FLAG: red_flag
+        }, auth_user_id=user)
+        self.__red_flag_repo.remove_voter = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="red flag is down-voted once"):
+            self.__red_flag_repo.remove_voter.assert_called_once()
+
+        # assert
+        with self.subTest(msg="red flag is down-voted for user"):
+            self.__red_flag_repo.remove_voter.assert_called_with(user_id=user, red_flag=red_flag)

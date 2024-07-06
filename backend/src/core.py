@@ -269,6 +269,10 @@ class ICreateVoteCommand(Command, Protocol):
     pass
 
 
+class IDeleteVoteCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
