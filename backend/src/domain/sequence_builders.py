@@ -215,3 +215,17 @@ class CreateVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
         self._add_command(command=self.__validate_get_red_flags_request) \
             ._add_command(command=self.__get_red_flag_by_id)\
             ._add_command(command=self.__set_anonymous_red_flag_response)
+
+
+class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, validate_get_red_flags_request: IValidateGetRedFlagsRequestCommand,
+                 get_red_flag_by_id: IGetRedFlagByIdCommand,
+                 set_anonymous_red_flag_response: ISetAnonymousRedFlagCommand):
+        super().__init__()
+        self.__set_anonymous_red_flag_response = set_anonymous_red_flag_response
+        self.__get_red_flag_by_id = get_red_flag_by_id
+        self.__validate_get_red_flags_request = validate_get_red_flags_request
+
+    def build(self):
+        ...

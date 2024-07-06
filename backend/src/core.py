@@ -300,3 +300,7 @@ class IGetRedFlagsSequenceBuilder(SequenceBuilder, Protocol):
 
 class ICreateVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
     pass
+
+
+class IDeleteVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
+    pass
