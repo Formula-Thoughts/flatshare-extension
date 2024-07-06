@@ -718,3 +718,31 @@ class TestRedFlagsRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="propagated object equals expected"):
             self.assertEqual(expected_red_flag, red_flag)
+
+    @mock_aws
+    @patch.dict(os.environ, {
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test"
+    }, clear=True)
+    def test_add_voter_when_conflict(self):
+        # arrange
+        self._set_up_table()
+        object_mapper = ObjectMapper()
+        object_hasher = ObjectHasher(object_mapper=object_mapper, serializer=JsonSnakeToCamelSerializer())
+        sut = DynamoDbRedFlagRepo(dynamo_wrapper=self._dynamo_client_wrapper,
+                                  object_mapper=object_mapper,
+                                  object_hasher=object_hasher)
+        red_flag = AutoFixture().create(dto=RedFlag)
+        sut.create(red_flag)
+        old_etag = red_flag.etag
+        user = "1234"
+        sut.add_voter(user, red_flag)
+
+        # act
+        red_flag.etag = old_etag
+        sut_call = lambda: sut.add_voter(user, red_flag)
+
+        # assert
+        with self.subTest(msg="conflict error is raised"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()

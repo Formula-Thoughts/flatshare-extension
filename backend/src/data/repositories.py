@@ -255,22 +255,29 @@ class DynamoDbRedFlagRepo:
         return red_flag
 
     def add_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
-        prev_etag = red_flag.etag
-        self.__id_setter(red_flag=red_flag)
-        red_flag.votes.append(user_id)
-        etag = self.__object_hasher.hash(red_flag)
-        red_flag.etag = etag
-        self.__dynamo_wrapper.update_item(key={
-            "id": red_flag.id,
-            "partition_key": f"red_flag"
-        },
-            update_expression="SET votes = list_append(votes, :i) SET etag = :j",
-            condition_expression=Attr("etag").eq(prev_etag),
-            expression_attribute_values={
-                ':i': [user_id],
-                ':j': etag
-            })
-        self.__id_re_setter(red_flag)
+        try:
+            prev_etag = red_flag.etag
+            self.__id_setter(red_flag=red_flag)
+            red_flag.votes.append(user_id)
+            etag = self.__object_hasher.hash(red_flag)
+            red_flag.etag = etag
+            self.__dynamo_wrapper.update_item(key={
+                "id": red_flag.id,
+                "partition_key": f"red_flag"
+            },
+                update_expression="SET votes = list_append(votes, :i) SET etag = :j",
+                condition_expression=Attr("etag").eq(prev_etag),
+                expression_attribute_values={
+                    ':i': [user_id],
+                    ':j': etag
+                })
+            self.__id_re_setter(red_flag)
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == CONDITIONAL_CHECK_FAILED:
+                raise ConflictException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']}")
 
     def remove_voter(self, user_id: UserId, red_flag: RedFlag) -> None:
         ...
