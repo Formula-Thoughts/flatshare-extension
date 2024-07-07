@@ -34,7 +34,7 @@ class Property(Entity):
     url: str = None
     title: str = None
     price: Decimal = None
-    full_name: str = None
+    added_by: str = None
 
 
 @dataclass(unsafe_hash=True)

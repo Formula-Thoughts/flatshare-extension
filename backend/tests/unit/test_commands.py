@@ -378,7 +378,7 @@ class TestCreatePropertyCommand(TestCase):
         expected_property = Property(url=property.url,
                                      title=property.title,
                                      price=property.price,
-                                     full_name=user_groups.name)
+                                     added_by=user_groups.name)
         self.__property_repo.create = MagicMock()
 
         # act

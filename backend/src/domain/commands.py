@@ -148,7 +148,7 @@ class CreatePropertyCommand:
         property = Property(url=property_request.url,
                             title=property_request.title,
                             price=property_request.price,
-                            full_name=user_groups.name)
+                            added_by=user_groups.name)
         self.__property_repo.create(group_id=group.id, property=property)
         context.response = PropertyCreatedResponse(property=property)
 
