@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 from uuid import UUID
 
-from formula_thoughts_web.abstractions import ApplicationContext, SequenceBuilder
+from formula_thoughts_web.abstractions import ApplicationContext, SequenceBuilder, Logger
 from formula_thoughts_web.application import TopLevelSequenceRunner
 from formula_thoughts_web.ioc import Container, register_web
 
@@ -44,6 +44,7 @@ class TestCreateGroupSequenceBuilder(SequenceTestCase):
         self._container.register_factory(IGroupRepo, lambda: self.__group_repo)
         self._container.register_factory(IUserGroupsRepo, lambda: self.__user_groups_repo)
         self._container.register_factory(CognitoClientWrapper, lambda: self.__cognito_client)
+        self._container.register_factory(Logger, lambda: Mock())
 
     @patch('uuid.uuid4', return_value=UUID(UUID_EXAMPLE))
     @patch.dict(os.environ, {"USER_POOL_ID": USER_POOL})
