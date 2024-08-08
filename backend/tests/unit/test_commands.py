@@ -887,17 +887,26 @@ class TestSetRedFlagRequestCommand(TestCase):
                              create_red_flag_request)
 
 
+@ddt
 class TestValidateRedFlagRequestCommand(TestCase):
 
     def setUp(self) -> None:
         self.__sut = ValidateRedFlagRequestCommand()
 
-    def test_run_when_valid(self):
+    @data(
+        ["https://www.website.com", "https://www.website.com"],
+        ["https://www.website.com?param=value", "https://www.website.com"],
+        ["https://www.website.com#param=value", "https://www.website.com"])
+    def test_run_when_valid(self, data):
         # arrange
+        [property_url, expected_parsed_property_url] = data
         create_red_flag_request = AutoFixture().create(dto=CreateRedFlagRequest)
+        create_red_flag_request.property_url = property_url
         context = ApplicationContext(variables={
             CREATE_RED_FLAG_REQUEST: create_red_flag_request
         })
+
+        old_property_url = create_red_flag_request.property_url
 
         # act
         self.__sut.run(context=context)
@@ -905,6 +914,11 @@ class TestValidateRedFlagRequestCommand(TestCase):
         # assert
         with self.subTest(msg="no errors are set"):
             self.assertEqual(len(context.error_capsules), 0)
+
+        # assert
+        with self.subTest(msg="no errors are set"):
+            self.assertNotEqual(context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest).property_url, old_property_url)
+            self.assertEqual(context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest).property_url, expected_parsed_property_url)
 
     def test_run_when_url_is_missing(self):
         # arrange
