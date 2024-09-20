@@ -211,6 +211,15 @@ const FlatView = () => {
     }
   }, [activeFlatData?.redFlags]);
 
+  useEffect(() => {
+    return () => {
+      console.log(
+        "9 [useEffect 4 - FlatView.tsx] -> Clean up when unmounting flat view"
+      );
+      setActiveFlatData(null);
+    };
+  }, []);
+
   if (loadingFlatData) {
     return <Loading />;
   }
