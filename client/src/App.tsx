@@ -20,7 +20,7 @@ function App() {
   let url;
   const setActiveUrl = () => {
     console.log(
-      "3 [setActiveUrl - App.tsx] -> Sets active ULR",
+      "3 [setActiveUrl - App.tsx] -> Sets active URL",
       state.isGroupLoading
     );
 
