@@ -188,6 +188,7 @@ const FlatView = () => {
       );
       getDataFromActiveTab();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUrl?.contents]);
 
@@ -210,15 +211,6 @@ const FlatView = () => {
       setLoadingFlatData(false);
     }
   }, [activeFlatData?.redFlags]);
-
-  useEffect(() => {
-    return () => {
-      console.log(
-        "9 [useEffect 4 - FlatView.tsx] -> Clean up when unmounting flat view"
-      );
-      setActiveFlatData(null);
-    };
-  }, []);
 
   if (loadingFlatData) {
     return <Loading />;
