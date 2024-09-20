@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Flat, useProvider } from "./context/AppProvider";
 import {
@@ -13,9 +13,10 @@ import checkmark from "./flatini-library/assets/checkmark.png";
 import cross from "./flatini-library/assets/cross.png";
 import { extractNumber } from "./utils/util";
 import Button from "./flatini-library/components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import Loading from "./views/Loading";
+import { _getPropertyRedFlags } from "./utils/resources";
 
 const Wrapper = styled.div<{
   isFlatDuplicated: boolean;
@@ -54,6 +55,7 @@ const InfoWrapper = styled.div`
 `;
 
 const FlatView = () => {
+  const navigate = useNavigate();
   const {
     flats,
     addFlat,
@@ -62,14 +64,13 @@ const FlatView = () => {
     requirements,
     removeFlat,
     setAppHasError,
+    userAuthToken,
+    activeFlatData,
+    setActiveFlatData,
   } = useProvider();
   const [isFlatDuplicated, setIsFlatDuplicated] = useState(false);
   const [loadingFlatData, setLoadingFlatData] = useState(true);
-  const [activeFlatData, setActiveFlatData] = useState({
-    price: "",
-    title: "",
-    url: "",
-  });
+
   const checkFlatIsDuplicated = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
@@ -82,6 +83,69 @@ const FlatView = () => {
     });
   };
 
+  const getDataFromActiveTab = () => {
+    checkFlatIsDuplicated();
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        const activeTab = tabs[0];
+
+        if (activeUrl.propertyProvider === "openrent") {
+          getFlatDataFromOpenRent(
+            activeUrl.tabId,
+            activeUrl.contents,
+            (title, url, price) => {
+              setActiveFlatData({
+                ...activeFlatData,
+                price,
+                title,
+                url,
+              });
+            }
+          );
+        } else if (activeUrl.propertyProvider === "spareroom") {
+          getFlatDataFromSpareroom(
+            activeUrl.tabId,
+            activeUrl.contents,
+            (title, url, price) => {
+              setActiveFlatData({
+                ...activeFlatData,
+                price,
+                title,
+                url,
+              });
+            }
+          );
+        } else if (activeUrl.propertyProvider === "zoopla") {
+          getFlatDataFromZoopla(
+            activeUrl.tabId,
+            activeUrl.contents,
+            (title, url, price) => {
+              setActiveFlatData({
+                ...activeFlatData,
+                price,
+                title,
+                url,
+              });
+            }
+          );
+        } else if (activeUrl.propertyProvider === "rightmove") {
+          getFlatDataFromRightmove(
+            activeUrl.tabId,
+            activeUrl.contents,
+            (title, url, price) => {
+              setActiveFlatData({
+                ...activeFlatData,
+                price,
+                title,
+                url,
+              });
+            }
+          );
+        }
+      }
+    });
+  };
+
   const removeFlatFromList = () => {
     console.log("activeurl, contents", activeUrl.contents);
     removeFlat(activeUrl.contents);
@@ -89,62 +153,28 @@ const FlatView = () => {
   };
 
   useEffect(() => {
-    checkFlatIsDuplicated();
-    if (activeUrl.propertyProvider === "openrent") {
-      getFlatDataFromOpenRent(
-        activeUrl.tabId,
-        activeUrl.contents,
-        (title, url, price) => {
-          setActiveFlatData({
-            price,
-            title,
-            url,
-          });
-          setLoadingFlatData(false);
-        }
+    activeFlatData.redFlags = [];
+
+    const getRedFlags = async () => {
+      const redFlags = await _getPropertyRedFlags(
+        userAuthToken as string,
+        activeFlatData.url
       );
-    } else if (activeUrl.propertyProvider === "spareroom") {
-      getFlatDataFromSpareroom(
-        activeUrl.tabId,
-        activeUrl.contents,
-        (title, url, price) => {
-          setActiveFlatData({
-            price,
-            title,
-            url,
-          });
-          setLoadingFlatData(false);
-        }
-      );
-    } else if (activeUrl.propertyProvider === "zoopla") {
-      getFlatDataFromZoopla(
-        activeUrl.tabId,
-        activeUrl.contents,
-        (title, url, price) => {
-          setActiveFlatData({
-            price,
-            title,
-            url,
-          });
-          setLoadingFlatData(false);
-        }
-      );
-    } else if (activeUrl.propertyProvider === "rightmove") {
-      getFlatDataFromRightmove(
-        activeUrl.tabId,
-        activeUrl.contents,
-        (title, url, price) => {
-          setActiveFlatData({
-            price,
-            title,
-            url,
-          });
-          setLoadingFlatData(false);
-        }
-      );
+      setActiveFlatData({ ...activeFlatData, redFlags: redFlags.redFlags });
+      console.log("try red flags", redFlags);
+      setLoadingFlatData(false);
+    };
+
+    getDataFromActiveTab();
+
+    if (activeFlatData.url) {
+      getRedFlags();
     }
+
+    console.log("activeFlatData", activeFlatData);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeUrl]);
+  }, [activeUrl.contents !== activeFlatData.url]);
 
   if (loadingFlatData) {
     return <Loading />;
@@ -184,7 +214,6 @@ const FlatView = () => {
           <Text type={TextTypes.paragraph}>Back to my list</Text>
         </div>
       </Link>
-
       <Text type={TextTypes.title}>{activeFlatData.title}</Text>
       <InfoWrapper>
         {/* Location */}
@@ -296,13 +325,30 @@ const FlatView = () => {
           Location: <span style={{ opacity: 0.7 }}>{activeFlatData.title}</span>
         </p>
       </div>
-      {/* <div
-        onClick={() =>
-          navigate("/warnings", { state: { flatUrl: activeFlatData.url } })
-        }
-      >
-        check warnings page
-      </div> */}
+      {activeFlatData?.redFlags?.length === 0 ? (
+        <Button
+          style={{
+            width: "100%",
+          }}
+          onClick={() =>
+            navigate("/AddRedFlag", {
+              state: {
+                flatName: activeFlatData.title,
+                flatUrl: activeFlatData.url,
+              },
+            })
+          }
+          label="Add red flag"
+        />
+      ) : (
+        <Button
+          style={{
+            width: "100%",
+          }}
+          onClick={() => navigate("/RedFlags")}
+          label="See red flags"
+        />
+      )}
     </Wrapper>
   );
 };

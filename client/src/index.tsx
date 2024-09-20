@@ -8,6 +8,12 @@ import theme from "./flatini-library/theme";
 import { ThemeProvider } from "styled-components";
 import GlobalStyle from "./flatini-library/globalStyle";
 
+import TimeAgo from "javascript-time-ago";
+
+import en from "javascript-time-ago/locale/en";
+
+TimeAgo.addDefaultLocale(en);
+
 const root = document.createElement("div");
 root.className = "container";
 document.body.appendChild(root);

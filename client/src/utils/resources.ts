@@ -66,7 +66,7 @@ export const _addFlat = async (
     },
   };
   const res = (await axios.post(
-    `/groups/${groupCode}/flats`,
+    `/groups/${groupCode}/properties`,
     {
       url,
       price,
@@ -88,7 +88,7 @@ export const _deleteFlat = async (
     },
   };
   const res = (await axios.delete(
-    `/groups/${groupId}/flats/${flatId}`,
+    `/groups/${groupId}/properties/${flatId}`,
     config
   )) as AxiosResponse;
   return res.data;
@@ -102,4 +102,76 @@ export const _getGroupShareCode = async (token: string, id: string) => {
   };
   const res = (await axios.get(`/groups/${id}/code`, config)) as AxiosResponse;
   return res.data;
+};
+
+export const _getPropertyRedFlags = async (
+  token: string,
+  propertyUrl: string
+) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = (await axios.get(
+    `/red-flags?property_url=${propertyUrl}`,
+    config
+  )) as AxiosResponse;
+  return res.data;
+};
+
+export const _addRedFlag = async (
+  token: string,
+  propertyUrl: string,
+  body: string
+) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const res = (await axios.post(
+    `/red-flags?property_url=${propertyUrl}`,
+    {
+      propertyUrl,
+      body,
+    },
+    config
+  )) as AxiosResponse;
+  return res.data;
+};
+
+export const _voteRedFlag = async (
+  token: string,
+  redFlagId: string,
+  propertyUrl: string,
+  hasUserVoted: boolean
+) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  let res = null;
+
+  if (hasUserVoted) {
+    // unvote
+
+    const res = (await axios.delete(
+      `/red-flags/${redFlagId}/votes?property_url=${propertyUrl}`,
+      config
+    )) as AxiosResponse;
+
+    return res.data;
+  } else {
+    // vote
+    res = (await axios.post(
+      `/red-flags/${redFlagId}/votes?property_url=${propertyUrl}`,
+      {},
+      config
+    )) as AxiosResponse;
+    return res.data;
+  }
 };

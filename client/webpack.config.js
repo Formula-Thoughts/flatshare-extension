@@ -10,6 +10,9 @@ module.exports = {
   entry: {
     index: "./src/index.tsx",
   },
+  mode: process.env.NODE_ENV === "production" ? "production" : "development",
+  watch: process.env.NODE_ENV === "production" ? false : true,
+  devtool: "inline-source-map",
   module: {
     rules: [
       {
@@ -45,6 +48,11 @@ module.exports = {
     new webpack.DefinePlugin({
       "process.env": JSON.stringify(process.env),
     }),
+    // new webpack.DefinePlugin({
+    //   "process.env.NODE_ENV": JSON.stringify(
+    //     process.env.NODE_ENV || "development"
+    //   ),
+    // }),
     new CopyPlugin({
       patterns: [
         { from: "manifest.json", to: "../manifest.json" },

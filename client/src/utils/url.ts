@@ -46,16 +46,18 @@ export const getDomElementsFromActiveTab = async (
 export const getDomElementContainingPriceFormat = async (
   tabId: number,
   searchText: string
-) => {
-  let domRes = await chrome.scripting
+): Promise<string> => {
+  const domRes = await chrome.scripting
     .executeScript({
       target: { tabId },
-      func: (partialText) => {
-        const allElements = Array.from(document.querySelectorAll("*"));
+      func: (partialText: string): string | null => {
+        const allElements = Array.from(document.querySelectorAll("span"));
         const regex = new RegExp(`\\£\\s*\\d+[,.\\d]*\\s+${partialText}`, "i");
-        for (let element of allElements) {
-          if (regex.test(element?.textContent as string)) {
-            return element?.textContent?.match(regex)?.[0].trim();
+
+        for (let i = 0; i < allElements.length; i++) {
+          const element = allElements[i];
+          if (regex.test(element.textContent ?? "")) {
+            return element.textContent?.match(regex)?.[0].trim() ?? null;
           }
         }
         return null;
@@ -82,6 +84,11 @@ export const getFlatDataFromRightmove = (
     ]);
 
     const title = flatData && flatData[0].data;
+
+    console.log(
+      "checking price",
+      await getDomElementContainingPriceFormat(tabId, "pcm")
+    );
 
     onClickAction(
       title as string,

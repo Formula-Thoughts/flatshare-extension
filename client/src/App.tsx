@@ -11,6 +11,8 @@ import { flatiniAuthWebsite } from "./utils/constants";
 import Loading from "./views/Loading";
 import ErrorPage from "./views/ErrorPage";
 import Explore from "./views/Explore";
+import RedFlags from "./RedFlags";
+import AddRedFlag from "./AddRedFlag";
 
 function App() {
   const navigate = useNavigate();
@@ -66,7 +68,7 @@ function App() {
       url?.includes("https://www.openrent.co.uk/property-to-rent/")
     ) {
       navigate("/FlatView");
-    } else if (url?.includes(flatiniAuthWebsite)) {
+    } else if (url?.includes(flatiniAuthWebsite as string)) {
       state.authenticateUser();
       navigate("/");
     } else {
@@ -147,7 +149,8 @@ function App() {
           <Route path="/Settings" element={<Settings />} />
           <Route path="/Explore" element={<Explore />} />
           <Route path="/FlatView" element={<FlatView />} />
-          {/* <Route path="/Warnings" element={<Warnings />} /> */}
+          <Route path="/RedFlags" element={<RedFlags />} />
+          <Route path="/AddRedFlag" element={<AddRedFlag />} />
           <Route path="/Participants" element={<Participants />} />
         </Routes>
       ) : (

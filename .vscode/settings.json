@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["Flatini"]
+  "cSpell.words": ["Flatini"],
+  "vue.features.codeActions.enable": false
 }

@@ -48,6 +48,7 @@
     "https://www.rightmove.co.uk/*",
     "https://localhost:3000/",
     "https://flatini.formulathoughts.com/*",
-    "https://v17eiwhzph.execute-api.eu-west-2.amazonaws.com/*"
+    "https://v17eiwhzph.execute-api.eu-west-2.amazonaws.com/*",
+    "https://xjzceym7mh.execute-api.eu-west-2.amazonaws.com/*"
   ]
 }
