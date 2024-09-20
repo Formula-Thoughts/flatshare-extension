@@ -238,13 +238,11 @@ class CreateGroupCommand:
         self.__group_repo = group_repo
 
     def run(self, context: ApplicationContext):
-        group_id = str(uuid.uuid4())
         fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
-        group = Group(id=group_id,
-                      participants=[fullname])
+        group = Group(participants=[fullname])
         self.__group_repo.create(group=group)
         context.response = CreatedGroupResponse(group=group)
-        context.set_var(name=GROUP_ID, value=group_id)
+        context.set_var(name=GROUP_ID, value=group.id)
 
 
 class FetchAuthUserClaimsIfUserDoesNotExistCommand:
