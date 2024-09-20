@@ -60,6 +60,8 @@ export type Props = {
   children: JSX.Element[] | JSX.Element;
 };
 
+const existingLocalStorage = localStorage.getItem("flatini-auth");
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const AppProvider = (props: Props) => {
@@ -73,7 +75,9 @@ const AppProvider = (props: Props) => {
 
   const [appHasError, setAppHasError] = useState<boolean | string>(false);
 
-  const [userAuthToken, setUserAuthToken] = useState<string | null>(null);
+  const [userAuthToken, setUserAuthToken] = useState<string | null>(
+    existingLocalStorage || null
+  );
   // Renders dashboard screens
   const [isGroupLoading, setIsGroupLoading] = useState<boolean>(true);
 
@@ -93,12 +97,7 @@ const AppProvider = (props: Props) => {
     locations: ["W1H", "E1W"],
     participants: [],
   });
-  const [activeFlatData, setActiveFlatData] = useState({
-    price: "",
-    title: "",
-    url: "",
-    redFlags: [],
-  });
+  const [activeFlatData, setActiveFlatData] = useState(null);
 
   /**
    * Authentication
@@ -129,14 +128,16 @@ const AppProvider = (props: Props) => {
 
   const getGroup = async () => {
     //const token = localStorage.getItem("flatini-auth") as string;
-    console.log("usera", userAuthToken);
-    console.log("get token", userAuthToken);
     if (userAuthToken) {
       try {
         const group = await _getUserGroup(userAuthToken as string);
 
         if (group) {
-          console.log("read group", group);
+          console.log(
+            "2 [getGroup - AppProvider.tsx] -> Loads group data",
+            group
+          );
+
           setUserHasGroup(true);
           setGroupId(group?.groupPropertiesList[0].id);
 
@@ -257,11 +258,6 @@ const AppProvider = (props: Props) => {
     price: number,
     location: string
   ) => {
-    console.log("check", price, location);
-    console.log(
-      "check",
-      includesAnySubstring(requirements.locations, location)
-    );
     function includesAnySubstring(arr: string[], str: string): boolean {
       return arr.some((substring) => str.includes(substring));
     }

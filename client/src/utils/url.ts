@@ -85,11 +85,6 @@ export const getFlatDataFromRightmove = (
 
     const title = flatData && flatData[0].data;
 
-    console.log(
-      "checking price",
-      await getDomElementContainingPriceFormat(tabId, "pcm")
-    );
-
     onClickAction(
       title as string,
       tabUrl,

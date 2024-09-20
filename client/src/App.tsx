@@ -19,6 +19,11 @@ function App() {
   const state = useProvider();
   let url;
   const setActiveUrl = () => {
+    console.log(
+      "3 [setActiveUrl - App.tsx] -> Sets active ULR",
+      state.isGroupLoading
+    );
+
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       url = tabs[0].url;
 
@@ -83,37 +88,27 @@ function App() {
     });
     // Reads changes when active tab changes
     chrome.tabs.onUpdated.addListener(async () => {
-      console.log("[Performance] onUpdated");
       setActiveUrl();
     });
     chrome.tabs.onActivated.addListener(function () {
       setActiveUrl();
-      console.log("[Performance] onActivated");
     });
   };
 
   useEffect(() => {
+    console.log(
+      "1 [useEffect - App.tsx] -> First use effect, app loads",
+      state.isGroupLoading
+    );
     addChromeEvents();
 
     if (state.userAuthToken) {
-      console.log(
-        "state user token yes",
-        state.userAuthToken,
-        typeof state.userAuthToken
-      );
       state.getGroup();
       setActiveUrl();
     } else {
-      const existingLocalStorage = localStorage.getItem("flatini-auth");
-
-      if (existingLocalStorage && existingLocalStorage !== "null") {
-        state.setUserAuthToken(existingLocalStorage);
-      } else {
-        state.authenticateUser();
-      }
+      state.authenticateUser();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.userAuthToken]);
+  }, []);
 
   if (state.appHasError || (state.appHasError as string).length > 0) {
     return <ErrorPage data={state.appHasError} />;

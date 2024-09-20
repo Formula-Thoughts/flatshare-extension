@@ -54,6 +54,18 @@ const InfoWrapper = styled.div`
   flex-direction: column;
 `;
 
+const RedFlagsBanner = styled.div`
+  cursor: pointer;
+  position: relative;
+  border: 1px solid #ffffff5c;
+  background: white;
+  color: black;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 1rem;
+`;
+
 const FlatView = () => {
   const navigate = useNavigate();
   const {
@@ -85,6 +97,10 @@ const FlatView = () => {
 
   const getDataFromActiveTab = () => {
     checkFlatIsDuplicated();
+    console.log(
+      "5 [getDataFromActiveFlat - FlatView.tsx] -> Gets data from active flat"
+    );
+
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
         const activeTab = tabs[0];
@@ -152,29 +168,43 @@ const FlatView = () => {
     setIsFlatDuplicated(false);
   };
 
+  const getRedFlags = async () => {
+    const redFlags = await _getPropertyRedFlags(
+      userAuthToken as string,
+      activeFlatData.url
+    );
+    setActiveFlatData({ ...activeFlatData, redFlags: redFlags.redFlags });
+    console.log(
+      "7 [getRedFlags - FlatView.tsx] -> Gets red flags but doesn't trigger activeFlatData to update",
+      activeFlatData
+    );
+  };
+
   useEffect(() => {
-    activeFlatData.redFlags = [];
-
-    const getRedFlags = async () => {
-      const redFlags = await _getPropertyRedFlags(
-        userAuthToken as string,
-        activeFlatData.url
-      );
-      setActiveFlatData({ ...activeFlatData, redFlags: redFlags.redFlags });
-      console.log("try red flags", redFlags);
-      setLoadingFlatData(false);
-    };
-
+    console.log("4 [useEffect - FlatView.tsx] -> Flatview loads");
     getDataFromActiveTab();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    if (activeFlatData.url) {
+  useEffect(() => {
+    if (activeFlatData?.url) {
+      console.log(
+        "6 [useEffect 2 - FlatView.tsx] -> Triggers when activeFlatData url changes",
+        activeFlatData
+      );
       getRedFlags();
     }
+  }, [activeFlatData?.url]);
 
-    console.log("activeFlatData", activeFlatData);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeUrl.contents !== activeFlatData.url]);
+  useEffect(() => {
+    if (activeFlatData?.redFlags) {
+      console.log(
+        "8 [useEffect 3 - FlatView.tsx] -> When red flags have been set, it sets flat view loading state to false",
+        activeFlatData
+      );
+      setLoadingFlatData(false);
+    }
+  }, [activeFlatData?.redFlags]);
 
   if (loadingFlatData) {
     return <Loading />;
@@ -338,16 +368,31 @@ const FlatView = () => {
               },
             })
           }
-          label="Add red flag"
+          label="🚩 Add red flag"
         />
       ) : (
-        <Button
-          style={{
-            width: "100%",
-          }}
-          onClick={() => navigate("/RedFlags")}
-          label="See red flags"
-        />
+        <RedFlagsBanner onClick={() => navigate("/RedFlags")}>
+          <span style={{ fontSize: "2rem" }}>🚩</span>
+          <div>
+            <Text type={TextTypes.paragraph}>
+              Some users have spotted {activeFlatData?.redFlags?.length} red
+              flag(s) in this property.
+            </Text>
+            <Text
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 0,
+                opacity: 0.5,
+                margin: "0.5rem",
+                fontSize: "1rem",
+              }}
+              type={TextTypes.paragraph}
+            >
+              See ({activeFlatData?.redFlags?.length})
+            </Text>
+          </div>
+        </RedFlagsBanner>
       )}
     </Wrapper>
   );

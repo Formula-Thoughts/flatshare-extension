@@ -19,14 +19,12 @@ root.className = "container";
 document.body.appendChild(root);
 const rootDiv = ReactDOM.createRoot(root);
 rootDiv.render(
-  <React.StrictMode>
-    <MemoryRouter>
-      <AppProvider>
-        <ThemeProvider theme={theme}>
-          <GlobalStyle />
-          <App />
-        </ThemeProvider>
-      </AppProvider>
-    </MemoryRouter>
-  </React.StrictMode>
+  <MemoryRouter>
+    <AppProvider>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <App />
+      </ThemeProvider>
+    </AppProvider>
+  </MemoryRouter>
 );
