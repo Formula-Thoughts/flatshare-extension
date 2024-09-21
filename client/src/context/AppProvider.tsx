@@ -114,6 +114,10 @@ const AppProvider = (props: Props) => {
             return localStorage.getItem("flatini-auth-token");
           },
         });
+        console.log(
+          "[AppProvider.tsx] - authenticateUser -> Should authenticate user",
+          authDetails
+        );
         if ((authDetails as any)[0].result !== "undefined") {
           localStorage.setItem("flatini-auth", (authDetails as any)[0].result);
           setUserAuthToken((authDetails as any)[0].result);

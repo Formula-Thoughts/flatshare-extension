@@ -98,7 +98,7 @@ function App() {
   useEffect(() => {
     console.log(
       "1 [useEffect - App.tsx] -> First use effect, app loads",
-      state.isGroupLoading
+      state
     );
     addChromeEvents();
 

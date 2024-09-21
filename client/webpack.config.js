@@ -6,6 +6,8 @@ const webpack = require("webpack");
 
 dotenv.config();
 
+console.log("check env", process.env.NODE_ENV);
+
 module.exports = {
   entry: {
     index: "./src/index.tsx",
@@ -48,6 +50,11 @@ module.exports = {
     new webpack.DefinePlugin({
       "process.env": JSON.stringify(process.env),
     }),
+    // new webpack.DefinePlugin({
+    //   "process.env.NODE_ENV": JSON.stringify(
+    //     process.env.NODE_ENV || "development"
+    //   ),
+    // }),
     // new webpack.DefinePlugin({
     //   "process.env.NODE_ENV": JSON.stringify(
     //     process.env.NODE_ENV || "development"

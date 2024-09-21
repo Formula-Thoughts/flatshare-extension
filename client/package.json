@@ -17,6 +17,7 @@
     "aws-amplify": "^6.0.15",
     "axios": "^1.5.0",
     "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
     "javascript-time-ago": "^2.5.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -31,8 +32,8 @@
     "websocket": "^1.0.35"
   },
   "scripts": {
-    "build": "webpack --env NODE_ENV=production --config webpack.config.js",
-    "watch": "webpack --env NODE_ENV=development -w --config webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "watch": "cross-env NODE_ENV=development webpack -w --config webpack.config.js",
     "dev": "webpack -w --config webpack.config.js",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx"
   },
@@ -49,6 +50,7 @@
     "@types/react": "^18.2.21",
     "@types/uuid": "^9.0.4",
     "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.1",
