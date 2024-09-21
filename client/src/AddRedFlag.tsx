@@ -7,6 +7,7 @@ import { useState } from "react";
 import Button from "./flatini-library/components/Button";
 import { _addRedFlag } from "./utils/resources";
 import { useProvider } from "./context/AppProvider";
+import { FaArrowLeft } from "react-icons/fa";
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,6 +17,20 @@ const Wrapper = styled.div`
 
   & ::placeholder {
     color: white !important;
+    opacity: 0.5;
+  }
+`;
+
+const EditableDiv = styled.div`
+  color: white;
+  font-size: 1.5rem;
+  padding: 1rem 0;
+  cursor: text;
+  line-height: 2rem;
+
+  /* Placeholder styling */
+  &:empty:before {
+    content: attr(data-placeholder);
     opacity: 0.5;
   }
 `;
@@ -48,23 +63,23 @@ const AddRedFlags = () => {
 
   return (
     <ColorLayout>
-      <Button onClick={() => navigate("/RedFlags")} label="Back to flags" />
+      <Button onClick={() => navigate("/RedFlags")}>
+        <FaArrowLeft />
+      </Button>
       <Wrapper>
-        <Text type={TextTypes.title}>Add a red flag</Text>
-        <Text type={TextTypes.paragraph}>
-          Tell us about the problems you've seen in {activeFlatData.flatName}
-        </Text>
-        <Text type={TextTypes.paragraph}>
+        <Text type={TextTypes.title}>🚩 Add a red flag</Text>
+        <Text type={TextTypes.small}>
+          Tell us about the problems you've seen in{" "}
+          <span style={{ fontWeight: "bold" }}>{activeFlatData?.title}</span>.
           Don't worry, it's 100% anonymous.
         </Text>
-        <InputText
-          type="text"
-          name="new-red-flag"
-          placeholder="Type here..."
-          value={newRedFlag as string}
-          defaultValue={""}
-          style={{ color: "white" }}
-          onChange={(value) => setNewRedFlag(value)}
+        <EditableDiv
+          contentEditable
+          data-placeholder="Enter your text here..."
+          onInput={(element) => {
+            const target = element.target as HTMLElement;
+            setNewRedFlag(target.innerText); // Or target.innerHTML if you need HTML content
+          }}
         />
         <Button
           style={{

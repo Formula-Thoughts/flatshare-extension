@@ -10,6 +10,8 @@ const Primary = styled.button`
   font-weight: bold;
   font-size: ${(props) => props.theme.fonts.types.paragraph.size};
   display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background: ${(props) => props.theme.colors.primary};

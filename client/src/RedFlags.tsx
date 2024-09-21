@@ -5,7 +5,7 @@ import Text, { TextTypes } from "./flatini-library/components/Text";
 import styled from "styled-components";
 import Button from "./flatini-library/components/Button";
 import { useProvider } from "./context/AppProvider";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaPlus } from "react-icons/fa";
 import TimeAgo from "javascript-time-ago";
 import ReactTimeAgo from "react-time-ago";
 import { _voteRedFlag } from "./utils/resources";
@@ -31,6 +31,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  width: 100%;
 `;
 
 const Wrapper = styled.div`
@@ -84,8 +85,9 @@ const RedFlags = () => {
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "space-between",
               gap: "1rem",
+              width: "100%",
             }}
           >
             <Button onClick={() => navigate("/FlatView")}>
@@ -94,12 +96,20 @@ const RedFlags = () => {
             <Text type={TextTypes.paragraph}>
               🚩{redFlags.length} red flag(s)
             </Text>
+            <div>
+              <Button
+                style={{ background: "rgb(209 124 154)", color: "white" }}
+                onClick={() => navigate("/AddRedFlag")}
+              >
+                <FaPlus />
+              </Button>
+            </div>
           </div>
         </Header>
         <div
           style={{
             display: "flex",
-            gap: "1.5rem",
+            gap: "3rem",
             flexDirection: "column",
             width: "100%",
           }}
