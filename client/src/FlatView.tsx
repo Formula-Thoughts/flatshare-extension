@@ -95,112 +95,100 @@ const FlatView = () => {
     });
   };
 
-  const getDataFromActiveTab = () => {
+  const getDataFromProviders = async () => {
     checkFlatIsDuplicated();
     console.log(
       "5 [getDataFromActiveFlat - FlatView.tsx] -> Gets data from active flat"
     );
 
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs.length > 0) {
-        const activeTab = tabs[0];
-
-        if (activeUrl.propertyProvider === "openrent") {
-          getFlatDataFromOpenRent(
-            activeUrl.tabId,
-            activeUrl.contents,
-            (title, url, price) => {
-              setActiveFlatData({
-                ...activeFlatData,
-                price,
-                title,
-                url,
-              });
-            }
-          );
-        } else if (activeUrl.propertyProvider === "spareroom") {
-          getFlatDataFromSpareroom(
-            activeUrl.tabId,
-            activeUrl.contents,
-            (title, url, price) => {
-              setActiveFlatData({
-                ...activeFlatData,
-                price,
-                title,
-                url,
-              });
-            }
-          );
-        } else if (activeUrl.propertyProvider === "zoopla") {
-          getFlatDataFromZoopla(
-            activeUrl.tabId,
-            activeUrl.contents,
-            (title, url, price) => {
-              setActiveFlatData({
-                ...activeFlatData,
-                price,
-                title,
-                url,
-              });
-            }
-          );
-        } else if (activeUrl.propertyProvider === "rightmove") {
-          getFlatDataFromRightmove(
-            activeUrl.tabId,
-            activeUrl.contents,
-            (title, url, price) => {
-              setActiveFlatData({
-                ...activeFlatData,
-                price,
-                title,
-                url,
-              });
-            }
-          );
+    if (activeUrl.propertyProvider === "openrent") {
+      return getFlatDataFromOpenRent(
+        activeUrl.tabId,
+        activeUrl.contents,
+        (title, url, price) => {
+          return {
+            ...activeFlatData,
+            price,
+            title,
+            url,
+          };
         }
-      }
-    });
+      );
+    } else if (activeUrl.propertyProvider === "spareroom") {
+      return getFlatDataFromSpareroom(
+        activeUrl.tabId,
+        activeUrl.contents,
+        (title, url, price) => {
+          return {
+            ...activeFlatData,
+            price,
+            title,
+            url,
+          };
+        }
+      );
+    } else if (activeUrl.propertyProvider === "zoopla") {
+      return getFlatDataFromZoopla(
+        activeUrl.tabId,
+        activeUrl.contents,
+        (title, url, price) => {
+          return {
+            ...activeFlatData,
+            price,
+            title,
+            url,
+          };
+        }
+      );
+    } else if (activeUrl.propertyProvider === "rightmove") {
+      return getFlatDataFromRightmove(
+        activeUrl.tabId,
+        activeUrl.contents,
+        (title, url, price) => {
+          return {
+            ...activeFlatData,
+            price,
+            title,
+            url,
+          };
+        }
+      );
+    }
   };
 
   const removeFlatFromList = () => {
-    console.log("activeurl, contents", activeUrl.contents);
     removeFlat(activeUrl.contents);
     setIsFlatDuplicated(false);
   };
 
-  const getRedFlags = async () => {
-    const redFlags = await _getPropertyRedFlags(
-      userAuthToken as string,
-      activeFlatData?.url
-    );
-    setActiveFlatData({ ...activeFlatData, redFlags: redFlags.redFlags });
-    console.log(
-      "7 [getRedFlags - FlatView.tsx] -> Gets red flags but doesn't trigger activeFlatData to update",
-      activeFlatData
-    );
-  };
-
   useEffect(() => {
+    setLoadingFlatData(true);
+
     if (activeUrl?.contents) {
-      setLoadingFlatData(true);
-      console.log(
-        "4 [useEffect - FlatView.tsx] -> Flatview loads, and watches for changes on activeUrl.contents"
-      );
-      getDataFromActiveTab();
+      const getFlatData = async () => {
+        setActiveFlatData(null);
+
+        const data = (await getDataFromProviders()) as any;
+        const redFlags = await _getPropertyRedFlags(
+          userAuthToken as string,
+          data?.url
+        );
+
+        setActiveFlatData({
+          price: data?.price,
+          title: data?.title,
+          url: data?.url,
+          redFlags: redFlags.redFlags,
+        });
+
+        setLoadingFlatData(false);
+      };
+
+      getFlatData();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUrl?.contents]);
-
-  useEffect(() => {
-    if (activeFlatData?.url) {
-      console.log(
-        "6 [useEffect 2 - FlatView.tsx] -> Triggers when activeFlatData url changes",
-        activeFlatData
-      );
-      getRedFlags();
-    }
-  }, [activeFlatData?.url]);
 
   useEffect(() => {
     if (activeFlatData?.redFlags) {
@@ -216,15 +204,6 @@ const FlatView = () => {
     return <Loading />;
   }
 
-  if (
-    !activeFlatData?.price ||
-    !activeFlatData?.title ||
-    !activeFlatData?.url
-  ) {
-    setAppHasError(
-      "Sorry. This property cannot be added to your list, would you mind reloading the extension? :)"
-    );
-  }
   if (activeFlatData) {
     return (
       <Wrapper
@@ -409,6 +388,16 @@ const FlatView = () => {
       </Wrapper>
     );
   }
+
+  // if (
+  //   !activeFlatData?.price ||
+  //   !activeFlatData?.title ||
+  //   !activeFlatData?.url
+  // ) {
+  //   setAppHasError(
+  //     "Sorry. This property cannot be added to your list, would you mind reloading the extension? :)"
+  //   );
+  // }
   return <div />;
 };
 

@@ -85,7 +85,7 @@ export const getFlatDataFromRightmove = (
 
     const title = flatData && flatData[0].data;
 
-    onClickAction(
+    return onClickAction(
       title as string,
       tabUrl,
       await getDomElementContainingPriceFormat(tabId, "pcm")
@@ -107,7 +107,7 @@ export const getFlatDataFromOpenRent = (
     const price = flatData && flatData[0].data;
     const title = flatData && flatData[1].data;
     console.log("flatdata", flatData);
-    onClickAction(title as string, tabUrl, price as string);
+    return onClickAction(title as string, tabUrl, price as string);
   };
   return saveData();
 };
@@ -125,7 +125,7 @@ export const getFlatDataFromSpareroom = (
     const price = flatData && flatData[0].data;
     const title = flatData && flatData[1].data;
     console.log("flatdata", flatData);
-    onClickAction(title as string, tabUrl, price as string);
+    return onClickAction(title as string, tabUrl, price as string);
   };
   return saveData();
 };
@@ -143,7 +143,7 @@ export const getFlatDataFromZoopla = (
     const price = flatData && flatData[0].data;
     const title = flatData && flatData[1].data;
     console.log("flatdata", flatData);
-    onClickAction(title as string, tabUrl, price as string);
+    return onClickAction(title as string, tabUrl, price as string);
   };
   return saveData();
 };
