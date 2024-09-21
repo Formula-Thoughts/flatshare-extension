@@ -9,6 +9,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import TimeAgo from "javascript-time-ago";
 import ReactTimeAgo from "react-time-ago";
 import { _voteRedFlag } from "./utils/resources";
+import MainLayout from "./layouts/MainLayout";
 
 type Data = {
   flatUrl: string;
@@ -35,14 +36,14 @@ const Header = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 const Footer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  text-align: right;
 `;
 
 const HelpfulButton = styled.div`
@@ -68,21 +69,45 @@ const RedFlags = () => {
 
   return (
     <ColorLayout>
-      <Header>
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          alignItems: "start",
+          justifyContent: "start",
+          flexDirection: "column",
+          gap: "2rem",
+        }}
+      >
+        <Header>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "1rem",
+            }}
+          >
+            <Button onClick={() => navigate("/FlatView")}>
+              <FaArrowLeft />
+            </Button>
+            <Text type={TextTypes.paragraph}>
+              🚩{redFlags.length} red flag(s)
+            </Text>
+          </div>
+        </Header>
         <div
-          style={{ display: "flex", gap: "0.5rem", cursor: "pointer" }}
-          onClick={() => navigate("/FlatView")}
+          style={{
+            display: "flex",
+            gap: "1.5rem",
+            flexDirection: "column",
+            width: "100%",
+          }}
         >
-          <FaArrowLeft />
-          <p>Back </p>
+          {redFlags.map((redFlag) => {
+            return <RedFlag {...redFlag} />;
+          })}
         </div>
-        <div>{redFlags.length} red flag(s)</div>
-        <Button onClick={() => navigate("/AddRedFlag")} label="Add red flag" />
-      </Header>
-      <div style={{ display: "flex", gap: "1.5rem", flexDirection: "column" }}>
-        {redFlags.map((redFlag) => {
-          return <RedFlag {...redFlag} />;
-        })}
       </div>
     </ColorLayout>
   );
@@ -94,7 +119,7 @@ const RedFlag = (props: RedFlagType) => {
 
   return (
     <Wrapper>
-      <Text type={TextTypes.small}>"{JSON.stringify(props.body)}"</Text>
+      <Text type={TextTypes.small}>{props.body}</Text>
       <Footer>
         <div>
           <HelpfulButton

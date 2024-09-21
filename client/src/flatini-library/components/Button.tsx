@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { device } from "../util/mediaQueries";
 
@@ -9,6 +9,7 @@ const Primary = styled.button`
   border-radius: 0.7rem;
   font-weight: bold;
   font-size: ${(props) => props.theme.fonts.types.paragraph.size};
+  display: flex;
 
   &:hover {
     background: ${(props) => props.theme.colors.primary};
@@ -20,12 +21,13 @@ const Primary = styled.button`
 `;
 
 interface ButtonProps {
-  label: string;
+  label?: string;
   onClick?: () => void;
   style?: React.CSSProperties;
   type?: "button" | "reset" | "submit" | undefined;
   id?: string;
   name?: string;
+  children?: ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -35,6 +37,7 @@ const Button: React.FC<ButtonProps> = ({
   type,
   id,
   name,
+  children,
 }) => {
   return (
     <Primary
@@ -44,7 +47,7 @@ const Button: React.FC<ButtonProps> = ({
       type={type ?? undefined}
       name={name}
     >
-      {label}
+      {children || label}
     </Primary>
   );
 };
