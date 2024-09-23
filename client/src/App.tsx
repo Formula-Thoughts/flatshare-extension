@@ -98,7 +98,7 @@ function App() {
   useEffect(() => {
     console.log(
       "1 [useEffect - App.tsx] -> First use effect, app loads",
-      state
+      state.userAuthToken
     );
     addChromeEvents();
 
@@ -108,7 +108,7 @@ function App() {
     } else {
       state.authenticateUser();
     }
-  }, []);
+  }, [state.userAuthToken]);
 
   if (state.appHasError || (state.appHasError as string).length > 0) {
     return <ErrorPage data={state.appHasError} />;
