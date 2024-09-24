@@ -10,7 +10,7 @@ from src.web.ioc import register_web_dependencies
 def lambda_handler(event, context):
     container = Container()
     bootstrap(container=container)
-    run(event=event, context=context, container=container)
+    return run(event=event, context=context, container=container)
 
 
 def bootstrap(container):
