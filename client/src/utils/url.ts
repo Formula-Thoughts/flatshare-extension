@@ -46,16 +46,18 @@ export const getDomElementsFromActiveTab = async (
 export const getDomElementContainingPriceFormat = async (
   tabId: number,
   searchText: string
-) => {
-  let domRes = await chrome.scripting
+): Promise<string> => {
+  const domRes = await chrome.scripting
     .executeScript({
       target: { tabId },
-      func: (partialText) => {
-        const allElements = Array.from(document.querySelectorAll("*"));
+      func: (partialText: string): string | null => {
+        const allElements = Array.from(document.querySelectorAll("span"));
         const regex = new RegExp(`\\£\\s*\\d+[,.\\d]*\\s+${partialText}`, "i");
-        for (let element of allElements) {
-          if (regex.test(element?.textContent as string)) {
-            return element?.textContent?.match(regex)?.[0].trim();
+
+        for (let i = 0; i < allElements.length; i++) {
+          const element = allElements[i];
+          if (regex.test(element.textContent ?? "")) {
+            return element.textContent?.match(regex)?.[0].trim() ?? null;
           }
         }
         return null;
@@ -83,7 +85,7 @@ export const getFlatDataFromRightmove = (
 
     const title = flatData && flatData[0].data;
 
-    onClickAction(
+    return onClickAction(
       title as string,
       tabUrl,
       await getDomElementContainingPriceFormat(tabId, "pcm")
@@ -105,7 +107,7 @@ export const getFlatDataFromOpenRent = (
     const price = flatData && flatData[0].data;
     const title = flatData && flatData[1].data;
     console.log("flatdata", flatData);
-    onClickAction(title as string, tabUrl, price as string);
+    return onClickAction(title as string, tabUrl, price as string);
   };
   return saveData();
 };
@@ -123,7 +125,7 @@ export const getFlatDataFromSpareroom = (
     const price = flatData && flatData[0].data;
     const title = flatData && flatData[1].data;
     console.log("flatdata", flatData);
-    onClickAction(title as string, tabUrl, price as string);
+    return onClickAction(title as string, tabUrl, price as string);
   };
   return saveData();
 };
@@ -141,7 +143,7 @@ export const getFlatDataFromZoopla = (
     const price = flatData && flatData[0].data;
     const title = flatData && flatData[1].data;
     console.log("flatdata", flatData);
-    onClickAction(title as string, tabUrl, price as string);
+    return onClickAction(title as string, tabUrl, price as string);
   };
   return saveData();
 };

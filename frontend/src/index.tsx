@@ -28,11 +28,17 @@ Amplify.configure({
             "https://flatini.formulathoughts.com",
           ],
           responseType: "code",
-          domain: "flatini-d1910890.auth.eu-west-2.amazoncognito.com",
+          domain: (process.env.NODE_ENV === "production"
+            ? process.env.REACT_APP_COGNITO_DOMAIN_PROD
+            : process.env.REACT_APP_COGNITO_DOMAIN_STAGING) as string,
         },
       },
-      userPoolId: "eu-west-2_WLM18TtB9",
-      userPoolClientId: "h9me4ijemhsm18kh6521ldblo",
+      userPoolId: (process.env.NODE_ENV === "production"
+        ? process.env.REACT_APP_COGNITO_POOL_ID_PROD
+        : process.env.REACT_APP_COGNITO_POOL_ID_STAGING) as string,
+      userPoolClientId: (process.env.NODE_ENV === "production"
+        ? process.env.REACT_APP_COGNITO_CLIENT_ID_PROD
+        : process.env.REACT_APP_COGNITO_CLIENT_ID_STAGING) as string,
     },
   },
 });

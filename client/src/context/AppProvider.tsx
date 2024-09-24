@@ -37,6 +37,8 @@ interface AppContextType {
   addFlat: any;
   appHasError: boolean | string;
   setAppHasError: any;
+  activeFlatData: any;
+  setActiveFlatData: any;
 }
 
 export type Group = {
@@ -58,9 +60,11 @@ export type Props = {
   children: JSX.Element[] | JSX.Element;
 };
 
+const existingLocalStorage = localStorage.getItem("flatini-auth");
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const FlatProvider = (props: Props) => {
+const AppProvider = (props: Props) => {
   const [activeUrl, setActiveUrl] = useState<
     | {
         tabId: number;
@@ -71,7 +75,9 @@ const FlatProvider = (props: Props) => {
 
   const [appHasError, setAppHasError] = useState<boolean | string>(false);
 
-  const [userAuthToken, setUserAuthToken] = useState<string | null>(null);
+  const [userAuthToken, setUserAuthToken] = useState<string | null>(
+    existingLocalStorage || null
+  );
   // Renders dashboard screens
   const [isGroupLoading, setIsGroupLoading] = useState<boolean>(true);
 
@@ -91,6 +97,7 @@ const FlatProvider = (props: Props) => {
     locations: ["W1H", "E1W"],
     participants: [],
   });
+  const [activeFlatData, setActiveFlatData] = useState(null);
 
   /**
    * Authentication
@@ -107,6 +114,10 @@ const FlatProvider = (props: Props) => {
             return localStorage.getItem("flatini-auth-token");
           },
         });
+        console.log(
+          "[AppProvider.tsx] - authenticateUser -> Should authenticate user",
+          authDetails
+        );
         if ((authDetails as any)[0].result !== "undefined") {
           localStorage.setItem("flatini-auth", (authDetails as any)[0].result);
           setUserAuthToken((authDetails as any)[0].result);
@@ -121,23 +132,26 @@ const FlatProvider = (props: Props) => {
 
   const getGroup = async () => {
     //const token = localStorage.getItem("flatini-auth") as string;
-    console.log("usera", userAuthToken);
     if (userAuthToken) {
       try {
         const group = await _getUserGroup(userAuthToken as string);
 
         if (group) {
-          console.log("read group", group);
+          console.log(
+            "2 [getGroup - AppProvider.tsx] -> Loads group data",
+            group
+          );
+
           setUserHasGroup(true);
-          setGroupId(group?.groups[0].id);
+          setGroupId(group?.groupPropertiesList[0].id);
 
           // Sets group dependencies
-          setFlats(group?.groups[0].flats);
-          setParticipants(group?.groups[0].participants);
+          setFlats(group?.groupPropertiesList[0].properties);
+          setParticipants(group?.groupPropertiesList[0].participants);
           setRequirements({
-            price: group?.groups[0].priceLimit,
-            locations: group?.groups[0].locations,
-            participants: group?.groups[0].participants,
+            price: group?.groupPropertiesList[0].priceLimit,
+            locations: group?.groupPropertiesList[0].locations,
+            participants: group?.groupPropertiesList[0].participants,
           });
           setIsGroupLoading(false);
           return;
@@ -196,7 +210,7 @@ const FlatProvider = (props: Props) => {
         setGroupId(data.group.id);
 
         // Sets group dependencies
-        setFlats(data.group.flats);
+        setFlats(data.group.properties);
         setParticipants(data.group.participants);
         setRequirements({
           price: data.group.priceLimit,
@@ -248,11 +262,6 @@ const FlatProvider = (props: Props) => {
     price: number,
     location: string
   ) => {
-    console.log("check", price, location);
-    console.log(
-      "check",
-      includesAnySubstring(requirements.locations, location)
-    );
     function includesAnySubstring(arr: string[], str: string): boolean {
       return arr.some((substring) => str.includes(substring));
     }
@@ -290,6 +299,8 @@ const FlatProvider = (props: Props) => {
         addFlat,
         appHasError,
         setAppHasError,
+        activeFlatData,
+        setActiveFlatData,
       }}
     >
       {props.children}
@@ -300,9 +311,9 @@ const FlatProvider = (props: Props) => {
 export const useProvider = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error("useProvider must be used within a FlatProvider");
+    throw new Error("useProvider must be used within a AppProvider");
   }
   return context;
 };
 
-export default FlatProvider;
+export default AppProvider;

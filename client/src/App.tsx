@@ -11,12 +11,19 @@ import { flatiniAuthWebsite } from "./utils/constants";
 import Loading from "./views/Loading";
 import ErrorPage from "./views/ErrorPage";
 import Explore from "./views/Explore";
+import RedFlags from "./RedFlags";
+import AddRedFlag from "./AddRedFlag";
 
 function App() {
   const navigate = useNavigate();
   const state = useProvider();
   let url;
   const setActiveUrl = () => {
+    console.log(
+      "3 [setActiveUrl - App.tsx] -> Sets active URL",
+      state.isGroupLoading
+    );
+
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       url = tabs[0].url;
 
@@ -66,7 +73,7 @@ function App() {
       url?.includes("https://www.openrent.co.uk/property-to-rent/")
     ) {
       navigate("/FlatView");
-    } else if (url?.includes(flatiniAuthWebsite)) {
+    } else if (url?.includes(flatiniAuthWebsite as string)) {
       state.authenticateUser();
       navigate("/");
     } else {
@@ -81,36 +88,26 @@ function App() {
     });
     // Reads changes when active tab changes
     chrome.tabs.onUpdated.addListener(async () => {
-      console.log("[Performance] onUpdated");
       setActiveUrl();
     });
     chrome.tabs.onActivated.addListener(function () {
       setActiveUrl();
-      console.log("[Performance] onActivated");
     });
   };
 
   useEffect(() => {
+    console.log(
+      "1 [useEffect - App.tsx] -> First use effect, app loads",
+      state.userAuthToken
+    );
     addChromeEvents();
 
     if (state.userAuthToken) {
-      console.log(
-        "state user token yes",
-        state.userAuthToken,
-        typeof state.userAuthToken
-      );
       state.getGroup();
       setActiveUrl();
     } else {
-      const existingLocalStorage = localStorage.getItem("flatini-auth");
-
-      if (existingLocalStorage && existingLocalStorage !== "null") {
-        state.setUserAuthToken(existingLocalStorage);
-      } else {
-        state.authenticateUser();
-      }
+      state.authenticateUser();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.userAuthToken]);
 
   if (state.appHasError || (state.appHasError as string).length > 0) {
@@ -147,7 +144,8 @@ function App() {
           <Route path="/Settings" element={<Settings />} />
           <Route path="/Explore" element={<Explore />} />
           <Route path="/FlatView" element={<FlatView />} />
-          {/* <Route path="/Warnings" element={<Warnings />} /> */}
+          <Route path="/RedFlags" element={<RedFlags />} />
+          <Route path="/AddRedFlag" element={<AddRedFlag />} />
           <Route path="/Participants" element={<Participants />} />
         </Routes>
       ) : (

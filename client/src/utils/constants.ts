@@ -1,2 +1,4 @@
-export const flatiniAuthWebsite = "https://flatini.formulathoughts.com/";
-// add process.env.REACT_APP_FLATINI_WEB_DEV for dev
+export const flatiniAuthWebsite =
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_FRONTEND_URL_PROD
+    : process.env.REACT_APP_FRONTEND_URL_STAGING;

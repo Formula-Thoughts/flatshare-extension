@@ -17,20 +17,23 @@
     "aws-amplify": "^6.0.15",
     "axios": "^1.5.0",
     "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
     "javascript-time-ago": "^2.5.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.16.0",
     "react-scripts": "5.0.1",
+    "react-time-ago": "^7.3.3",
     "styled-components": "^6.0.8",
     "typescript": "^4.9.4",
     "uuid": "^9.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "websocket": "^1.0.35"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "watch": "webpack -w --config webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "watch": "cross-env NODE_ENV=development webpack -w --config webpack.config.js",
     "dev": "webpack -w --config webpack.config.js",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx"
   },
@@ -47,6 +50,7 @@
     "@types/react": "^18.2.21",
     "@types/uuid": "^9.0.4",
     "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.1",
@@ -56,6 +60,7 @@
     "ts-node": "^10.9.1",
     "typescript-eslint": "^7.8.0",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "ws": "^8.18.0"
   }
 }
