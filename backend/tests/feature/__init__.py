@@ -1,17 +1,5 @@
-import os
 from dataclasses import dataclass
 from http import HTTPStatus
-from unittest import TestCase
-from unittest.mock import patch
-
-import boto3
-from formula_thoughts_web.abstractions import Deserializer, Serializer
-from formula_thoughts_web.ioc import Container
-from moto import mock_aws
-
-from src.app import bootstrap, run
-from src.data import DynamoDbWrapper, CognitoClientWrapper
-
 
 USER_POOL = "test_pool"
 MOCKED_OS_ENVIRON = {
