@@ -9,7 +9,6 @@ from src.core import Group, IGroupRepo, IUserGroupsRepo
 from tests.feature import FeatureTestCase, MOCKED_OS_ENVIRON, USER_POOL
 
 
-@mock_aws
 class SkipTestCreateGroupSequenceBuilder(FeatureTestCase):
 
     def setUp(self) -> None:
@@ -18,7 +17,7 @@ class SkipTestCreateGroupSequenceBuilder(FeatureTestCase):
         self.__group_repo = self._container.resolve(service=IGroupRepo)
         self.__user_group_repo = self._container.resolve(service=IUserGroupsRepo)
 
-    def skip_test_create_group_should_create_group_when_no_groups_exist(self):
+    def skip_create_group_should_create_group_when_no_groups_exist(self):
         # arrange
         route = "POST /groups"
         auth_user = "test_user"
