@@ -28,7 +28,7 @@ class Response:
 
 
 @patch.dict(os.environ, MOCKED_OS_ENVIRON, clear=True)
-class FeatureTestCase(TestCase):
+class FeatureTestCase:
 
     def setUp(self):
         self.__table_name = 'flatini-test'

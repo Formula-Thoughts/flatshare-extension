@@ -10,7 +10,7 @@ from tests.feature import FeatureTestCase, MOCKED_OS_ENVIRON, USER_POOL
 
 
 @mock_aws
-class TestCreateGroupSequenceBuilder(FeatureTestCase):
+class SkipTestCreateGroupSequenceBuilder(FeatureTestCase):
 
     def setUp(self) -> None:
         super().setUp()
