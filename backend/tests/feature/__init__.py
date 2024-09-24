@@ -14,6 +14,11 @@ from src.data import DynamoDbWrapper, CognitoClientWrapper
 
 
 USER_POOL = "test_pool"
+MOCKED_OS_ENVIRON = {
+    "USER_POOL_ID": USER_POOL,
+    "AWS_ACCESS_KEY_ID": "test",
+    "AWS_SECRET_ACCESS_KEY": "test"
+}
 
 
 @dataclass
@@ -22,13 +27,10 @@ class Response:
     status: HTTPStatus = None
 
 
+@patch.dict(os.environ, MOCKED_OS_ENVIRON, clear=True)
 class FeatureTestCase(TestCase):
 
     def setUp(self):
-        patch.dict(os.environ, {
-            "AWS_ACCESS_KEY_ID": "test",
-            "AWS_SECRET_ACCESS_KEY": "test"
-        }, clear=True)
         self.__table_name = 'flatini-test'
         self.__default_region = "eu-west-2"
         self._container = Container()
@@ -37,12 +39,28 @@ class FeatureTestCase(TestCase):
         self._cognito = boto3.client('cognito-idp', region_name=self.__default_region)
         pool = self._cognito.create_user_pool(
             PoolName=USER_POOL,
+            Schema=[
+                {
+                    'Name': 'name',
+                    'AttributeDataType': 'String',
+                    'Required': True,
+                    'Mutable': True
+                },
+                {
+                    'Name': 'email',
+                    'AttributeDataType': 'String',
+                    'Required': True,
+                    'Mutable': True
+                }
+            ],
+            AutoVerifiedAttributes=['email'],
+            UsernameConfiguration={
+                'CaseSensitive': False
+            }
         )
-
         cognito_pool_id = pool["UserPool"]["Id"]
-        patch.dict(os.environ, {
-            "USER_POOL_ID": cognito_pool_id
-        }, clear=True)
+        self._user_pool_id = cognito_pool_id
+        os.environ["USER_POOL_ID"] = self._user_pool_id
         self._dynamo_client_wrapper = DynamoDbWrapper(dynamo_client=self.__dynamo,
                                                       tablename=self.__table_name)
         (self._container
