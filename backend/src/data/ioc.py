@@ -7,8 +7,8 @@ from src.core import IGroupRepo, IUserGroupsRepo, IPropertyRepo, IRedFlagRepo
 from src.data import CognitoClientWrapper, DynamoDbWrapper, ObjectHasher
 from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, DynamoDbPropertyRepo, DynamoDbRedFlagRepo
 
-cognito = boto3.client('cognito-idp')
-dynamo = boto3.resource('dynamodb')
+cognito = boto3.client('cognito-idp', region_name='eu-west-2')
+dynamo = boto3.resource('dynamodb', region_name='eu-west-2')
 
 
 def register_data_dependencies(container: Container):
