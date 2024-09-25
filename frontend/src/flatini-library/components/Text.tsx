@@ -35,7 +35,7 @@ type Props = {
 
 const Text = (props: Props) => {
   return (
-    <>
+    <div className="text">
       {props.type === TextTypes.small && (
         <Small id={props.id} className={props.className} style={props.style}>
           {props.children}
@@ -55,7 +55,7 @@ const Text = (props: Props) => {
           {props.children}
         </Title>
       )}
-    </>
+    </div>
   );
 };
 
