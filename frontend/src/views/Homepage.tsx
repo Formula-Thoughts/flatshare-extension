@@ -104,11 +104,22 @@ const Homepage = (props: any) => {
             }}
           >
             {props.user ? (
-              <Button
-                style={{ cursor: "pointer" }}
-                label="Sign out"
-                onClick={() => signOut()}
-              />
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <Button
+                  id="openFlatiniSidebar"
+                  label={"Open Flatini"}
+                  style={{
+                    cursor: "pointer",
+                    background: theme.colors.primary,
+                    color: "black",
+                  }}
+                />
+                <Button
+                  style={{ cursor: "pointer" }}
+                  label="Sign out"
+                  onClick={() => signOut()}
+                />
+              </div>
             ) : (
               <div
                 style={{
@@ -120,6 +131,7 @@ const Homepage = (props: any) => {
                 }}
               >
                 <Button
+                  id="openFlatiniSidebar"
                   label="Enter Flatini"
                   style={{ cursor: "pointer" }}
                   onClick={() =>
@@ -134,7 +146,6 @@ const Homepage = (props: any) => {
           </div>
         </div>
       </NavBar>
-
       <Hero>
         <ContentLayout>
           <div

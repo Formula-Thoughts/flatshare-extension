@@ -37,3 +37,8 @@ function getAllTextEndingWithPCM(element) {
 
   return textContent.trim();
 }
+
+document.querySelector("#openFlatiniSidebar").addEventListener("click", () => {
+  console.log("testing?", chrome);
+  chrome.runtime.sendMessage({ type: "open_side_panel" });
+});

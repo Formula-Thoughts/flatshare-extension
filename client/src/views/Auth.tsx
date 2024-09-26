@@ -40,9 +40,15 @@ const Auth = () => {
             <Button
               style={{ maxWidth: "100%" }}
               onClick={async () => {}}
-              label="Enter flatini"
+              label="Go to Flatini's site"
             />
           </a>
+          <div style={{ paddingTop: "1rem" }}>
+            <Text style={{ opacity: 0.5 }} type={TextTypes.small}>
+              Once you reach Flatini's site, click on "Enter Flatini" to log in
+              and get you inside.
+            </Text>
+          </div>
         </div>
       </Content>
     </Wrapper>
