@@ -76,6 +76,7 @@ const ContentLayout = styled.div`
 
 const Homepage = (props: any) => {
   const theme = useTheme();
+  var isChrome = !!window.chrome;
 
   return (
     <Wrapper>
@@ -84,67 +85,81 @@ const Homepage = (props: any) => {
           <Logo style={{ width: "10rem" }} />
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "1rem",
-          }}
-        >
-          {props.user ? (
-            <Text type={TextTypes.paragraph}>
-              <Link to="/invite">join a group</Link>
-            </Text>
-          ) : null}
+        {isChrome ? (
           <div
             style={{
-              flex: 1,
-              textAlign: "right",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "1rem",
             }}
           >
             {props.user ? (
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <Button
-                  id="openFlatiniSidebar"
-                  label={"Open Flatini"}
+              <Text type={TextTypes.paragraph}>
+                <Link to="/invite">join a group</Link>
+              </Text>
+            ) : null}
+            <div
+              style={{
+                flex: 1,
+                textAlign: "right",
+              }}
+            >
+              {props.user ? (
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <Button
+                    id="openFlatiniSidebar"
+                    label={"Open Flatini"}
+                    style={{
+                      cursor: "pointer",
+                      background: theme.colors.primary,
+                      color: "black",
+                    }}
+                  />
+                  <Button
+                    style={{ cursor: "pointer" }}
+                    label="Sign out"
+                    onClick={() => signOut()}
+                  />
+                </div>
+              ) : (
+                <div
                   style={{
-                    cursor: "pointer",
-                    background: theme.colors.primary,
-                    color: "black",
+                    display: "flex",
+                    flexDirection: "column",
+                    textAlign: "center",
+                    maxWidth: "15rem",
+                    gap: "0.5rem",
                   }}
-                />
-                <Button
-                  style={{ cursor: "pointer" }}
-                  label="Sign out"
-                  onClick={() => signOut()}
-                />
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  textAlign: "center",
-                  maxWidth: "15rem",
-                  gap: "0.5rem",
-                }}
-              >
-                <Button
-                  id="openFlatiniSidebar"
-                  label="Enter Flatini"
-                  style={{ cursor: "pointer" }}
-                  onClick={() =>
-                    signInWithRedirect({
-                      provider: "Google",
-                      customState: props.code,
-                    })
-                  }
-                />
-              </div>
-            )}
+                >
+                  <Button
+                    id="openFlatiniSidebar"
+                    label="Enter Flatini"
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      signInWithRedirect({
+                        provider: "Google",
+                        customState: props.code,
+                      })
+                    }
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "1rem",
+              borderRadius: "0.5rem",
+              background: "grey",
+            }}
+          >
+            Flatini is only available in Chrome
+          </div>
+        )}
       </NavBar>
       <Hero>
         <ContentLayout>
