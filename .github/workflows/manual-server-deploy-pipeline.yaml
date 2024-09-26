@@ -5,10 +5,10 @@ on:
     inputs:
       name:
         type: choice
-        description: env
+        description: "Environment to deploy to"
         options:
-        - staging
-        - prod
+          - staging
+          - prod
 
 jobs:
   deploy:
@@ -22,8 +22,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
-      - name: build and deploy to aws
+      - name: Set Cognito environment variables
         run: |
-          echo "deploying to ${{ github.event.inputs.name }} environment"
+          if [[ "${{ github.event.inputs.name }}" == "staging" ]]; then
+            echo "REACT_APP_COGNITO_DOMAIN=${{ secrets.REACT_APP_COGNITO_DOMAIN_STAGING }}" >> .env
+            echo "REACT_APP_COGNITO_POOL_ID=${{ secrets.REACT_APP_COGNITO_POOL_ID_STAGING }}" >> .env
+            echo "REACT_APP_COGNITO_CLIENT_ID=${{ secrets.REACT_APP_COGNITO_CLIENT_ID_STAGING }}" >> .env
+          elif [[ "${{ github.event.inputs.name }}" == "prod" ]]; then
+            echo "REACT_APP_COGNITO_DOMAIN=${{ secrets.REACT_APP_COGNITO_DOMAIN_PROD }}" >> .env
+            echo "REACT_APP_COGNITO_POOL_ID=${{ secrets.REACT_APP_COGNITO_POOL_ID_PROD }}" >> .env
+            echo "REACT_APP_COGNITO_CLIENT_ID=${{ secrets.REACT_APP_COGNITO_CLIENT_ID_PROD }}" >> .env
+          fi
+      - name: Build and deploy to AWS
+        run: |
+          echo "Deploying to ${{ github.event.inputs.name }} environment"
           cd backend && sh clean_build.sh
           sam deploy --no-fail-on-empty-changeset --no-confirm-changeset --stack-name flatini-api-${{ github.event.inputs.name }} --s3-bucket flatini-api-${{ github.event.inputs.name }}-s3 --s3-prefix flatini --region eu-west-2 --capabilities CAPABILITY_IAM --parameter-overrides ParameterKey=GoogleClientSecret,ParameterValue="${{ secrets.GOOGLE_CLIENT_SECRET }}" ParameterKey=GoogleClientId,ParameterValue="${{ secrets.GOOGLE_CLIENT_ID }}"
