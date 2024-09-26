@@ -54,7 +54,7 @@ jobs:
       id-token: write
       contents: read
     needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.frontend == 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
