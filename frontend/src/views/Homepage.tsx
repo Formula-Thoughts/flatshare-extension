@@ -12,6 +12,11 @@ import redFlagUp from "../red-flag-up.png";
 import houseRight from "../house-right.png";
 
 import supportedSites from "../supported-sites.png";
+
+import xavierImg from "../images-people/1675698725213.jpg";
+import aidanImg from "../images-people/1709241356504.jpg";
+import domImg from "../images-people/1725373221246.jpg";
+
 import { device } from "../flatini-library/util/mediaQueries";
 
 const Wrapper = styled.div`
@@ -72,6 +77,40 @@ const Block = styled.div`
 
 const ContentLayout = styled.div`
   margin: 2rem;
+`;
+
+const People = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 3rem;
+  background: #1d1d1d;
+  padding: 4rem;
+
+  @media ${device.tablet} {
+    display: block;
+    padding: 0;
+
+    img {
+      width: 100%;
+    }
+  }
+`;
+
+const Person = styled.div`
+  @media ${device.tablet} {
+    display: inline-block;
+    margin: 1rem;
+  }
+
+  span {
+    display: block;
+    margin: 0.5rem 0;
+  }
+
+  h1 {
+    max-width: 30px;
+  }
 `;
 
 const Homepage = (props: any) => {
@@ -350,6 +389,57 @@ const Homepage = (props: any) => {
           />
         </div>
       </Block>
+      <ContentLayout>
+        <Text style={{ marginBottom: "1rem" }} type={TextTypes.title}>
+          Behind Flatini
+        </Text>
+        <div>
+          <People>
+            <Person>
+              <Image
+                src={aidanImg}
+                style={{ width: "10rem" }}
+                alt={"Promo image"}
+              />
+              <Text
+                style={{ color: theme.colors.primary }}
+                type={TextTypes.small}
+              >
+                Back-End & Devops
+              </Text>
+              <Text type={TextTypes.title}>Aidan Gannon</Text>
+            </Person>
+            <Person>
+              <Image
+                src={xavierImg}
+                style={{ width: "10rem" }}
+                alt={"Promo image"}
+              />
+              <Text
+                style={{ color: theme.colors.primary }}
+                type={TextTypes.small}
+              >
+                Front-End & Product
+              </Text>
+              <Text type={TextTypes.title}>Xavier Mod</Text>
+            </Person>
+            <Person>
+              <Image
+                src={domImg}
+                style={{ width: "10rem" }}
+                alt={"Promo image"}
+              />
+              <Text
+                style={{ color: theme.colors.primary }}
+                type={TextTypes.small}
+              >
+                Business & Operations
+              </Text>
+              <Text type={TextTypes.title}>Dominic Farr</Text>
+            </Person>
+          </People>
+        </div>
+      </ContentLayout>
     </Wrapper>
   );
 };
