@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import MainLayout from "../layouts/MainLayout";
-import Button from "../flatini-library/components/Button";
 import { useProvider } from "../context/AppProvider";
 import { FaCheck } from "react-icons/fa";
-import Text, { TextTypes } from "../flatini-library/components/Text";
 import { flatiniAuthWebsite } from "../utils/constants";
-import UserCircle from "../flatini-library/components/UserCircle";
+import { Button, Text, TextTypes } from "flatini-fe-library";
+import UserCircle from "../components/UserCircle";
 
 const Wrapper = styled.div`
   display: flex;

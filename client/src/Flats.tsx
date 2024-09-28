@@ -3,10 +3,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import { useProvider } from "./context/AppProvider";
 import MainLayout from "./layouts/MainLayout";
-import Text, { TextTypes } from "./flatini-library/components/Text";
-import Image from "./flatini-library/components/Image";
 import NoFlatsFoundImage from "./assets/no-flats-found.png";
-import UserCircle from "./flatini-library/components/UserCircle";
+import { Image, Text, TextTypes } from "flatini-fe-library";
+import UserCircle from "./components/UserCircle";
 
 const FlatList = styled.div`
   display: flex;
@@ -121,7 +120,14 @@ export const Flats = () => {
                     <Text className="title" type={TextTypes.title}>
                       {item.title}
                     </Text>
-                    <div style={{ marginTop: "0.5rem" }}>
+                    <div
+                      style={{
+                        marginTop: "0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
                       <Text type={TextTypes.small}>
                         <span style={{ opacity: 0.7 }}>Added by</span>{" "}
                         <UserCircle>

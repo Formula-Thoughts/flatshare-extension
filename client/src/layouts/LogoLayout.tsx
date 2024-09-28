@@ -1,6 +1,6 @@
+import { Logo } from "flatini-fe-library";
 import React from "react";
 import styled from "styled-components";
-import Logo from "../flatini-library/components/Logo";
 
 const Wrapper = styled.div`
   position: fixed;

@@ -1,9 +1,7 @@
 import React from "react";
 import { flatiniAuthWebsite } from "../utils/constants";
 import styled, { useTheme } from "styled-components";
-import Button from "../flatini-library/components/Button";
-import Text, { TextTypes } from "../flatini-library/components/Text";
-import Logo from "../flatini-library/components/Logo";
+import { Button, Logo, Text, TextTypes } from "flatini-fe-library";
 
 const Wrapper = styled.div`
   position: fixed;

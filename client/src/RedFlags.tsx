@@ -1,21 +1,12 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ColorLayout from "./layouts/ColorLayout";
-import Text, { TextTypes } from "./flatini-library/components/Text";
 import styled from "styled-components";
-import Button from "./flatini-library/components/Button";
 import { useProvider } from "./context/AppProvider";
 import { FaArrowLeft, FaPlus } from "react-icons/fa";
-import TimeAgo from "javascript-time-ago";
 import ReactTimeAgo from "react-time-ago";
 import { _voteRedFlag } from "./utils/resources";
-import MainLayout from "./layouts/MainLayout";
-
-type Data = {
-  flatUrl: string;
-  flatName: string;
-  redFlags: RedFlagType[];
-};
+import { Button, Text, TextTypes } from "flatini-fe-library";
 
 type RedFlagType = {
   id: string;

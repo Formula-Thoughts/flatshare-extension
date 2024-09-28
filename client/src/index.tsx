@@ -4,13 +4,13 @@ import App from "./App";
 import "./sidepanel";
 import { MemoryRouter } from "react-router-dom";
 import AppProvider from "./context/AppProvider";
-import theme from "./flatini-library/theme";
 import { ThemeProvider } from "styled-components";
-import GlobalStyle from "./flatini-library/globalStyle";
 
 import TimeAgo from "javascript-time-ago";
 
 import en from "javascript-time-ago/locale/en";
+import GlobalStyle from "./utils/globalStyle";
+import { FlatiniProvider, theme } from "flatini-fe-library";
 
 TimeAgo.addDefaultLocale(en);
 
@@ -21,10 +21,12 @@ const rootDiv = ReactDOM.createRoot(root);
 rootDiv.render(
   <MemoryRouter>
     <AppProvider>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <App />
-      </ThemeProvider>
+      <FlatiniProvider theme={theme}>
+        <ThemeProvider theme={theme as any}>
+          <GlobalStyle />
+          <App />
+        </ThemeProvider>
+      </FlatiniProvider>
     </AppProvider>
   </MemoryRouter>
 );

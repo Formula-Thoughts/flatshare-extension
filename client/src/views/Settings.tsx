@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import MainLayout from "../layouts/MainLayout";
-import InputText from "../flatini-library/components/InputText";
 import styled from "styled-components";
 import { useProvider } from "../context/AppProvider";
-import Button from "../flatini-library/components/Button";
-import Text, { TextTypes } from "../flatini-library/components/Text";
-import { FaEdit } from "react-icons/fa";
+import { Button, InputText, Text, TextTypes } from "flatini-fe-library";
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+`;
+
+const InputGroup = styled.div`
+  flex-direction: column;
+  display: flex;
   gap: 1rem;
 `;
 
@@ -35,44 +38,51 @@ const Settings = () => {
           <Text type={TextTypes.small}>Set your flat requirements</Text>
         </div>
         <form onSubmit={(e) => e.preventDefault()}>
-          <div>
-            <label style={{ display: "block", opacity: 0.5 }}>
-              Max price per month (£)
-            </label>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <InputText
-                type="text"
-                name="price"
-                placeholder="Set a max price (PCM)"
-                value={localRequirements.price as string}
-                defaultValue={localRequirements.price as string}
-                onChange={(value) =>
-                  setLocalRequirements({ ...localRequirements, price: value })
-                }
-              />
-              <FaEdit size={30} style={{ opacity: 0.5 }} />
-            </div>
-          </div>
-          <div>
-            <label style={{ display: "block", opacity: 0.5 }}>
-              Desired locations (Use commas to add multiple)
-            </label>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <InputText
-                type="text"
-                name="location"
-                placeholder="Set desired locations..."
-                value={localRequirements.locations.join(", ")}
-                defaultValue={localRequirements.locations.join(", ")}
-                onChange={(value) =>
-                  setLocalRequirements({
-                    ...localRequirements,
-                    locations: value.split(",").map((s) => s.trim()),
-                  })
-                }
-              />
-              <FaEdit size={30} style={{ opacity: 0.5 }} />
-            </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              marginBottom: "2rem",
+            }}
+          >
+            <InputGroup>
+              <label style={{ display: "block", opacity: 0.5 }}>
+                Max price per month (£)
+              </label>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <InputText
+                  type="text"
+                  name="price"
+                  placeholder="Set a max price (PCM)"
+                  value={localRequirements.price as string}
+                  style={{ width: "100%" }}
+                  onChange={(value) =>
+                    setLocalRequirements({ ...localRequirements, price: value })
+                  }
+                />
+              </div>
+            </InputGroup>
+            <InputGroup>
+              <label style={{ display: "block", opacity: 0.5 }}>
+                Desired locations (Use commas to add multiple)
+              </label>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <InputText
+                  type="text"
+                  name="location"
+                  placeholder="Set desired locations..."
+                  value={localRequirements.locations.join(", ")}
+                  style={{ width: "100%" }}
+                  onChange={(value) =>
+                    setLocalRequirements({
+                      ...localRequirements,
+                      locations: value.split(",").map((s) => s.trim()),
+                    })
+                  }
+                />
+              </div>
+            </InputGroup>
           </div>
           <Button
             onClick={async () =>

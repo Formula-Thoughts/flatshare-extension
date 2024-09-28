@@ -1,7 +1,7 @@
 import React from "react";
-import Text, { TextTypes } from "../flatini-library/components/Text";
 import MainLayout from "../layouts/MainLayout";
 import { styled, useTheme } from "styled-components";
+import { Text, TextTypes } from "flatini-fe-library";
 
 const Wrapper = styled.div`
   border: 1px solid red;
