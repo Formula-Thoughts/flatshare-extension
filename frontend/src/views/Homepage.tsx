@@ -1,10 +1,6 @@
 import { signInWithRedirect, signOut } from "@aws-amplify/auth";
 import { Link } from "react-router-dom";
-import Logo from "../flatini-library/components/Logo";
-import Text, { TextTypes } from "../flatini-library/components/Text";
 import styled, { useTheme } from "styled-components";
-import Button from "../flatini-library/components/Button";
-import Image from "../flatini-library/components/Image";
 import promoImg from "../promo.png";
 import promo2Img from "../promo-2.png";
 
@@ -16,8 +12,14 @@ import supportedSites from "../supported-sites.png";
 import xavierImg from "../images-people/1675698725213.jpg";
 import aidanImg from "../images-people/1709241356504.jpg";
 import domImg from "../images-people/1725373221246.jpg";
-
-import { device } from "../flatini-library/util/mediaQueries";
+import {
+  Logo,
+  Text,
+  device,
+  TextTypes,
+  Button,
+  Image,
+} from "flatini-fe-library";
 
 const Wrapper = styled.div`
   flex-direction: column;

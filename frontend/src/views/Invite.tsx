@@ -1,10 +1,7 @@
 import axios, { AxiosResponse } from "axios";
+import { Button, InputText, Logo, Text, TextTypes } from "flatini-fe-library";
 import { useState } from "react";
 import styled, { useTheme } from "styled-components";
-import Text, { TextTypes } from "../flatini-library/components/Text";
-import InputText from "../flatini-library/components/InputText";
-import Button from "../flatini-library/components/Button";
-import Logo from "../flatini-library/components/Logo";
 
 const Wrapper = styled.div`
   position: fixed;
