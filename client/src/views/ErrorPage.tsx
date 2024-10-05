@@ -1,8 +1,6 @@
+import { Button, Logo, Text, TextTypes } from "flatini-fe-library";
 import React from "react";
 import styled from "styled-components";
-import Text, { TextTypes } from "../flatini-library/components/Text";
-import Logo from "../flatini-library/components/Logo";
-import Button from "../flatini-library/components/Button";
 
 const Wrapper = styled.div`
   position: fixed;

@@ -1,9 +1,7 @@
 import React from "react";
 import { flatiniAuthWebsite } from "../utils/constants";
 import styled, { useTheme } from "styled-components";
-import Button from "../flatini-library/components/Button";
-import Text, { TextTypes } from "../flatini-library/components/Text";
-import Logo from "../flatini-library/components/Logo";
+import { Button, Logo, Text, TextTypes } from "flatini-fe-library";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -40,9 +38,15 @@ const Auth = () => {
             <Button
               style={{ maxWidth: "100%" }}
               onClick={async () => {}}
-              label="Enter flatini"
+              label="Go to Flatini's site"
             />
           </a>
+          <div style={{ paddingTop: "1rem" }}>
+            <Text style={{ opacity: 0.5 }} type={TextTypes.small}>
+              Once you reach Flatini's site, click on "Enter Flatini" to log in
+              and get you inside.
+            </Text>
+          </div>
         </div>
       </Content>
     </Wrapper>

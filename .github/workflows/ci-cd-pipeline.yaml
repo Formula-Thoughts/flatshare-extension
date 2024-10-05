@@ -1,8 +1,11 @@
 name: CI/CD Pipeline
 
-on:
+on:  # Trigger events for the workflow
   push:
-    branches: [main, prod-ready]
+    branches: 
+      - main
+      - prod-ready
+
 jobs:
   # Determines the environment to deploy the backend to
   setenv:
@@ -21,6 +24,7 @@ jobs:
           if [[ "${{github.base_ref}}" == "prod-ready" || "${{github.ref}}" == "refs/heads/prod-ready" ]]; then
             echo "env=prod" >> "$GITHUB_OUTPUT"
           fi
+
   # Change detection for filtering jobs
   changes:
     runs-on: ubuntu-latest
@@ -41,6 +45,7 @@ jobs:
               - 'backend/**'
             frontend:
               - 'frontend/**'
+
   frontend:
     defaults:
       run:
@@ -49,7 +54,6 @@ jobs:
       id-token: write
       contents: read
     needs: changes
-    if: ${{needs.changes.outputs.frontend == 'true'}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +61,16 @@ jobs:
         with:
           node-version: 18
       - run: npm install
+      - run: |
+          if [[ "${{ needs.setenv.outputs.env }}" == "staging" ]]; then
+            echo "REACT_APP_COGNITO_DOMAIN=${{ secrets.REACT_APP_COGNITO_DOMAIN_STAGING }}" >> .env
+            echo "REACT_APP_COGNITO_POOL_ID=${{ secrets.REACT_APP_COGNITO_POOL_ID_STAGING }}" >> .env
+            echo "REACT_APP_COGNITO_CLIENT_ID=${{ secrets.REACT_APP_COGNITO_CLIENT_ID_STAGING }}" >> .env
+          elif [[ "${{ needs.setenv.outputs.env }}" == "prod" ]]; then
+            echo "REACT_APP_COGNITO_DOMAIN=${{ secrets.REACT_APP_COGNITO_DOMAIN_PROD }}" >> .env
+            echo "REACT_APP_COGNITO_POOL_ID=${{ secrets.REACT_APP_COGNITO_POOL_ID_PROD }}" >> .env
+            echo "REACT_APP_COGNITO_CLIENT_ID=${{ secrets.REACT_APP_COGNITO_CLIENT_ID_PROD }}" >> .env
+          fi
       - run: npm run build
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -64,7 +78,7 @@ jobs:
           role-to-assume: arn:aws:iam::035306758865:role/gh-short-lived-creds
           aws-region: us-east-1
       - run: aws s3 sync build/ s3://flatini.formulathoughts.com
-      - run: aws cloudfront create-invalidation --distribution-id ${{secrets.DISTRIBUTION_ID}} --paths "/*"
+      - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
 
   backend:
     needs: [changes, setenv]

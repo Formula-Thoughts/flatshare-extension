@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import MainLayout from "../layouts/MainLayout";
-import Button from "../flatini-library/components/Button";
 import { useProvider } from "../context/AppProvider";
 import { FaCheck } from "react-icons/fa";
-import Text, { TextTypes } from "../flatini-library/components/Text";
 import { flatiniAuthWebsite } from "../utils/constants";
-import UserCircle from "../flatini-library/components/UserCircle";
+import { Button, Text, TextTypes } from "flatini-fe-library";
+import UserCircle from "../components/UserCircle";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -18,7 +18,8 @@ const AddMembers = styled.div``;
 
 const Participants = () => {
   const [shareCode, setShareCode] = useState(null);
-  const { getGroupShareCode, participants } = useProvider();
+  const { getGroupShareCode, participants, leaveGroup } = useProvider();
+  const navigate = useNavigate();
 
   const copyToClipboard = async () => {
     if (shareCode) {
@@ -68,7 +69,9 @@ const Participants = () => {
           })}
         </ul>
         <AddMembers>
-          <div>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+          >
             <Button
               onClick={async () => {
                 setShareCode(await getGroupShareCode());
@@ -98,6 +101,19 @@ const Participants = () => {
                 </div>
               </div>
             ) : null}
+            <div
+              onClick={() => {
+                leaveGroup();
+                navigate("/");
+              }}
+            >
+              <Text
+                type={TextTypes.paragraph}
+                style={{ textAlign: "center", cursor: "pointer" }}
+              >
+                Leave group
+              </Text>
+            </div>
           </div>
         </AddMembers>
       </Wrapper>

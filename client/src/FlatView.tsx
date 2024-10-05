@@ -6,17 +6,16 @@ import {
   getFlatDataFromRightmove,
   getFlatDataFromSpareroom,
   getFlatDataFromZoopla,
+  propertyUrlToSend,
 } from "./utils/url";
-import Text, { TextTypes } from "./flatini-library/components/Text";
-import Image from "./flatini-library/components/Image";
-import checkmark from "./flatini-library/assets/checkmark.png";
-import cross from "./flatini-library/assets/cross.png";
+import checkmark from "./assets/checkmark.png";
+import cross from "./assets/cross.png";
 import { extractNumber } from "./utils/util";
-import Button from "./flatini-library/components/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import Loading from "./views/Loading";
 import { _getPropertyRedFlags } from "./utils/resources";
+import { Button, Image, Text, TextTypes, theme } from "flatini-fe-library";
 
 const Wrapper = styled.div<{
   isFlatDuplicated: boolean;
@@ -87,7 +86,7 @@ const FlatView = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
         const activeTab = tabs[0];
-        if (flats.find((flat: Flat) => flat.url === activeTab.url)) {
+        if (flats.find((flat: Flat) => activeTab.url?.includes(flat.url))) {
           return setIsFlatDuplicated(true);
         }
         return setIsFlatDuplicated(false);
@@ -157,7 +156,9 @@ const FlatView = () => {
   };
 
   const removeFlatFromList = () => {
-    removeFlat(activeUrl.contents);
+    removeFlat(
+      propertyUrlToSend(activeUrl.propertyProvider, activeUrl.contents)
+    );
     setIsFlatDuplicated(false);
   };
 
@@ -171,7 +172,7 @@ const FlatView = () => {
         const data = (await getDataFromProviders()) as any;
         const redFlags = await _getPropertyRedFlags(
           userAuthToken as string,
-          data?.url
+          propertyUrlToSend(activeUrl.propertyProvider, data?.url)
         );
 
         setActiveFlatData({
@@ -315,7 +316,10 @@ const FlatView = () => {
             <Button
               onClick={async () => {
                 await addFlat(
-                  activeFlatData?.url,
+                  propertyUrlToSend(
+                    activeUrl.propertyProvider,
+                    activeFlatData?.url
+                  ),
                   activeFlatData?.price,
                   activeFlatData?.title
                 );
@@ -327,7 +331,10 @@ const FlatView = () => {
             <Button
               onClick={async () => {
                 await addFlat(
-                  activeFlatData?.url,
+                  propertyUrlToSend(
+                    activeUrl.propertyProvider,
+                    activeFlatData?.url
+                  ),
                   activeFlatData?.price,
                   activeFlatData?.title
                 );
@@ -365,7 +372,10 @@ const FlatView = () => {
           <RedFlagsBanner onClick={() => navigate("/RedFlags")}>
             <span style={{ fontSize: "2rem" }}>🚩</span>
             <div>
-              <Text type={TextTypes.paragraph}>
+              <Text
+                style={{ color: theme.colors.background }}
+                type={TextTypes.paragraph}
+              >
                 Some users have spotted {activeFlatData?.redFlags?.length} red
                 flag(s) in this property.
               </Text>
@@ -389,15 +399,6 @@ const FlatView = () => {
     );
   }
 
-  // if (
-  //   !activeFlatData?.price ||
-  //   !activeFlatData?.title ||
-  //   !activeFlatData?.url
-  // ) {
-  //   setAppHasError(
-  //     "Sorry. This property cannot be added to your list, would you mind reloading the extension? :)"
-  //   );
-  // }
   return <div />;
 };
 

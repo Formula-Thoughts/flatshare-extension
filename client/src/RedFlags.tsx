@@ -1,21 +1,12 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ColorLayout from "./layouts/ColorLayout";
-import Text, { TextTypes } from "./flatini-library/components/Text";
 import styled from "styled-components";
-import Button from "./flatini-library/components/Button";
 import { useProvider } from "./context/AppProvider";
 import { FaArrowLeft, FaPlus } from "react-icons/fa";
-import TimeAgo from "javascript-time-ago";
 import ReactTimeAgo from "react-time-ago";
 import { _voteRedFlag } from "./utils/resources";
-import MainLayout from "./layouts/MainLayout";
-
-type Data = {
-  flatUrl: string;
-  flatName: string;
-  redFlags: RedFlagType[];
-};
+import { Button, Text, TextTypes } from "flatini-fe-library";
 
 type RedFlagType = {
   id: string;
@@ -48,14 +39,18 @@ const Footer = styled.div`
 `;
 
 const HelpfulButton = styled.div`
-  background: white;
+  background: transparent;
   padding: 0.3rem;
-  color: black;
+  color: white;
   border-radius: 1rem;
+  border: 3px solid white;
+  cursor: pointer;
 
   &.user-has-voted {
-    background: transparent;
-    color: white;
+    background: white;
+    span {
+      color: black !important;
+    }
   }
 `;
 
@@ -66,7 +61,13 @@ const RedFlags = () => {
 
   const [redFlags] = useState<RedFlagType[]>(activeFlatData.redFlags);
 
-  console.log("check red flags", redFlags);
+  const sortByVotes = (data: any[], ascending: boolean = false) => {
+    return data.sort((a, b) => {
+      return ascending ? a.votes - b.votes : b.votes - a.votes;
+    });
+  };
+
+  console.log("sortByVotes", sortByVotes(redFlags));
 
   return (
     <ColorLayout>
@@ -114,7 +115,7 @@ const RedFlags = () => {
             width: "100%",
           }}
         >
-          {redFlags.map((redFlag) => {
+          {sortByVotes(redFlags).map((redFlag) => {
             return <RedFlag {...redFlag} />;
           })}
         </div>
@@ -126,6 +127,8 @@ const RedFlags = () => {
 const RedFlag = (props: RedFlagType) => {
   // const timeAgo = new TimeAgo("en-US");
   const { userAuthToken } = useProvider();
+  const [votedByMe, setVotedByMe] = useState(props.votedByMe);
+  const [votes, setVotes] = useState(props.votes);
 
   return (
     <Wrapper>
@@ -133,15 +136,22 @@ const RedFlag = (props: RedFlagType) => {
       <Footer>
         <div>
           <HelpfulButton
-            onClick={async () =>
+            onClick={async () => {
               await _voteRedFlag(
                 userAuthToken,
                 props.id,
                 props.propertyUrl,
-                props.votedByMe
-              )
-            }
-            className={`${props.votedByMe ? "user-has-voted" : null}`}
+                votedByMe
+              );
+              setVotedByMe(!votedByMe);
+
+              if (votedByMe) {
+                setVotes(votes - 1);
+              } else {
+                setVotes(votes + 1);
+              }
+            }}
+            className={`${votedByMe ? "user-has-voted" : null}`}
           >
             <Text type={TextTypes.small} style={{ fontWeight: "bold" }}>
               Helpful
@@ -149,7 +159,7 @@ const RedFlag = (props: RedFlagType) => {
           </HelpfulButton>
         </div>
         <div style={{ flex: 1, opacity: 0.7 }}>
-          <Text type={TextTypes.small}>{props.votes} users agree</Text>
+          <Text type={TextTypes.small}>{votes} users agree</Text>
         </div>
         <div style={{ flex: 1, opacity: 0.7 }}>
           <ReactTimeAgo date={props.date} locale="en" />

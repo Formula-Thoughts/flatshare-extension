@@ -1,9 +1,8 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
-import Button from "../flatini-library/components/Button";
-import Text, { TextTypes } from "../flatini-library/components/Text";
-import Logo from "../flatini-library/components/Logo";
 import { useProvider } from "../context/AppProvider";
+import { Button, Logo, Text, TextTypes } from "flatini-fe-library";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -25,6 +24,7 @@ const Content = styled.div`
 const CreateGroup = () => {
   const theme = useTheme();
   const { createGroup } = useProvider();
+  const navigate = useNavigate();
 
   return (
     <Wrapper>
@@ -44,11 +44,23 @@ const CreateGroup = () => {
           Ask the group leader to invite you and you will be able to join from
           here.
         </Text>
-        <div>
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
           <Button
-            style={{ maxWidth: "100%" }}
+            style={{ width: "100%" }}
             onClick={createGroup}
             label="Create group"
+          />
+          <Button
+            style={{ width: "100%", background: "transparent", color: "white" }}
+            onClick={() => navigate("/JoinGroup")}
+            label="Join existing group"
           />
         </div>
       </Content>

@@ -1,13 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import Text, { TextTypes } from "./flatini-library/components/Text";
 import ColorLayout from "./layouts/ColorLayout";
 import styled from "styled-components";
-import InputText from "./flatini-library/components/InputText";
 import { useState } from "react";
-import Button from "./flatini-library/components/Button";
 import { _addRedFlag } from "./utils/resources";
 import { useProvider } from "./context/AppProvider";
 import { FaArrowLeft } from "react-icons/fa";
+import { Button, InputText, Text, TextTypes } from "flatini-fe-library";
 
 const Wrapper = styled.div`
   display: flex;
@@ -73,12 +71,12 @@ const AddRedFlags = () => {
           <span style={{ fontWeight: "bold" }}>{activeFlatData?.title}</span>.
           Don't worry, it's 100% anonymous.
         </Text>
-        <EditableDiv
-          contentEditable
-          data-placeholder="Enter your text here..."
-          onInput={(element) => {
-            const target = element.target as HTMLElement;
-            setNewRedFlag(target.innerText); // Or target.innerHTML if you need HTML content
+        <InputText
+          name="text"
+          placeholder="Enter your text here..."
+          style={{ width: "100%", minHeight: "150px" }}
+          onChange={(value) => {
+            setNewRedFlag(value);
           }}
         />
         <Button

@@ -117,6 +117,8 @@ export const _getPropertyRedFlags = async (
     `/red-flags?property_url=${propertyUrl}`,
     config
   )) as AxiosResponse;
+
+  console.log("_getPropertyRedFlags", res);
   return res.data;
 };
 
@@ -137,6 +139,21 @@ export const _addRedFlag = async (
       propertyUrl,
       body,
     },
+    config
+  )) as AxiosResponse;
+  return res.data;
+};
+
+export const _joinExistingGroup = async (token: string, code: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const res = (await axios.post(
+    `/participants?code=${code}`,
+    {},
     config
   )) as AxiosResponse;
   return res.data;

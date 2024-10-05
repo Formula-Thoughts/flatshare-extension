@@ -1,8 +1,7 @@
-import Button from "../flatini-library/components/Button";
-import Text, { TextTypes } from "../flatini-library/components/Text";
 import MainLayout from "../layouts/MainLayout";
 import styled from "styled-components";
 import { useProvider } from "../context/AppProvider";
+import { Button, Text, TextTypes } from "flatini-fe-library";
 
 const Wrapper = styled.div`
   display: flex;

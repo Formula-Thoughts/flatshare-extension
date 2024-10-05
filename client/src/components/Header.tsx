@@ -1,4 +1,3 @@
-import Logo from "../flatini-library/components/Logo";
 import styled from "styled-components";
 import { Link, NavLink } from "react-router-dom";
 import { flatiniAuthWebsite } from "../utils/constants";
@@ -11,6 +10,7 @@ import {
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { useProvider } from "../context/AppProvider";
+import { Logo } from "flatini-fe-library";
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -20,7 +20,7 @@ const Wrapper = styled.div`
   gap: 1rem;
   position: sticky;
   top: 0;
-  background: ${(props) => props.theme.colors.background};
+  background: black;
   z-index: 10000;
 `;
 

@@ -1,13 +1,11 @@
 import { Authenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import App from "./App";
-import theme from "./flatini-library/theme";
 import "./index.css";
-import reportWebVitals from "./reportWebVitals";
+import { FlatiniProvider, theme } from "flatini-fe-library";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -44,18 +42,13 @@ Amplify.configure({
 });
 
 root.render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <Authenticator.Provider>
-        <BrowserRouter>
+  <Authenticator.Provider>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <FlatiniProvider theme={theme}>
           <App />
-        </BrowserRouter>
-      </Authenticator.Provider>
-    </ThemeProvider>
-  </React.StrictMode>
+        </FlatiniProvider>
+      </ThemeProvider>
+    </BrowserRouter>
+  </Authenticator.Provider>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

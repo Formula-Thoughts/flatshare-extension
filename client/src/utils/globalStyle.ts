@@ -80,6 +80,7 @@ const GlobalStyle = createGlobalStyle`
 
     a {
         color: ${(props) => props.theme.colors.text};
+        display: inline-block;
     }
 `;
 
