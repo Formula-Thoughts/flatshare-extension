@@ -342,7 +342,7 @@ class ValidateRedFlagRequestCommand:
         if red_flag_request.property_url is None:
             context.error_capsules.append(red_flag_property_url_required_error)
 
-        get_absolute_url(red_flag_request)
+        red_flag_request.property_url = get_absolute_url(red_flag_request.property_url)
 
 
 class SetCreatedAnonymousRedFlagCommand:
@@ -373,6 +373,9 @@ class ValidatePropertyUrlCommand:
     def run(self, context: ApplicationContext) -> None:
         if PROPERTY_URL not in context.variables:
             context.error_capsules.append(red_flag_property_url_param_required_error)
+            return
+
+        context.set_var(name=PROPERTY_URL, value=get_absolute_url(context.get_var(name=PROPERTY_URL, _type=str)))
 
 
 class SetAnonymousRedFlagsCommand:

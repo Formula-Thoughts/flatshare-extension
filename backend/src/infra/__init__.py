@@ -80,7 +80,7 @@ class DynamoDbWrapper:
                                  ConditionExpression=condition_expression)
 
 
-def get_absolute_url(red_flag_request):
-    url = parse_url(red_flag_request.property_url)
+def get_absolute_url(property_url: str) -> str:
+    url = parse_url(property_url)
     string_url = f"{'' if url.scheme is None else url.scheme}://{'' if url.host is None else url.host}{'' if url.path is None else url.path}"
-    red_flag_request.property_url = string_url
+    return string_url
