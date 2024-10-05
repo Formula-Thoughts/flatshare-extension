@@ -39,6 +39,7 @@ interface AppContextType {
   setAppHasError: any;
   activeFlatData: any;
   setActiveFlatData: any;
+  leaveGroup: () => void;
 }
 
 export type Group = {
@@ -271,6 +272,12 @@ const AppProvider = (props: Props) => {
     };
   };
 
+  const leaveGroup = () => {
+    // TODO: add leave group endpoint
+    setUserHasGroup(false);
+    setGroupId(null);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -301,6 +308,7 @@ const AppProvider = (props: Props) => {
         setAppHasError,
         activeFlatData,
         setActiveFlatData,
+        leaveGroup,
       }}
     >
       {props.children}

@@ -142,6 +142,21 @@ export const _addRedFlag = async (
   return res.data;
 };
 
+export const _joinExistingGroup = async (token: string, code: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const res = (await axios.post(
+    `/participants?code=${code}`,
+    {},
+    config
+  )) as AxiosResponse;
+  return res.data;
+};
+
 export const _voteRedFlag = async (
   token: string,
   redFlagId: string,

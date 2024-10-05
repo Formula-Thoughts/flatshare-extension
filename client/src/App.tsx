@@ -13,6 +13,7 @@ import ErrorPage from "./views/ErrorPage";
 import Explore from "./views/Explore";
 import RedFlags from "./RedFlags";
 import AddRedFlag from "./AddRedFlag";
+import JoinGroup from "./views/JoinGroup";
 
 function App() {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ function App() {
       <>
         <Routes>
           <Route path="/" element={<CreateGroup />} />
+          <Route path="/JoinGroup" element={<JoinGroup />} />
         </Routes>
       </>
     );
