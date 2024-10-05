@@ -48,7 +48,9 @@ const HelpfulButton = styled.div`
 
   &.user-has-voted {
     background: white;
-    color: black;
+    span {
+      color: black !important;
+    }
   }
 `;
 
