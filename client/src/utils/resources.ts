@@ -117,6 +117,8 @@ export const _getPropertyRedFlags = async (
     `/red-flags?property_url=${propertyUrl}`,
     config
   )) as AxiosResponse;
+
+  console.log("_getPropertyRedFlags", res);
   return res.data;
 };
 

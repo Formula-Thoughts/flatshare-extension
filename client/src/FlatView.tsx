@@ -6,6 +6,7 @@ import {
   getFlatDataFromRightmove,
   getFlatDataFromSpareroom,
   getFlatDataFromZoopla,
+  propertyUrlToSend,
 } from "./utils/url";
 import checkmark from "./assets/checkmark.png";
 import cross from "./assets/cross.png";
@@ -155,7 +156,9 @@ const FlatView = () => {
   };
 
   const removeFlatFromList = () => {
-    removeFlat(activeUrl.contents?.split("?")[0]);
+    removeFlat(
+      propertyUrlToSend(activeUrl.propertyProvider, activeUrl.contents)
+    );
     setIsFlatDuplicated(false);
   };
 
@@ -169,7 +172,7 @@ const FlatView = () => {
         const data = (await getDataFromProviders()) as any;
         const redFlags = await _getPropertyRedFlags(
           userAuthToken as string,
-          data?.url?.split("?")[0]
+          propertyUrlToSend(activeUrl.propertyProvider, data?.url)
         );
 
         setActiveFlatData({
@@ -313,7 +316,10 @@ const FlatView = () => {
             <Button
               onClick={async () => {
                 await addFlat(
-                  activeFlatData?.url?.split("?")[0],
+                  propertyUrlToSend(
+                    activeUrl.propertyProvider,
+                    activeFlatData?.url
+                  ),
                   activeFlatData?.price,
                   activeFlatData?.title
                 );
@@ -325,7 +331,10 @@ const FlatView = () => {
             <Button
               onClick={async () => {
                 await addFlat(
-                  activeFlatData?.url?.split("?")[0],
+                  propertyUrlToSend(
+                    activeUrl.propertyProvider,
+                    activeFlatData?.url
+                  ),
                   activeFlatData?.price,
                   activeFlatData?.title
                 );

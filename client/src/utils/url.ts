@@ -119,7 +119,7 @@ export const getFlatDataFromSpareroom = (
 ) => {
   const saveData = async () => {
     const flatData = await getDomElementsFromActiveTab(tabId, [
-      { target: ".room-list__price", eq: 0 },
+      { target: ".feature-list__key", eq: 0 },
       { target: "h1", eq: 0 },
     ]);
     const price = flatData && flatData[0].data;
@@ -146,4 +146,19 @@ export const getFlatDataFromZoopla = (
     return onClickAction(title as string, tabUrl, price as string);
   };
   return saveData();
+};
+
+/**
+ *
+ * When saving flats to the api, we need to filter parameters. We cannot do this for spareroom though, as the flat id is included as a parameter.
+ */
+export const propertyUrlToSend = (
+  type: "spareroom" | "any" = "any",
+  url: string
+) => {
+  if (type === "spareroom") {
+    return url?.split("&search_id")[0];
+  } else {
+    return url?.split("?")[0];
+  }
 };
