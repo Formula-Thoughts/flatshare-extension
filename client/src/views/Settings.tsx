@@ -3,6 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import styled from "styled-components";
 import { useProvider } from "../context/AppProvider";
 import { Button, InputText, Text, TextTypes } from "flatini-fe-library";
+import { FaCheck } from "react-icons/fa";
 
 const Wrapper = styled.div`
   display: flex;
@@ -18,6 +19,7 @@ const InputGroup = styled.div`
 
 const Settings = () => {
   const { updateRequirements, requirements } = useProvider();
+  const [settingsSaved, setSettingsSaved] = useState<boolean | null>(null);
 
   const [localRequirements, setLocalRequirements] = useState<{
     price: null | string;
@@ -85,14 +87,35 @@ const Settings = () => {
             </InputGroup>
           </div>
           <Button
-            onClick={async () =>
+            onClick={async () => {
               await updateRequirements(
                 localRequirements.price,
                 localRequirements.locations
-              )
-            }
+              );
+              setSettingsSaved(true);
+
+              setTimeout(() => {
+                setSettingsSaved(null);
+              }, 1500);
+            }}
             label="Save settings"
           />
+          {settingsSaved ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "1rem",
+                marginTop: "1.5rem",
+              }}
+            >
+              <FaCheck />
+              <Text type={TextTypes.paragraph}>
+                Your settings have been saved!
+              </Text>
+            </div>
+          ) : null}
         </form>
       </Wrapper>
     </MainLayout>
