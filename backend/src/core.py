@@ -323,7 +323,3 @@ class ICreateVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
 
 class IDeleteVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
     pass
-
-
-class IValidatePropertyUrlRequestSequenceBuilder(SequenceBuilder, Protocol):
-    pass

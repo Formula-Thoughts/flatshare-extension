@@ -1039,6 +1039,25 @@ class TestIValidatePropertyUrlCommand(TestCase):
         with self.subTest(msg="assert no errors are set"):
             self.assertEqual(len(context.error_capsules), 0)
 
+    def test_run_when_property_is_set_and_url_has_params(self):
+        # arrange
+        property_url = "http://example.com"
+        property_url_with_params = f"{property_url}?test=test1"
+        context = ApplicationContext(variables={
+            "property_url": property_url_with_params
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert no errors are set"):
+            self.assertEqual(len(context.error_capsules), 0)
+
+        # assert
+        with self.subTest(msg="url params are trimmed"):
+            self.assertEqual(context.get_var(name=PROPERTY_URL, _type=str), property_url)
+
     def test_run_when_property_is_not_set(self):
         # arrange
         context = ApplicationContext(variables={})
