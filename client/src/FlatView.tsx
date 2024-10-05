@@ -85,7 +85,7 @@ const FlatView = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
         const activeTab = tabs[0];
-        if (flats.find((flat: Flat) => flat.url === activeTab.url)) {
+        if (flats.find((flat: Flat) => activeTab.url?.includes(flat.url))) {
           return setIsFlatDuplicated(true);
         }
         return setIsFlatDuplicated(false);
@@ -155,7 +155,7 @@ const FlatView = () => {
   };
 
   const removeFlatFromList = () => {
-    removeFlat(activeUrl.contents);
+    removeFlat(activeUrl.contents?.split("?")[0]);
     setIsFlatDuplicated(false);
   };
 
@@ -169,7 +169,7 @@ const FlatView = () => {
         const data = (await getDataFromProviders()) as any;
         const redFlags = await _getPropertyRedFlags(
           userAuthToken as string,
-          data?.url
+          data?.url?.split("?")[0]
         );
 
         setActiveFlatData({
@@ -313,7 +313,7 @@ const FlatView = () => {
             <Button
               onClick={async () => {
                 await addFlat(
-                  activeFlatData?.url,
+                  activeFlatData?.url?.split("?")[0],
                   activeFlatData?.price,
                   activeFlatData?.title
                 );
@@ -325,7 +325,7 @@ const FlatView = () => {
             <Button
               onClick={async () => {
                 await addFlat(
-                  activeFlatData?.url,
+                  activeFlatData?.url?.split("?")[0],
                   activeFlatData?.price,
                   activeFlatData?.title
                 );
