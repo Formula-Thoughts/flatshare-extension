@@ -2,7 +2,7 @@ import os
 
 from formula_thoughts_web.ioc import register_web, Container, LambdaRunner
 
-from src.data.ioc import register_data_dependencies
+from src.infra.ioc import register_data_dependencies
 from src.domain.ioc import register_domain_dependencies
 from src.web.ioc import register_web_dependencies
 

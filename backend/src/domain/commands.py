@@ -1,18 +1,12 @@
-import base64
-import datetime
 import os
-import urllib
-import uuid
 
 import formula_thoughts_web.crosscutting
-import urllib3
 from formula_thoughts_web.abstractions import ApplicationContext, Logger
 from formula_thoughts_web.crosscutting import ObjectMapper, base64decode, base64encode
-from urllib3.util import parse_url
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
     Property, GroupProperties, IPropertyRepo, IRedFlagRepo, RedFlag, CreateRedFlagRequest
-from src.data import CognitoClientWrapper
+from src.infra import CognitoClientWrapper, get_absolute_url
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_GROUPS, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, GROUP, \
     CREATE_PROPERTY_REQUEST, PROPERTY_ID, CODE, FULLNAME_CLAIM, RED_FLAG, CREATE_RED_FLAG_REQUEST, PROPERTY_URL, \
     RED_FLAGS, RED_FLAG_ID
@@ -348,13 +342,7 @@ class ValidateRedFlagRequestCommand:
         if red_flag_request.property_url is None:
             context.error_capsules.append(red_flag_property_url_required_error)
 
-        self.__get_absolute_url(red_flag_request)
-
-    @staticmethod
-    def __get_absolute_url(red_flag_request):
-        url = parse_url(red_flag_request.property_url)
-        string_url = f"{'' if url.scheme is None else url.scheme}://{'' if url.host is None else url.host}{'' if url.path is None else url.path}"
-        red_flag_request.property_url = string_url
+        get_absolute_url(red_flag_request)
 
 
 class SetCreatedAnonymousRedFlagCommand:

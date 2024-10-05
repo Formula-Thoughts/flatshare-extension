@@ -4,8 +4,8 @@ import boto3
 from formula_thoughts_web.ioc import Container
 
 from src.core import IGroupRepo, IUserGroupsRepo, IPropertyRepo, IRedFlagRepo
-from src.data import CognitoClientWrapper, DynamoDbWrapper, ObjectHasher
-from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, DynamoDbPropertyRepo, DynamoDbRedFlagRepo
+from src.infra import CognitoClientWrapper, DynamoDbWrapper, ObjectHasher
+from src.infra.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, DynamoDbPropertyRepo, DynamoDbRedFlagRepo
 
 cognito = boto3.client('cognito-idp', region_name='eu-west-2')
 dynamo = boto3.resource('dynamodb', region_name='eu-west-2')

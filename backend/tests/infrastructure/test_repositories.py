@@ -9,8 +9,8 @@ from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, Object
 from moto import mock_aws
 
 from src.core import Group, UserGroups, Property, GroupProperties, RedFlag
-from src.data import ObjectHasher
-from src.data.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
+from src.infra import ObjectHasher
+from src.infra.repositories import DynamoDbUserGroupsRepo, DynamoDbGroupRepo, \
     DynamoDbPropertyRepo, DynamoDbRedFlagRepo
 from src.exceptions import GroupNotFoundException, UserGroupsNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, \

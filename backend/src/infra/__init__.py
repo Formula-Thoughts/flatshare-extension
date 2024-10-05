@@ -6,6 +6,7 @@ from boto3.dynamodb.conditions import Key, Attr
 from botocore.client import BaseClient
 from formula_thoughts_web.abstractions import Serializer
 from formula_thoughts_web.crosscutting import ObjectMapper
+from urllib3.util import parse_url
 
 CognitoUserPoolId = str
 
@@ -77,3 +78,9 @@ class DynamoDbWrapper:
                     condition_expression: boto3.dynamodb.conditions):
         self.__table.delete_item(Key=key,
                                  ConditionExpression=condition_expression)
+
+
+def get_absolute_url(red_flag_request):
+    url = parse_url(red_flag_request.property_url)
+    string_url = f"{'' if url.scheme is None else url.scheme}://{'' if url.host is None else url.host}{'' if url.path is None else url.path}"
+    red_flag_request.property_url = string_url

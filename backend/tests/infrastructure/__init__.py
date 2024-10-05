@@ -6,7 +6,7 @@ import boto3
 from formula_thoughts_web.crosscutting import ObjectMapper, JsonSnakeToCamelSerializer
 from moto import mock_aws
 
-from src.data import ObjectHasher, DynamoDbWrapper
+from src.infra import ObjectHasher, DynamoDbWrapper
 
 
 @patch.dict(os.environ, {

@@ -4,7 +4,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper, base64encode
 
 from src.core import Group, UserGroups, Property, GroupParticipantName, GroupId, GroupProperties, PropertyId, UserId, \
     PropertyUrl, RedFlag, RedFlagId
-from src.data import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
+from src.infra import DynamoDbWrapper, ObjectHasher, CONDITIONAL_CHECK_FAILED
 from src.exceptions import UserGroupsNotFoundException, GroupNotFoundException, ConflictException, \
     GroupAlreadyExistsException, UserGroupAlreadyExistsException, PropertyNotFoundException, DataException, \
     RedFlagAlreadyExistsException, RedFlagNotFoundException

@@ -9,7 +9,7 @@ from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.ioc import Container
 
 from src.app import bootstrap, run
-from src.data import DynamoDbWrapper, CognitoClientWrapper
+from src.infra import DynamoDbWrapper, CognitoClientWrapper
 
 USER_POOL = "test_pool"
 MOCKED_OS_ENVIRON = {

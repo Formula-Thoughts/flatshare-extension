@@ -4,7 +4,7 @@ from unittest import TestCase
 from attr import dataclass
 from formula_thoughts_web.crosscutting import JsonSnakeToCamelSerializer, ObjectMapper
 
-from src.data import ObjectHasher
+from src.infra import ObjectHasher
 
 
 @dataclass(unsafe_hash=True)

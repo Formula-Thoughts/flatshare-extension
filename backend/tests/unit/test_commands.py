@@ -13,7 +13,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 
 from src.core import UpsertGroupRequest, Group, IGroupRepo, IUserGroupsRepo, UserGroups, CreatePropertyRequest, \
     Property, GroupProperties, IPropertyRepo, IRedFlagRepo, CreateRedFlagRequest, RedFlag, AnonymousRedFlag
-from src.data import CognitoClientWrapper
+from src.infra import CognitoClientWrapper
 from src.domain import UPSERT_GROUP_REQUEST, GROUP_ID, USER_BELONGS_TO_AT_LEAST_ONE_GROUP, USER_GROUPS, \
     CREATE_PROPERTY_REQUEST, GROUP, FULLNAME_CLAIM, PROPERTY_ID, CREATE_RED_FLAG_REQUEST, RED_FLAG, PROPERTY_URL, \
     RED_FLAGS, RED_FLAG_ID
