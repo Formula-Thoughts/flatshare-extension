@@ -91,6 +91,21 @@ const Explore = () => {
             label="Go to SpareRoom"
           />
         </Link>
+        <Link
+          href={`https://www.onthemarket.com/to-rent/`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Button
+            style={{
+              width: "100%",
+              border: "2px solid rgba(255, 255, 255, 0.5)",
+              background: "transparent",
+              color: "white",
+            }}
+            label="Go to OnTheMarket"
+          />
+        </Link>
       </Wrapper>
     </MainLayout>
   );
