@@ -244,3 +244,12 @@ class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
             ._add_command(command=self.__validate_user_already_voted) \
             ._add_command(command=self.__down_vote_command) \
             ._add_command(command=self.__set_anonymous_red_flag_response)
+
+
+class RemoveUserFromGroupSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self):
+        super().__init__()
+
+    def build(self):
+        pass

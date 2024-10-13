@@ -323,3 +323,7 @@ class ICreateVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
 
 class IDeleteVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
     pass
+
+
+class IRemoveUserFromGroupSequenceBuilder(SequenceBuilder, Protocol):
+    pass
