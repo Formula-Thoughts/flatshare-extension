@@ -273,6 +273,10 @@ class IDeleteVoteCommand(Command, Protocol):
     pass
 
 
+class IValidateUserIsAlreadyParticipantCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
