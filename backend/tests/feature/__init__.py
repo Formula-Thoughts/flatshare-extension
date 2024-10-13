@@ -95,7 +95,7 @@ class FeatureTestCase(TestCase):
                       path_params: dict = None,
                       params: dict = None,
                       body: dict = None) -> Response:
-        event = {'routeKey': route_key}
+        event = {'routeKey': route_key, 'requestContext': {'authorizer': {'jwt': {'claims': {'username': auth_user_id}}}}}
         if path_params is not None:
             event['pathParameters'] = path_params
         if params is not None:
@@ -105,6 +105,6 @@ class FeatureTestCase(TestCase):
         response = Response()
         result = run(event=event, context={}, container=self._container)
         if result['body'] is not None:
-            response.body = self._container.resolve(service=Deserializer).deserialize(data=result['body'])
+            response.content = self._container.resolve(service=Deserializer).deserialize(data=result['body'])
         response.status = HTTPStatus(result['statusCode'])
         return response
