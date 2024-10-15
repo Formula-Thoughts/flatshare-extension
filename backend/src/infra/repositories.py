@@ -211,6 +211,9 @@ class DynamoDbUserGroupsRepo:
             else:
                 raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
+    def remove_group(self, user_groups: UserGroups, index_of_group_in_list: int) -> None:
+        ...
+
     @staticmethod
     def __partition_key_gen(user_groups: UserGroups):
         user_groups.partition_key = f"user_group:{user_groups.id}"

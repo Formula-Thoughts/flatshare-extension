@@ -127,6 +127,9 @@ class IUserGroupsRepo(Protocol):
     def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
         ...
 
+    def remove_group(self, user_groups: UserGroups, index_of_group_in_list: int) -> None:
+        ...
+
     def get(self, _id: str) -> UserGroups:
         ...
 
