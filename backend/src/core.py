@@ -111,6 +111,9 @@ class IGroupRepo(Protocol):
     def add_participant(self, participant: GroupParticipantName, group: Group) -> None:
         ...
 
+    def remove_participant(self, participant: GroupParticipantName, group: Group) -> None:
+        ...
+
 
 class IPropertyRepo(Protocol):
     def create(self, group_id: GroupId, property: Property) -> None:

@@ -145,6 +145,9 @@ class DynamoDbGroupRepo:
             else:
                 raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
+    def remove_participant(self, participant: GroupParticipantName, group: Group) -> None:
+        ...
+
     @staticmethod
     def __partition_key_gen(group: Group, group_id):
         group.partition_key = f"group:{group_id}"
