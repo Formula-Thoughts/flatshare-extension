@@ -26,12 +26,12 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
     GetRedFlagsCommand, ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
     SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand, ValidateNotVotedCommand, CreateVoteCommand, \
-    DeleteVoteCommand
+    DeleteVoteCommand, ValidateUserIsAlreadyParticipantCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error, InvalidRedFlagDataError, \
-    RedFlagNotFoundError, InvalidVotingStatusError
+    RedFlagNotFoundError, InvalidVotingStatusError, user_not_part_of_group_error
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
@@ -1314,3 +1314,46 @@ class TestDeleteVoteCommand(TestCase):
         # assert
         with self.subTest(msg="red flag is down-voted for user"):
             self.__red_flag_repo.remove_voter.assert_called_with(user_id=user, red_flag=red_flag)
+
+
+class TestValidateUserIsAlreadyParticipantCommand(TestCase):
+
+    def setUp(self):
+        self.__sut = ValidateUserIsAlreadyParticipantCommand()
+
+    def test_run_when_user_is_not_part_of_group(self):
+        # arrange
+        fullname = "fullname"
+        group = AutoFixture().create(dto=Group)
+        context = ApplicationContext(variables={
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="1 error added"):
+            self.assertEqual(len(context.error_capsules), 1)
+
+        # assert
+        with self.subTest(msg="user not part of group error is added"):
+            self.assertEqual(context.error_capsules[0], user_not_part_of_group_error)
+
+    def test_run_when_user_is_already_part_of_group(self):
+        # arrange
+        fullname = "fullname"
+        group = AutoFixture().create(dto=Group)
+        group.participants.append(fullname)
+        context = ApplicationContext(variables={
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="no errors added"):
+            self.assertEqual(len(context.error_capsules), 0)
