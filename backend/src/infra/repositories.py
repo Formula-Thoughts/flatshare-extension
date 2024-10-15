@@ -211,8 +211,28 @@ class DynamoDbUserGroupsRepo:
             else:
                 raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
-    def remove_group(self, user_groups: UserGroups, index_of_group_in_list: int) -> None:
-        ...
+    def remove_group(self, user_groups: UserGroups, group: GroupId) -> None:
+        try:
+            prev_etag = user_groups.etag
+            index_of_group = user_groups.groups.index(group)
+            user_groups.groups.remove(group)
+            new_hash = self.__object_hasher.hash(object=user_groups)
+            user_groups.etag = new_hash
+            self.__dynamo_wrapper.update_item(key={
+                "id": user_groups.id,
+                "partition_key": f"user_group:{user_groups.id}"
+            },
+                update_expression=f"REMOVE groups[{index_of_group}] SET etag = :j",
+                condition_expression=Attr("etag").eq(prev_etag),
+                expression_attribute_values={
+                    ':j': new_hash
+                })
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == CONDITIONAL_CHECK_FAILED:
+                raise ConflictException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     @staticmethod
     def __partition_key_gen(user_groups: UserGroups):

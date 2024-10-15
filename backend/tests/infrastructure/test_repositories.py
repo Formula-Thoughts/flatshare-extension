@@ -112,11 +112,10 @@ class TestUserGroupRepo(DynamoDbTestCase):
         user_groups = AutoFixture().create(dto=UserGroups)
         group_to_remove = str(uuid.uuid4())
         user_groups.groups.append(group_to_remove)
-        index_of_group_in_list = user_groups.groups.index(group_to_remove)
         self.__sut.create(user_groups=user_groups)
 
         # act
-        self.__sut.remove_group(index_of_group_in_list=index_of_group_in_list, user_groups=user_groups)
+        self.__sut.remove_group(group=group_to_remove, user_groups=user_groups)
         received_user_groups = self.__sut.get(_id=user_groups.id)
 
         # assert
@@ -131,15 +130,16 @@ class TestUserGroupRepo(DynamoDbTestCase):
         # arrange
         user_groups = AutoFixture().create(dto=UserGroups)
         group_to_remove = str(uuid.uuid4())
+        second_group_to_remove = str(uuid.uuid4())
         user_groups.groups.append(group_to_remove)
-        index_of_group_in_list = user_groups.groups.index(group_to_remove)
+        user_groups.groups.append(second_group_to_remove)
         self.__sut.create(user_groups=user_groups)
         old_etag = user_groups.etag
 
         # act
-        self.__sut.remove_group(index_of_group_in_list=index_of_group_in_list, user_groups=user_groups)
+        self.__sut.remove_group(group=group_to_remove, user_groups=user_groups)
         user_groups.etag = old_etag
-        sut_call = lambda: self.__sut.remove_group(index_of_group_in_list=index_of_group_in_list, user_groups=user_groups)
+        sut_call = lambda: self.__sut.remove_group(group=second_group_to_remove, user_groups=user_groups)
 
         # assert
         with self.subTest(msg="assert conflict exception is thrown"):
@@ -149,9 +149,11 @@ class TestUserGroupRepo(DynamoDbTestCase):
     def test_remove_group_raises_conflict_when_not_found(self):
         # arrange
         user_groups = AutoFixture().create(dto=UserGroups)
+        group_to_remove = str(uuid.uuid4())
+        user_groups.groups.append(group_to_remove)
 
         # act
-        sut_call = lambda: self.__sut.remove_group(index_of_group_in_list=0, user_groups=user_groups)
+        sut_call = lambda: self.__sut.remove_group(group=group_to_remove, user_groups=user_groups)
 
         # assert
         with self.subTest(msg="assert conflict exception is thrown"):
