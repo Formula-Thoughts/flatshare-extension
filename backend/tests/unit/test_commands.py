@@ -1396,14 +1396,13 @@ class TestRemoveParticipantFromGroupCommand(TestCase):
             self.__group_repo.remove_participant.assert_called_once()
 
         # assert
-        with self.subTest(msg="assert add user is called with correct args"):
+        with self.subTest(msg="assert remove user is called with correct args"):
             self.__group_repo.remove_participant.assert_called_with(participant=fullname,
                                                                     group=expected_group)
 
         # assert
         with self.subTest(msg="assert response is set"):
             self.assertEqual(context.response, SingleGroupResponse(group=expected_group))
-
 
 
 class TestRemoveGroupFromUserGroupsCommand(TestCase):
