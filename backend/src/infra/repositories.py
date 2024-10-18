@@ -146,7 +146,27 @@ class DynamoDbGroupRepo:
                 raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     def remove_participant(self, participant: GroupParticipantName, group: Group) -> None:
-        ...
+        try:
+            index_of_participant = group.participants.index(participant)
+            group.participants.remove(participant)
+            old_etag = group.etag
+            new_hash = self.__object_hasher.hash(object=group)
+            group.etag = new_hash
+            self.__dynamo_wrapper.update_item(key={
+                "id": f"group:{group.id}",
+                "partition_key": f"group:{group.id}"
+            },
+                update_expression=f"REMOVE participants[{index_of_participant}] SET etag = :j",
+                condition_expression=Attr("etag").eq(old_etag),
+                expression_attribute_values={
+                    ':j': new_hash
+                })
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == CONDITIONAL_CHECK_FAILED:
+                raise ConflictException()
+            else:
+                raise DataException(f"dynamo error: {e.response['Error']['Code']} {e.response['Error']['Message']}")
 
     @staticmethod
     def __partition_key_gen(group: Group, group_id):

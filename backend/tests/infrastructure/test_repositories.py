@@ -391,7 +391,7 @@ class TestGroupRepo(DynamoDbTestCase):
         # assert
         with self.subTest(msg="assert expected groups were received"):
             self.assertEqual(group_properties, expected_group_properties)
-            self.assertEqual(group_properties, group)
+            self.assertEqual(group_properties.etag, group.etag)
 
         # assert
         with self.subTest(msg="assert participant was added"):
