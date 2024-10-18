@@ -283,6 +283,14 @@ class IValidateUserIsAlreadyParticipantCommand(Command, Protocol):
     pass
 
 
+class IRemoveParticipantFromGroupCommand(Command, Protocol):
+    pass
+
+
+class IRemoveGroupFromUserGroupsCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 

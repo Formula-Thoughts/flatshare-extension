@@ -10,7 +10,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, \
     IValidateRedFlagRequestCommand, ICreateRedFlagCommand, ISetCreatedAnonymousRedFlagCommand, \
     IValidatePropertyUrlCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, \
     ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand, IValidateNotVotedCommand, ICreateVoteCommand, \
-    IDeleteVoteCommand
+    IDeleteVoteCommand, IValidateUserIsAlreadyParticipantCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -248,7 +248,10 @@ class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
 
 class RemoveUserFromGroupSequenceBuilder(FluentSequenceBuilder):
 
-    def __init__(self):
+    def __init__(self, fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder,
+                 set_group_id_from_code: ISetGroupIdFromCodeCommand,
+                 get_group_by_id: IFetchGroupByIdCommand,
+                 validate_user_is_already_participant: IValidateUserIsAlreadyParticipantCommand):
         super().__init__()
 
     def build(self):
