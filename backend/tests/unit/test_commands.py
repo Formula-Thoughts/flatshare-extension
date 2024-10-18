@@ -26,7 +26,8 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
     GetRedFlagsCommand, ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
     SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand, ValidateNotVotedCommand, CreateVoteCommand, \
-    DeleteVoteCommand, ValidateUserIsAlreadyParticipantCommand, RemoveParticipantFromGroupCommand
+    DeleteVoteCommand, ValidateUserIsAlreadyParticipantCommand, RemoveParticipantFromGroupCommand, \
+    RemoveGroupFromUserGroupsCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -1402,3 +1403,34 @@ class TestRemoveParticipantFromGroupCommand(TestCase):
         # assert
         with self.subTest(msg="assert response is set"):
             self.assertEqual(context.response, SingleGroupResponse(group=expected_group))
+
+
+
+class TestRemoveGroupFromUserGroupsCommand(TestCase):
+
+    def setUp(self):
+        self.__user_groups_repo: IUserGroupsRepo = Mock()
+        self.__sut = RemoveGroupFromUserGroupsCommand(user_groups_repo=self.__user_groups_repo)
+
+    def test_run(self):
+        # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
+        group_id = "1234"
+        context = ApplicationContext(variables={
+            GROUP_ID: group_id,
+            USER_GROUPS: user_groups
+        })
+        self.__user_groups_repo.remove_group = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert remove group is called once"):
+            self.__user_groups_repo.remove_group.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert remove group is called with correct args"):
+            self.__user_groups_repo.remove_group.assert_called_with(user_groups=user_groups,
+                                                                    group=group_id)
+

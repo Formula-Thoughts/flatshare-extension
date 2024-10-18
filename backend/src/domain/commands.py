@@ -483,3 +483,12 @@ class RemoveParticipantFromGroupCommand:
                       locations=group_properties.locations)
         self.__group_repo.remove_participant(participant=fullname, group=group)
         context.response = SingleGroupResponse(group=group)
+
+
+class RemoveGroupFromUserGroupsCommand:
+
+    def __init__(self, user_groups_repo: IUserGroupsRepo):
+        self.__user_groups_repo = user_groups_repo
+
+    def run(self, context: ApplicationContext):
+        ...
