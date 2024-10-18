@@ -404,7 +404,7 @@ class TestGroupRepo(DynamoDbTestCase):
         group.participants.append(participant_to_remove)
 
         # act
-        sut_call = lambda: self.__sut.add_participant(participant=participant_to_remove, group=group)
+        sut_call = lambda: self.__sut.remove_participant(participant=participant_to_remove, group=group)
 
         # assert
         with self.subTest(msg="assert conflict error is thrown"):
