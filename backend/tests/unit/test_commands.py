@@ -26,7 +26,7 @@ from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     CreateRedFlagCommand, SetRedFlagRequestCommand, ValidateRedFlagRequestCommand, SetCreatedAnonymousRedFlagCommand, \
     GetRedFlagsCommand, ValidatePropertyUrlCommand, SetAnonymousRedFlagsCommand, GetRedFlagByIdCommand, \
     SetAnonymousRedFlagCommand, ValidateAlreadyVotedCommand, ValidateNotVotedCommand, CreateVoteCommand, \
-    DeleteVoteCommand, ValidateUserIsAlreadyParticipantCommand
+    DeleteVoteCommand, ValidateUserIsAlreadyParticipantCommand, RemoveParticipantFromGroupCommand
 from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, GroupNotFoundError, \
     PropertyNotFoundError, \
     code_required_error, user_already_part_of_group_error, \
@@ -826,7 +826,8 @@ class TestDeletePropertyCommand(TestCase):
 
         # assert
         with self.subTest(msg="property not found error was added"):
-            self.assertEqual(context.error_capsules[0], PropertyNotFoundError(message=f"property {property_id} for {group.id} not found"))
+            self.assertEqual(context.error_capsules[0],
+                             PropertyNotFoundError(message=f"property {property_id} for {group.id} not found"))
 
 
 class TestCreateRedFlagCommand(TestCase):
@@ -916,7 +917,8 @@ class TestValidateRedFlagRequestCommand(TestCase):
 
         # assert
         with self.subTest(msg="correct url is set"):
-            self.assertEqual(context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest).property_url, expected_parsed_property_url)
+            self.assertEqual(context.get_var(name=CREATE_RED_FLAG_REQUEST, _type=CreateRedFlagRequest).property_url,
+                             expected_parsed_property_url)
 
     def test_run_when_url_is_missing(self):
         # arrange
@@ -935,7 +937,8 @@ class TestValidateRedFlagRequestCommand(TestCase):
 
         # assert
         with self.subTest(msg="missing url error is set"):
-            self.assertEqual(context.error_capsules[0], InvalidRedFlagDataError(message="property url field is a required attribute"))
+            self.assertEqual(context.error_capsules[0],
+                             InvalidRedFlagDataError(message="property url field is a required attribute"))
 
     def test_run_when_body_is_missing(self):
         # arrange
@@ -954,7 +957,8 @@ class TestValidateRedFlagRequestCommand(TestCase):
 
         # assert
         with self.subTest(msg="missing body error is set"):
-            self.assertEqual(context.error_capsules[0], InvalidRedFlagDataError(message="body field is a required attribute"))
+            self.assertEqual(context.error_capsules[0],
+                             InvalidRedFlagDataError(message="body field is a required attribute"))
 
 
 class TestSetCreatedAnonymousRedFlagCommand(TestCase):
@@ -1153,7 +1157,8 @@ class TestGetRedFlagByIdCommand(TestCase):
 
         # arrange
         with self.subTest(msg="red flag not found error is set"):
-            self.assertEqual(context.error_capsules, [RedFlagNotFoundError(message=f"red flag {property_url}:{red_flag_id} not found")])
+            self.assertEqual(context.error_capsules,
+                             [RedFlagNotFoundError(message=f"red flag {property_url}:{red_flag_id} not found")])
 
 
 class TestSetAnonymousRedFlagCommand(TestCase):
@@ -1244,7 +1249,8 @@ class TestValidateNotVotedCommand(TestCase):
 
         # assert
         with self.subTest(msg="assert voting error is added"):
-            self.assertEqual(context.error_capsules, [InvalidVotingStatusError(message="current user has already voted")])
+            self.assertEqual(context.error_capsules,
+                             [InvalidVotingStatusError(message="current user has already voted")])
 
     def test_run_when_user_has_not_already_voted(self):
         # arrange
@@ -1357,3 +1363,42 @@ class TestValidateUserIsAlreadyParticipantCommand(TestCase):
         # assert
         with self.subTest(msg="no errors added"):
             self.assertEqual(len(context.error_capsules), 0)
+
+
+class TestRemoveParticipantFromGroupCommand(TestCase):
+
+    def setUp(self):
+        self.__group_repo: IGroupRepo = Mock()
+        self.__sut = RemoveParticipantFromGroupCommand(group_repo=self.__group_repo)
+
+    def test_run(self):
+        # arrange
+        fullname = "full name"
+        group = AutoFixture().create(dto=GroupProperties)
+        expected_group = Group(etag=group.etag,
+                               id=group.id,
+                               partition_key=group.partition_key,
+                               participants=group.participants,
+                               price_limit=group.price_limit,
+                               locations=group.locations)
+        context = ApplicationContext(variables={
+            GROUP: group,
+            FULLNAME_CLAIM: fullname
+        })
+        self.__group_repo.remove_participant = MagicMock()
+
+        # act
+        self.__sut.run(context=context)
+
+        # assert
+        with self.subTest(msg="assert remove user is called once"):
+            self.__group_repo.remove_participant.assert_called_once()
+
+        # assert
+        with self.subTest(msg="assert add user is called with correct args"):
+            self.__group_repo.remove_participant.assert_called_with(participant=fullname,
+                                                                    group=expected_group)
+
+        # assert
+        with self.subTest(msg="assert response is set"):
+            self.assertEqual(context.response, SingleGroupResponse(group=expected_group))

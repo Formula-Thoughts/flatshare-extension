@@ -465,3 +465,12 @@ class ValidateUserIsAlreadyParticipantCommand:
         if fullname not in group.participants:
             context.error_capsules.append(user_not_part_of_group_error)
             return
+
+
+class RemoveParticipantFromGroupCommand:
+
+    def __init__(self, group_repo: IGroupRepo):
+        self.__group_repo = group_repo
+
+    def run(self, context: ApplicationContext):
+        ...
