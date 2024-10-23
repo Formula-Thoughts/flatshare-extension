@@ -250,7 +250,6 @@ class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
 class RemoveUserFromGroupSequenceBuilder(FluentSequenceBuilder):
 
     def __init__(self, fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder,
-                 set_group_id_from_code: ISetGroupIdFromCodeCommand,
                  get_group_by_id: IFetchGroupByIdCommand,
                  validate_user_is_already_participant: IValidateUserIsAlreadyParticipantCommand,
                  remove_group_from_user_groups_command: IRemoveGroupFromUserGroupsCommand,
@@ -260,12 +259,10 @@ class RemoveUserFromGroupSequenceBuilder(FluentSequenceBuilder):
         self.__remove_group_from_user_groups_command = remove_group_from_user_groups_command
         self.__validate_user_is_already_participant = validate_user_is_already_participant
         self.__get_group_by_id = get_group_by_id
-        self.__set_group_id_from_code = set_group_id_from_code
         self.__fetch_user_group_if_exists = fetch_user_group_if_exists
 
     def build(self):
         self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists) \
-            ._add_command(command=self.__set_group_id_from_code) \
             ._add_command(command=self.__get_group_by_id) \
             ._add_command(command=self.__validate_user_is_already_participant) \
             ._add_command(command=self.__remove_participant_from_group_command) \

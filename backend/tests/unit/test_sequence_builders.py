@@ -10,13 +10,15 @@ from src.core import IFetchUserGroupsCommand, IValidateIfUserBelongsToAtLeastOne
     ICreateGroupCommand, ISetRedFlagRequestCommand, IValidateRedFlagRequestCommand, ICreateRedFlagCommand, \
     ISetCreatedAnonymousRedFlagCommand, IValidatePropertyUrlCommand, IGetRedFlagsCommand, \
     ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand, \
-    IValidateNotVotedCommand, ICreateVoteCommand, IDeleteVoteCommand
+    IValidateNotVotedCommand, ICreateVoteCommand, IDeleteVoteCommand, IRemoveParticipantFromGroupCommand, \
+    IRemoveGroupFromUserGroupsCommand, IValidateUserIsAlreadyParticipantCommand
 from src.domain.sequence_builders import FetchUserGroupsSequenceBuilder, \
     GetUserGroupByIdSequenceBuilder, \
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
     GetCodeForGroupSequenceBuilder, \
     CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder, \
-    GetRedFlagsSequenceBuilder, CreateVoteForRedFlagSequenceBuilder, DeleteVoteForRedFlagSequenceBuilder
+    GetRedFlagsSequenceBuilder, CreateVoteForRedFlagSequenceBuilder, DeleteVoteForRedFlagSequenceBuilder, \
+    RemoveUserFromGroupSequenceBuilder
 
 
 class TestFetchUserGroupsSequenceBuilder(TestCase):
@@ -295,4 +297,32 @@ class TestDeleteVoteForRedFlagSequenceBuilder(TestCase):
             self.__validate_user_already_voted,
             self.__down_vote_command,
             self.__set_anonymous_red_flag_response
+        ])
+
+
+class TestRemoveUserFromGroupSequenceBuilder(TestCase):
+
+    def setUp(self):
+        self.__remove_participant_from_group_command: IRemoveParticipantFromGroupCommand = Mock()
+        self.__remove_group_from_user_groups_command: IRemoveGroupFromUserGroupsCommand = Mock()
+        self.__validate_user_is_already_participant: IValidateUserIsAlreadyParticipantCommand = Mock()
+        self.__get_group_by_id: IFetchGroupByIdCommand = Mock()
+        self.__fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder = Mock()
+        self.__sut = RemoveUserFromGroupSequenceBuilder(fetch_user_group_if_exists=self.__fetch_user_group_if_exists,
+                                                        get_group_by_id=self.__get_group_by_id,
+                                                        validate_user_is_already_participant=self.__validate_user_is_already_participant,
+                                                        remove_group_from_user_groups_command=self.__remove_group_from_user_groups_command,
+                                                        remove_participant_from_group_command=self.__remove_participant_from_group_command)
+
+    def test_build_should_run_commands_in_order(self):
+        # act
+        self.__sut.build()
+
+        # assert
+        self.assertEqual(self.__sut.components, [
+            self.__fetch_user_group_if_exists,
+            self.__get_group_by_id,
+            self.__validate_user_is_already_participant,
+            self.__remove_participant_from_group_command,
+            self.__remove_group_from_user_groups_command
         ])
