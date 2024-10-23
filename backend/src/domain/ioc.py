@@ -15,7 +15,7 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, IUpdateGrou
     IGetRedFlagByIdCommand, ISetAnonymousRedFlagCommand, ICreateVoteForRedFlagSequenceBuilder, \
     IDeleteVoteForRedFlagSequenceBuilder, IValidateAlreadyVotedCommand, IValidateNotVotedCommand, ICreateVoteCommand, \
     IDeleteVoteCommand, IValidateUserIsAlreadyParticipantCommand, IRemoveParticipantFromGroupCommand, \
-    IRemoveGroupFromUserGroupsCommand
+    IRemoveGroupFromUserGroupsCommand, IRemoveUserFromGroupSequenceBuilder
 from src.domain.commands import SetGroupRequestCommand, ValidateGroupCommand, \
     FetchUserGroupsCommand, ValidateIfUserBelongsToAtLeastOneGroupCommand, ValidateIfGroupBelongsToUserCommand, \
     FetchGroupByIdCommand, SetPropertyRequestCommand, CreatePropertyCommand, ValidatePropertyRequestCommand, \
@@ -33,7 +33,8 @@ from src.domain.sequence_builders import UpdateGroupSequenceBuilder, FetchUserGr
     CreatePropertySequenceBuilder, DeletePropertySequenceBuilder, AddUserToGroupSequenceBuilder, \
     GetCodeForGroupSequenceBuilder, \
     CreateGroupSequenceBuilder, FetchUserGroupIfExistsSequenceBuilder, CreateRedFlagSequenceBuilder, \
-    GetRedFlagsSequenceBuilder, CreateVoteForRedFlagSequenceBuilder, DeleteVoteForRedFlagSequenceBuilder
+    GetRedFlagsSequenceBuilder, CreateVoteForRedFlagSequenceBuilder, DeleteVoteForRedFlagSequenceBuilder, \
+    RemoveUserFromGroupSequenceBuilder
 
 
 def register_domain_dependencies(container: Container):
@@ -114,4 +115,6 @@ def register_domain_dependencies(container: Container):
                implementation=CreateVoteForRedFlagSequenceBuilder)
      .register(service=IDeleteVoteForRedFlagSequenceBuilder,
                implementation=DeleteVoteForRedFlagSequenceBuilder)
+     .register(service=IRemoveUserFromGroupSequenceBuilder,
+               implementation=RemoveUserFromGroupSequenceBuilder)
      .register(service=RedFlagMappingHelper))
