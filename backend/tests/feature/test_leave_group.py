@@ -59,13 +59,11 @@ class LeaveGroupSteps(FeatureTestCase):
                                                                                "group_id": self.__group.id})
         code = self.__object_mapper.map_from_dict(_from=create_code_response.content,
                                                   to=GetGroupCodeResponse).code
-
-        # act
         self._send_request(route_key="POST /participants", auth_user_id=self.__group_participant, params={
             "code": code
         })
 
-        # assert
+        # sense check
         with self.subTest(msg="participant is added to the group"):
             group = self.__group_repo.get(_id=self.__group.id)
             self.assertIn(member=self.__group_participant_name, container=group.participants)
