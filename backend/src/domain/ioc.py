@@ -54,9 +54,16 @@ def register_domain_dependencies(container: Container):
      .register(service=IGetCodeFromGroupIdCommand, implementation=GetCodeFromGroupIdCommand)
      .register(service=IAddCurrentUserToGroupCommand, implementation=AddCurrentUserToGroupCommand)
      .register(service=IValidatePropertyRequestCommand, implementation=ValidatePropertyRequestCommand)
+     .register(service=IValidateUserIsAlreadyParticipantCommand,
+               implementation=ValidateUserIsAlreadyParticipantCommand)
+     .register(service=IRemoveGroupFromUserGroupsCommand,
+               implementation=RemoveGroupFromUserGroupsCommand)
+     .register(service=IRemoveParticipantFromGroupCommand,
+               implementation=RemoveParticipantFromGroupCommand)
      .register(service=IFetchAuthUserClaimsIfUserDoesNotExistCommand,
                implementation=FetchAuthUserClaimsIfUserDoesNotExistCommand)
-     .register(service=IValidateUserIsNotParticipantCommand, implementation=ValidateUserIsNotParticipantCommand)
+     .register(service=IValidateUserIsNotParticipantCommand,
+               implementation=ValidateUserIsNotParticipantCommand)
      .register(service=IValidateIfGroupBelongsToUserCommand,
                implementation=ValidateIfGroupBelongsToUserCommand)
      .register(service=IValidateIfUserBelongsToAtLeastOneGroupCommand,
@@ -115,6 +122,8 @@ def register_domain_dependencies(container: Container):
                implementation=CreateVoteForRedFlagSequenceBuilder)
      .register(service=IDeleteVoteForRedFlagSequenceBuilder,
                implementation=DeleteVoteForRedFlagSequenceBuilder)
+     .register(service=IRemoveUserFromGroupSequenceBuilder,
+               implementation=RemoveUserFromGroupSequenceBuilder)
      .register(service=IRemoveUserFromGroupSequenceBuilder,
                implementation=RemoveUserFromGroupSequenceBuilder)
      .register(service=RedFlagMappingHelper))
