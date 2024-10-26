@@ -4,7 +4,8 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from moto import mock_aws
 
 from src.core import IGroupRepo, IUserGroupsRepo, Group
-from src.domain.responses import SingleGroupResponse, CreatedGroupResponse, GetGroupCodeResponse
+from src.domain.responses import SingleGroupResponse, CreatedGroupResponse, GetGroupCodeResponse, \
+    SingleGroupPropertiesResponse
 from src.exceptions import GroupNotFoundException
 from tests.feature import FeatureTestCase
 
@@ -87,9 +88,11 @@ class LeaveGroupSteps(FeatureTestCase):
 
     def the_response_body_contains_group(self):
         with self.subTest(msg="response matches returned group"):
-            self.__group.participants.remove(self.__group_participant_name)
-            self.assertEqual(self.__object_mapper.map_from_dict(_from=self.__response.content, to=SingleGroupResponse),
-                             SingleGroupResponse(group=self.__group))
+            group = self.__object_mapper.map_from_dict(_from=self._send_request(route_key="GET /groups/{group_id}", auth_user_id=self.__group_participant, path_params={
+                "group_id": self.__group.id
+            }).content, to=SingleGroupPropertiesResponse)
+            group_response = self.__object_mapper.map_from_dict(_from=self.__response.content, to=SingleGroupPropertiesResponse)
+            self.assertEqual(group_response, group)
 
 
 @mock_aws

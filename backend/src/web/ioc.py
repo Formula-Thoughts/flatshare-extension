@@ -6,10 +6,11 @@ from src.domain.errors import InvalidGroupDataError, UserGroupsNotFoundError, Gr
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, SingleRedFlagResponse, \
     CreatedRedFlagResponse, ListRedFlagsResponse
+from src.domain.sequence_builders import RemoveUserFromGroupSequenceBuilder
 from src.web.handlers import UpdateGroupApiHandler, FetchUserGroupsApiHandler, CreatePropertyApiHandler, \
     DeletePropertyApiHandler, AddCurrentUserToGroupApiHandler, GetCodeForGroupApiHandler, GetUserGroupByIdApiHandler, \
     CreateGroupApiHandler, CreateRedFlagApiHandler, GetRedFlagsApiHandler, CreateVoteForRedFlagApiHandler, \
-    DeleteVoteForRedFlagApiHandler
+    DeleteVoteForRedFlagApiHandler, RemoveUserFromGroupApiHandler
 
 
 def register_web_dependencies(container: Container):
@@ -26,6 +27,7 @@ def register_web_dependencies(container: Container):
      .register(service=ApiRequestHandler, implementation=GetRedFlagsApiHandler)
      .register(service=ApiRequestHandler, implementation=CreateVoteForRedFlagApiHandler)
      .register(service=ApiRequestHandler, implementation=DeleteVoteForRedFlagApiHandler)
+     .register(service=ApiRequestHandler, implementation=RemoveUserFromGroupApiHandler)
      .register_status_code_mappings(mappings={
         CreatedGroupResponse: 201,
         ListUserGroupsResponse: 200,
