@@ -5,7 +5,8 @@ from formula_thoughts_web.web import ApiRequestHandlerBase
 from src.core import IUpdateGroupSequenceBuilder, IFetchUserGroupsSequenceBuilder, ICreatePropertySequenceBuilder, \
     IDeletePropertySequenceBuilder, IAddUserToGroupSequenceBuilder, IGetCodeForGroupSequenceBuilder, \
     IGetUserGroupByIdSequenceBuilder, ICreateGroupSequenceBuilder, ICreateRedFlagSequenceBuilder, \
-    IGetRedFlagsSequenceBuilder, ICreateVoteForRedFlagSequenceBuilder, IDeleteVoteForRedFlagSequenceBuilder
+    IGetRedFlagsSequenceBuilder, ICreateVoteForRedFlagSequenceBuilder, IDeleteVoteForRedFlagSequenceBuilder, \
+    IRemoveUserFromGroupSequenceBuilder
 
 
 class UpdateGroupApiHandler(ApiRequestHandlerBase):
@@ -158,6 +159,19 @@ class DeleteVoteForRedFlagApiHandler(ApiRequestHandlerBase):
                  deserializer: Deserializer,
                  logger: Logger):
         super().__init__(route_key='DELETE /red-flags/{red_flag_id}/votes',
+                         sequence=sequence,
+                         command_pipeline=command_pipeline,
+                         deserializer=deserializer,
+                         logger=logger)
+
+
+class RemoveUserFromGroupApiHandler(ApiRequestHandlerBase):
+
+    def __init__(self, sequence: IRemoveUserFromGroupSequenceBuilder,
+                 command_pipeline: TopLevelSequenceRunner,
+                 deserializer: Deserializer,
+                 logger: Logger):
+        super().__init__(route_key='DELETE /groups/{group_id}/participants',
                          sequence=sequence,
                          command_pipeline=command_pipeline,
                          deserializer=deserializer,
