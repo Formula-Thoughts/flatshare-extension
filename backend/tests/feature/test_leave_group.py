@@ -82,6 +82,10 @@ class LeaveGroupSteps(FeatureTestCase):
             group = self.__group_repo.get(_id=self.__group.id)
             self.assertNotIn(member=self.__group_participant_name, container=group.participants)
 
+        with self.subTest(msg="group is removed from user groups"):
+            user_groups = self.__user_group_repo.get(_id=self.__group_participant)
+            self.assertNotIn(member=self.__group.id, container=user_groups.groups)
+
     def the_response_status_code_is_ok(self):
         with self.subTest(msg="status code is ok"):
             self.assertEqual(self.__response.status, HTTPStatus.OK)

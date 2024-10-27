@@ -1376,12 +1376,6 @@ class TestRemoveParticipantFromGroupCommand(TestCase):
         # arrange
         fullname = "full name"
         group = AutoFixture().create(dto=GroupProperties)
-        expected_group = Group(etag=group.etag,
-                               id=group.id,
-                               partition_key=group.partition_key,
-                               participants=group.participants,
-                               price_limit=group.price_limit,
-                               locations=group.locations)
         context = ApplicationContext(variables={
             GROUP: group,
             FULLNAME_CLAIM: fullname
@@ -1398,11 +1392,11 @@ class TestRemoveParticipantFromGroupCommand(TestCase):
         # assert
         with self.subTest(msg="assert remove user is called with correct args"):
             self.__group_repo.remove_participant.assert_called_with(participant=fullname,
-                                                                    group=expected_group)
+                                                                    group=group)
 
         # assert
         with self.subTest(msg="assert response is set"):
-            self.assertEqual(context.response, SingleGroupResponse(group=expected_group))
+            self.assertEqual(context.response, SingleGroupPropertiesResponse(group_properties=group))
 
 
 class TestRemoveGroupFromUserGroupsCommand(TestCase):
@@ -1432,4 +1426,3 @@ class TestRemoveGroupFromUserGroupsCommand(TestCase):
         with self.subTest(msg="assert remove group is called with correct args"):
             self.__user_groups_repo.remove_group.assert_called_with(user_groups=user_groups,
                                                                     group=group_id)
-
