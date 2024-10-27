@@ -94,6 +94,33 @@ export const getFlatDataFromRightmove = (
   return saveData();
 };
 
+export const getFlatDataFromOnTheMarket = (
+  tabId: number,
+  tabUrl: string,
+  onClickAction: (title: string, url: string, price: string) => void
+) => {
+  function extractPcmValue(priceStr: string): string | null {
+    const match = priceStr.match(/£([\d,]+) pcm/);
+    if (match) {
+      // Remove commas and convert to number
+      return parseInt(match[1].replace(/,/g, "")).toString();
+    }
+    return null; // Return null if no match found
+  }
+
+  const saveData = async () => {
+    const flatData = await getDomElementsFromActiveTab(tabId, [
+      { target: ".price", eq: 0 },
+      { target: ".text-slate", eq: 0 },
+    ]);
+    const price = flatData && extractPcmValue(flatData[0].data as string);
+    const title = flatData && flatData[1].data;
+    console.log("flatdata", flatData);
+    return onClickAction(title as string, tabUrl, price as string);
+  };
+  return saveData();
+};
+
 export const getFlatDataFromOpenRent = (
   tabId: number,
   tabUrl: string,

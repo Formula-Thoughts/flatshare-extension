@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Flat, useProvider } from "./context/AppProvider";
 import {
+  getFlatDataFromOnTheMarket,
   getFlatDataFromOpenRent,
   getFlatDataFromRightmove,
   getFlatDataFromSpareroom,
@@ -141,6 +142,19 @@ const FlatView = () => {
       );
     } else if (activeUrl.propertyProvider === "rightmove") {
       return getFlatDataFromRightmove(
+        activeUrl.tabId,
+        activeUrl.contents,
+        (title, url, price) => {
+          return {
+            ...activeFlatData,
+            price,
+            title,
+            url,
+          };
+        }
+      );
+    } else if (activeUrl.propertyProvider === "onthemarket") {
+      return getFlatDataFromOnTheMarket(
         activeUrl.tabId,
         activeUrl.contents,
         (title, url, price) => {

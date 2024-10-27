@@ -50,6 +50,10 @@ function App() {
             return "openrent";
           }
 
+          if (url?.includes("https://www.onthemarket.com/details/")) {
+            return "onthemarket";
+          }
+
           return null;
         };
 
@@ -71,6 +75,7 @@ function App() {
       url?.includes(
         "https://www.spareroom.co.uk/flatshare/flatshare_detail.pl?flatshare_id="
       ) ||
+      url?.includes("https://www.onthemarket.com/details/") ||
       url?.includes("https://www.openrent.co.uk/property-to-rent/")
     ) {
       navigate("/FlatView");
