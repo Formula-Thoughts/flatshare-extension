@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from formula_thoughts_web.abstractions import Error
 from formula_thoughts_web.crosscutting import ObjectMapper
 from moto import mock_aws
 
@@ -15,8 +16,6 @@ class LeaveGroupSteps(FeatureTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.__object_mapper = self._container.resolve(service=ObjectMapper)
-        self.__group_repo = self._container.resolve(service=IGroupRepo)
-        self.__user_group_repo = self._container.resolve(service=IUserGroupsRepo)
         self.__group_creator = "user 1"
         self.__group_creator_name = "John Doe"
         self.__group_participant = "user 2"
@@ -66,8 +65,12 @@ class LeaveGroupSteps(FeatureTestCase):
 
         # sense check
         with self.subTest(msg="participant is added to the group"):
-            group = self.__group_repo.get(_id=self.__group.id)
-            self.assertIn(member=self.__group_participant_name, container=group.participants)
+            get_group_for_participant_response = self._send_request(route_key="GET /groups/{group_id}",
+                                                                    auth_user_id=self.__group_participant,
+                                                                    path_params={
+                                                                        "group_id": self.__group.id
+                                                                    })
+            self.assertEqual(get_group_for_participant_response.status, HTTPStatus.OK)
 
     def a_participant_is_removed(self):
         # act
@@ -79,12 +82,12 @@ class LeaveGroupSteps(FeatureTestCase):
 
     def the_participant_is_removed_from_the_group(self):
         with self.subTest(msg="participant is removed from the group"):
-            group = self.__group_repo.get(_id=self.__group.id)
-            self.assertNotIn(member=self.__group_participant_name, container=group.participants)
-
-        with self.subTest(msg="group is removed from user groups"):
-            user_groups = self.__user_group_repo.get(_id=self.__group_participant)
-            self.assertNotIn(member=self.__group.id, container=user_groups.groups)
+            get_group_for_participant_response = self._send_request(route_key="GET /groups/{group_id}",
+                                                                    auth_user_id=self.__group_participant,
+                                                                    path_params={
+                                                                        "group_id": self.__group.id
+                                                                    })
+            self.assertEqual(get_group_for_participant_response.status, HTTPStatus.NOT_FOUND)
 
     def the_response_status_code_is_ok(self):
         with self.subTest(msg="status code is ok"):
@@ -92,11 +95,15 @@ class LeaveGroupSteps(FeatureTestCase):
 
     def the_response_body_contains_group(self):
         with self.subTest(msg="response matches returned group"):
-            group = self.__object_mapper.map_from_dict(_from=self._send_request(route_key="GET /groups/{group_id}", auth_user_id=self.__group_participant, path_params={
-                "group_id": self.__group.id
-            }).content, to=SingleGroupPropertiesResponse)
-            group_response = self.__object_mapper.map_from_dict(_from=self.__response.content, to=SingleGroupPropertiesResponse)
+            group = self.__object_mapper.map_from_dict(
+                _from=self._send_request(route_key="GET /groups/{group_id}", auth_user_id=self.__group_creator,
+                                         path_params={
+                                             "group_id": self.__group.id
+                                         }).content, to=SingleGroupPropertiesResponse)
+            group_response = self.__object_mapper.map_from_dict(_from=self.__response.content,
+                                                                to=SingleGroupPropertiesResponse)
             self.assertEqual(group_response, group)
+            self.assertNotIn(member=self.__group_participant, container=self.__group.participants)
 
 
 @mock_aws
