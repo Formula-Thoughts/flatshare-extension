@@ -485,4 +485,6 @@ class RemoveGroupFromUserGroupsCommand:
         self.__user_groups_repo = user_groups_repo
 
     def run(self, context: ApplicationContext):
-        ...
+        user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
+        group_id = context.get_var(name=GROUP_ID, _type=str)
+        self.__user_groups_repo.remove_group(user_groups=user_groups, group=group_id)
