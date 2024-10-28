@@ -4,6 +4,7 @@ from formula_thoughts_web.crosscutting import ObjectMapper
 from moto import mock_aws
 
 from src.core import IGroupRepo, IUserGroupsRepo, Group
+from src.domain.responses import CreatedGroupResponse
 from tests.feature import FeatureTestCase
 
 
@@ -16,7 +17,7 @@ class TestCreateGroupSequenceBuilder(FeatureTestCase):
         self.__group_repo = self._container.resolve(service=IGroupRepo)
         self.__user_group_repo = self._container.resolve(service=IUserGroupsRepo)
 
-    def skip_test_create_group_should_create_group_when_no_groups_exist(self):
+    def test_create_group_should_create_group_when_no_groups_exist(self):
         # arrange
         route = "POST /groups"
         auth_user = "test_user"
@@ -42,4 +43,5 @@ class TestCreateGroupSequenceBuilder(FeatureTestCase):
         with self.subTest(msg="group in db matches response"):
             user_groups = self.__user_group_repo.get(_id=auth_user)
             group = self.__group_repo.get(_id=user_groups.groups[0])
-            self.assertEqual(self.__object_mapper.map_to_dict(_from=group, to=Group), response.content)
+            self.assertEqual(self.__object_mapper.map_to_dict(_from=CreatedGroupResponse(group=self.__object_mapper.map(_from=group, to=Group)), to=CreatedGroupResponse),
+                             response.content)

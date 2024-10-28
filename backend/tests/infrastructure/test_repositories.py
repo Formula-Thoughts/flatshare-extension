@@ -107,6 +107,59 @@ class TestUserGroupRepo(DynamoDbTestCase):
             with self.assertRaises(expected_exception=ConflictException):
                 sut_call()
 
+    def test_remove_group_removes_group_from_user_groups(self):
+        # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
+        group_to_remove = str(uuid.uuid4())
+        user_groups.groups.append(group_to_remove)
+        self.__sut.create(user_groups=user_groups)
+
+        # act
+        self.__sut.remove_group(group=group_to_remove, user_groups=user_groups)
+        received_user_groups = self.__sut.get(_id=user_groups.id)
+
+        # assert
+        with self.subTest(msg="assert document was updated to match user groups reference object"):
+            self.assertEqual(received_user_groups.groups, user_groups.groups)
+
+        # assert
+        with self.subTest(msg="assert document was updated to remove new user group"):
+            self.assertNotIn(member=group_to_remove, container=received_user_groups.groups)
+
+    def test_remove_group_raises_conflict_when_precondition_check_fails(self):
+        # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
+        group_to_remove = str(uuid.uuid4())
+        second_group_to_remove = str(uuid.uuid4())
+        user_groups.groups.append(group_to_remove)
+        user_groups.groups.append(second_group_to_remove)
+        self.__sut.create(user_groups=user_groups)
+        old_etag = user_groups.etag
+
+        # act
+        self.__sut.remove_group(group=group_to_remove, user_groups=user_groups)
+        user_groups.etag = old_etag
+        sut_call = lambda: self.__sut.remove_group(group=second_group_to_remove, user_groups=user_groups)
+
+        # assert
+        with self.subTest(msg="assert conflict exception is thrown"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
+
+    def test_remove_group_raises_conflict_when_not_found(self):
+        # arrange
+        user_groups = AutoFixture().create(dto=UserGroups)
+        group_to_remove = str(uuid.uuid4())
+        user_groups.groups.append(group_to_remove)
+
+        # act
+        sut_call = lambda: self.__sut.remove_group(group=group_to_remove, user_groups=user_groups)
+
+        # assert
+        with self.subTest(msg="assert conflict exception is thrown"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
+
 
 @mock_aws
 class TestGroupRepo(DynamoDbTestCase):
@@ -308,6 +361,68 @@ class TestGroupRepo(DynamoDbTestCase):
 
         # act
         sut_call = lambda: self.__sut.add_participant(participant="Dom Farr", group=group)
+
+        # assert
+        with self.subTest(msg="assert conflict is raised"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
+
+    def test_remove_participant(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        participant_to_remove = "Bob Marley"
+        group.participants.append(participant_to_remove)
+        prev_participants = copy(group.participants)
+        group_id = group.id
+        self.__sut.create(group=group)
+        self.__sut.remove_participant(participant=participant_to_remove, group=group)
+
+        # act
+        group_properties = self.__sut.get(_id=group_id)
+
+        expected_group_properties = GroupProperties(etag=group.etag,
+                                                    partition_key=f"group:{group_id}",
+                                                    id=group_id,
+                                                    participants=group.participants,
+                                                    price_limit=group.price_limit,
+                                                    locations=group.locations,
+                                                    properties=[])
+
+        # assert
+        with self.subTest(msg="assert expected groups were received"):
+            self.assertEqual(group_properties, expected_group_properties)
+            self.assertEqual(group_properties.etag, group.etag)
+
+        # assert
+        with self.subTest(msg="assert participant was added"):
+            self.assertNotIn(member=prev_participants, container=group_properties.properties)
+
+    def test_remove_participant_when_not_found(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        participant_to_remove = "Bob Marley"
+        group.participants.append(participant_to_remove)
+
+        # act
+        sut_call = lambda: self.__sut.remove_participant(participant=participant_to_remove, group=group)
+
+        # assert
+        with self.subTest(msg="assert conflict error is thrown"):
+            with self.assertRaises(expected_exception=ConflictException):
+                sut_call()
+
+    def test_remove_participant_when_conflict(self):
+        # arrange
+        group = AutoFixture().create(dto=Group)
+        group.participants.append("Aidan Gannon")
+        group.participants.append("Dom Farr")
+        self.__sut.create(group=group)
+        old_etag = group.etag
+        self.__sut.remove_participant(participant="Aidan Gannon", group=group)
+        group.etag = old_etag
+
+        # act
+        sut_call = lambda: self.__sut.remove_participant(participant="Dom Farr", group=group)
 
         # assert
         with self.subTest(msg="assert conflict is raised"):

@@ -15,7 +15,7 @@ from src.domain.errors import invalid_price_error, UserGroupsNotFoundError, Grou
     code_required_error, user_already_part_of_group_error, \
     property_price_required_error, property_url_required_error, property_title_required_error, \
     red_flag_body_required_error, red_flag_property_url_required_error, red_flag_property_url_param_required_error, \
-    RedFlagNotFoundError, user_has_not_voted_error, user_has_already_voted_error
+    RedFlagNotFoundError, user_has_not_voted_error, user_has_already_voted_error, user_not_part_of_group_error
 from src.domain.helpers import RedFlagMappingHelper
 from src.domain.responses import CreatedGroupResponse, ListUserGroupsResponse, SingleGroupResponse, \
     GetGroupCodeResponse, SingleGroupPropertiesResponse, PropertyCreatedResponse, CreatedRedFlagResponse, \
@@ -455,3 +455,36 @@ class DeleteVoteCommand:
         red_flag = context.get_var(name=RED_FLAG, _type=RedFlag)
         user = context.auth_user_id
         self.__red_flag_repo.remove_voter(user_id=user, red_flag=red_flag)
+
+
+class ValidateUserIsAlreadyParticipantCommand:
+
+    def run(self, context: ApplicationContext):
+        group = context.get_var(name=GROUP, _type=Group)
+        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
+        if fullname not in group.participants:
+            context.error_capsules.append(user_not_part_of_group_error)
+            return
+
+
+class RemoveParticipantFromGroupCommand:
+
+    def __init__(self, group_repo: IGroupRepo):
+        self.__group_repo = group_repo
+
+    def run(self, context: ApplicationContext):
+        fullname = context.get_var(name=FULLNAME_CLAIM, _type=str)
+        group_properties = context.get_var(name=GROUP, _type=GroupProperties)
+        self.__group_repo.remove_participant(participant=fullname, group=group_properties)
+        context.response = SingleGroupPropertiesResponse(group_properties=group_properties)
+
+
+class RemoveGroupFromUserGroupsCommand:
+
+    def __init__(self, user_groups_repo: IUserGroupsRepo):
+        self.__user_groups_repo = user_groups_repo
+
+    def run(self, context: ApplicationContext):
+        user_groups = context.get_var(name=USER_GROUPS, _type=UserGroups)
+        group_id = context.get_var(name=GROUP_ID, _type=str)
+        self.__user_groups_repo.remove_group(user_groups=user_groups, group=group_id)

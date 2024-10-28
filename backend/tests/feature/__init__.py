@@ -1,10 +1,12 @@
 import os
 from dataclasses import dataclass
 from http import HTTPStatus
+from os.path import exists
 from unittest import TestCase
 from unittest.mock import patch
 
 import boto3
+from cfn_tools import load_yaml
 from formula_thoughts_web.abstractions import Serializer, Deserializer
 from formula_thoughts_web.ioc import Container
 
@@ -95,7 +97,17 @@ class FeatureTestCase(TestCase):
                       path_params: dict = None,
                       params: dict = None,
                       body: dict = None) -> Response:
-        event = {'routeKey': route_key}
+        event = {'routeKey': route_key, 'requestContext': {'authorizer': {'jwt': {'claims': {'username': auth_user_id}}}}}
+        template_file_path = f"./../../template.yaml"
+        if not exists(template_file_path):
+            template_file_path = f"./template.yaml"
+        with open(template_file_path) as file:
+            yaml_str = file.read()
+            data = load_yaml(yaml_str)
+            paths = sorted([f"{event[1]['Properties']['Method'].upper()} {event[1]['Properties']['Path']}" for event in
+                            data["Resources"]["FlatiniFunction"]["Properties"]["Events"].items()])
+            matching_paths = list(filter(lambda x: x == route_key,paths))
+            self.assertEqual(len(matching_paths), 1, "route DELETE /groups/{group_id}/participants is not in template.yaml")
         if path_params is not None:
             event['pathParameters'] = path_params
         if params is not None:
@@ -105,6 +117,6 @@ class FeatureTestCase(TestCase):
         response = Response()
         result = run(event=event, context={}, container=self._container)
         if result['body'] is not None:
-            response.body = self._container.resolve(service=Deserializer).deserialize(data=result['body'])
+            response.content = self._container.resolve(service=Deserializer).deserialize(data=result['body'])
         response.status = HTTPStatus(result['statusCode'])
         return response

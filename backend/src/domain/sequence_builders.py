@@ -10,7 +10,8 @@ from src.core import ISetGroupRequestCommand, IValidateGroupCommand, \
     IValidateRedFlagRequestCommand, ICreateRedFlagCommand, ISetCreatedAnonymousRedFlagCommand, \
     IValidatePropertyUrlCommand, IGetRedFlagsCommand, ISetAnonymousRedFlagsCommand, IGetRedFlagByIdCommand, \
     ISetAnonymousRedFlagCommand, IValidateAlreadyVotedCommand, IValidateNotVotedCommand, ICreateVoteCommand, \
-    IDeleteVoteCommand
+    IDeleteVoteCommand, IValidateUserIsAlreadyParticipantCommand, IRemoveGroupFromUserGroupsCommand, \
+    IRemoveParticipantFromGroupCommand
 
 
 class UpdateGroupSequenceBuilder(FluentSequenceBuilder):
@@ -244,3 +245,25 @@ class DeleteVoteForRedFlagSequenceBuilder(FluentSequenceBuilder):
             ._add_command(command=self.__validate_user_already_voted) \
             ._add_command(command=self.__down_vote_command) \
             ._add_command(command=self.__set_anonymous_red_flag_response)
+
+
+class RemoveUserFromGroupSequenceBuilder(FluentSequenceBuilder):
+
+    def __init__(self, fetch_user_group_if_exists: IFetchUserGroupIfExistsSequenceBuilder,
+                 get_group_by_id: IFetchGroupByIdCommand,
+                 validate_user_is_already_participant: IValidateUserIsAlreadyParticipantCommand,
+                 remove_group_from_user_groups_command: IRemoveGroupFromUserGroupsCommand,
+                 remove_participant_from_group_command: IRemoveParticipantFromGroupCommand):
+        super().__init__()
+        self.__remove_participant_from_group_command = remove_participant_from_group_command
+        self.__remove_group_from_user_groups_command = remove_group_from_user_groups_command
+        self.__validate_user_is_already_participant = validate_user_is_already_participant
+        self.__get_group_by_id = get_group_by_id
+        self.__fetch_user_group_if_exists = fetch_user_group_if_exists
+
+    def build(self):
+        self._add_sequence_builder(sequence_builder=self.__fetch_user_group_if_exists) \
+            ._add_command(command=self.__get_group_by_id) \
+            ._add_command(command=self.__validate_user_is_already_participant) \
+            ._add_command(command=self.__remove_participant_from_group_command) \
+            ._add_command(command=self.__remove_group_from_user_groups_command)

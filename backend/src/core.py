@@ -111,6 +111,9 @@ class IGroupRepo(Protocol):
     def add_participant(self, participant: GroupParticipantName, group: Group) -> None:
         ...
 
+    def remove_participant(self, participant: GroupParticipantName, group: Group) -> None:
+        ...
+
 
 class IPropertyRepo(Protocol):
     def create(self, group_id: GroupId, property: Property) -> None:
@@ -125,6 +128,9 @@ class IUserGroupsRepo(Protocol):
         ...
 
     def add_group(self, user_groups: UserGroups, group: GroupId) -> None:
+        ...
+
+    def remove_group(self, user_groups: UserGroups, group: GroupId) -> None:
         ...
 
     def get(self, _id: str) -> UserGroups:
@@ -273,6 +279,18 @@ class IDeleteVoteCommand(Command, Protocol):
     pass
 
 
+class IValidateUserIsAlreadyParticipantCommand(Command, Protocol):
+    pass
+
+
+class IRemoveParticipantFromGroupCommand(Command, Protocol):
+    pass
+
+
+class IRemoveGroupFromUserGroupsCommand(Command, Protocol):
+    pass
+
+
 class IGetCodeForGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
 
@@ -322,4 +340,8 @@ class ICreateVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
 
 
 class IDeleteVoteForRedFlagSequenceBuilder(SequenceBuilder, Protocol):
+    pass
+
+
+class IRemoveUserFromGroupSequenceBuilder(SequenceBuilder, Protocol):
     pass
