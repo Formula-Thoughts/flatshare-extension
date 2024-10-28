@@ -15,6 +15,6 @@ ParameterKey=GoogleClientId,ParameterValue=****** \
 ParameterKey=GoogleClientSecret,ParameterValue=******
 ```
 
-`aws s3 sync build/ s3://flatini.formulathoughts.com`
+`aws s3 sync build/ s3://flatini.com`
 
 `aws cloudfront create-invalidation --distribution-id ******** --paths "/*"`

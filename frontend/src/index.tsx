@@ -17,14 +17,8 @@ Amplify.configure({
       loginWith: {
         oauth: {
           scopes: ["email", "openid", "profile"],
-          redirectSignIn: [
-            "https://localhost:3000",
-            "https://flatini.formulathoughts.com",
-          ],
-          redirectSignOut: [
-            "https://localhost:3000",
-            "https://flatini.formulathoughts.com",
-          ],
+          redirectSignIn: ["https://localhost:3000", "https://flatini.com"],
+          redirectSignOut: ["https://localhost:3000", "https://flatini.com"],
           responseType: "code",
           domain: (process.env.NODE_ENV === "production"
             ? process.env.REACT_APP_COGNITO_DOMAIN_PROD

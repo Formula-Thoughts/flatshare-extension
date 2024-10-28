@@ -165,7 +165,7 @@ const AppProvider = (props: Props) => {
 
         if ((err as AxiosRequestHeaders)?.response?.status === 401) {
           setAppHasError(
-            "Session expired. Please sign back in through flatini.formulathoughts.com and reload the extension"
+            "Session expired. Please sign back in through flatini.com and reload the extension"
           );
           localStorage.removeItem("flatini-auth");
           return;
